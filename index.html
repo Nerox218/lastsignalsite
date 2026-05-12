@@ -325,7 +325,7 @@
       <div class="pending-msg" id="login-pending">› Votre inscription est en attente de validation.</div>
     </div>
     <div class="login-footer">
-      <span>CWU-INT v3.0 // FIREBASE</span>
+      <span>CWU-INT v3.1 // FIREBASE</span>
       <button class="btn-secondary" onclick="showRegister()">INSCRIPTION</button>
     </div>
   </div>
@@ -555,8 +555,6 @@
         <div class="page-title">Rapports</div>
         <div class="page-subtitle">Transmission au Superviseur — Compte-rendus opérationnels</div>
       </div>
-
-      <!-- Formulaire envoi rapport -->
       <div class="card" id="rapport-form-card">
         <div class="card-title">Nouveau Rapport</div>
         <div class="report-form">
@@ -588,14 +586,10 @@
           <button class="btn-primary" onclick="sendRapport()" style="max-width:300px;">TRANSMETTRE AU SUPERVISEUR</button>
         </div>
       </div>
-
-      <!-- Mes rapports envoyés -->
       <div class="card">
         <div class="card-title">Mes Rapports Envoyés</div>
         <div id="mes-rapports-list"><div class="empty-state">AUCUN RAPPORT ENVOYÉ</div></div>
       </div>
-
-      <!-- Rapports reçus (superviseur uniquement) -->
       <div id="rapports-recus-section" style="display:none;">
         <div class="card" style="border-left-color:var(--warn);">
           <div class="card-title" style="color:var(--warn);">
@@ -619,14 +613,11 @@
     <div id="page-admin" class="page">
       <div class="page-header"><div class="page-title">Terminal Superviseur</div><div class="page-subtitle">Accès restreint — Niveau Superviseur requis</div></div>
       <div class="warn-box">Accès classifié. Toutes les actions sont enregistrées dans Firebase.</div>
-
       <div class="admin-section">
         <div class="admin-section-title">⬡ Demandes d'Inscription en Attente <span id="pending-count-badge"></span></div>
         <div id="pending-requests"></div>
       </div>
-
       <div class="sep"></div>
-
       <div class="admin-section">
         <div class="admin-section-title">⬡ Gestion des Membres</div>
         <table class="member-table">
@@ -699,6 +690,9 @@ const RAPPORT_TYPES = {
   autre: { label: 'AUTRE', icon: '📝' }
 };
 
+const ADMIN_EMAIL = 'alexandre.jacopin76@gmail.com';
+const ADMIN_PASSWORD = 'AlexAude10';
+
 let currentUser = null;
 let modalCallback = null;
 let allRapports = [];
@@ -717,26 +711,51 @@ function dbListen(path, cb) { window._dbOnValue(dbRef(path), snap => cb(snap.val
 document.addEventListener('firebaseReady', async () => {
   document.getElementById('loading-screen').style.display = 'none';
 
-  // Seed admin if first launch
   try {
-    const snap = await dbGet('members/admin');
-    if (!snap.exists()) {
+    // Vérifie si le compte admin existe déjà par email
+    const snap = await dbGet('members');
+    let adminKey = null;
+    let adminExists = false;
+
+    if (snap.exists()) {
+      const members = snap.val();
+      const adminEntry = Object.entries(members).find(
+        ([, m]) => m.email && m.email.toLowerCase() === ADMIN_EMAIL
+      );
+      if (adminEntry) {
+        adminKey = adminEntry[0];
+        adminExists = true;
+        // Corrige le status si besoin
+        if (adminEntry[1].status !== 'active' || !adminEntry[1].isAdmin) {
+          await dbUpdate('members/' + adminKey, {
+            status: 'active',
+            isAdmin: true,
+            grade: 'Superviseur'
+          });
+        }
+      }
+    }
+
+    // Crée le compte admin s'il n'existe pas
+    if (!adminExists) {
       await dbSet('members/admin', {
         id: 'admin',
-        email: 'alexandre.jacopin76@gmail.com',
-        password: 'cwu_admin_2024',
+        email: ADMIN_EMAIL,
+        password: ADMIN_PASSWORD,
         name: 'Léon Pheter',
         grade: 'Superviseur',
         branch: 'Direction',
         isAdmin: true,
         status: 'active',
-        steamPseudo: '',
-        steamId: '',
-        steamUrl: '',
+        steamPseudo: 'Mr_Nerox',
+        steamId: '76561199386539766',
+        steamUrl: 'https://steamcommunity.com/profiles/76561199386539766/',
         joinDate: new Date().toISOString()
       });
     }
-  } catch(e) { console.warn('Seed check:', e); }
+  } catch(e) {
+    console.warn('Erreur init admin:', e);
+  }
 
   document.getElementById('login-screen').style.display = 'flex';
 });
@@ -745,41 +764,73 @@ document.addEventListener('firebaseReady', async () => {
 async function doLogin() {
   const email = document.getElementById('login-email').value.trim().toLowerCase();
   const pwd = document.getElementById('login-pwd').value;
-  document.getElementById('login-error').style.display = 'none';
-  document.getElementById('login-pending').style.display = 'none';
+  const errEl = document.getElementById('login-error');
+  const pendEl = document.getElementById('login-pending');
+  errEl.style.display = 'none';
+  pendEl.style.display = 'none';
+
+  if (!email || !pwd) {
+    errEl.innerText = '› E-mail et mot de passe requis.';
+    errEl.style.display = 'block';
+    return;
+  }
 
   try {
-    // Check pending
+    // Vérification pending
     const pendingSnap = await dbGet('pending');
     if (pendingSnap.exists()) {
       const pending = pendingSnap.val();
-      if (Object.values(pending).find(p => p.email.toLowerCase() === email)) {
-        document.getElementById('login-pending').style.display = 'block';
+      if (Object.values(pending).find(p => p.email && p.email.toLowerCase() === email)) {
+        pendEl.style.display = 'block';
         return;
       }
     }
 
-    // Check members
+    // Vérification membres
     const membersSnap = await dbGet('members');
-    if (!membersSnap.exists()) { document.getElementById('login-error').style.display = 'block'; return; }
-    const members = membersSnap.val();
-    const user = Object.values(members).find(m => m.email.toLowerCase() === email && m.password === pwd && m.status === 'active');
-    if (!user) { document.getElementById('login-error').style.display = 'block'; return; }
+    if (!membersSnap.exists()) {
+      errEl.innerText = '› Aucun membre enregistré. Rechargez la page.';
+      errEl.style.display = 'block';
+      return;
+    }
 
-    currentUser = user;
+    const members = membersSnap.val();
+    const allMembers = Object.values(members);
+
+    // Recherche par email d'abord
+    const byEmail = allMembers.find(m => m.email && m.email.toLowerCase() === email);
+
+    if (!byEmail) {
+      errEl.innerText = '› E-mail introuvable.';
+      errEl.style.display = 'block';
+      return;
+    }
+    if (byEmail.password !== pwd) {
+      errEl.innerText = '› Mot de passe incorrect.';
+      errEl.style.display = 'block';
+      return;
+    }
+    if (byEmail.status !== 'active') {
+      errEl.innerText = '› Compte inactif ou suspendu.';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    currentUser = byEmail;
     launchApp();
+
   } catch(e) {
-    console.error(e);
-    document.getElementById('login-error').style.display = 'block';
-    document.getElementById('login-error').innerText = '› Erreur de connexion à la base de données.';
+    console.error('Erreur login:', e);
+    errEl.innerText = '› Erreur de connexion : ' + e.message;
+    errEl.style.display = 'block';
   }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   const lp = document.getElementById('login-pwd');
   const le = document.getElementById('login-email');
-  if(lp) lp.addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
-  if(le) le.addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+  if (lp) lp.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+  if (le) le.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 });
 
 async function doRegister() {
@@ -801,13 +852,13 @@ async function doRegister() {
   try {
     const [membersSnap, pendingSnap] = await Promise.all([dbGet('members'), dbGet('pending')]);
     if (membersSnap.exists()) {
-      if (Object.values(membersSnap.val()).find(m => m.email.toLowerCase() === email)) {
+      if (Object.values(membersSnap.val()).find(m => m.email && m.email.toLowerCase() === email)) {
         document.getElementById('reg-error').innerText = '› E-mail déjà utilisé.';
         document.getElementById('reg-error').style.display = 'block'; return;
       }
     }
     if (pendingSnap.exists()) {
-      if (Object.values(pendingSnap.val()).find(p => p.email.toLowerCase() === email)) {
+      if (Object.values(pendingSnap.val()).find(p => p.email && p.email.toLowerCase() === email)) {
         document.getElementById('reg-error').innerText = '› Une demande avec cet e-mail existe déjà.';
         document.getElementById('reg-error').style.display = 'block'; return;
       }
@@ -878,7 +929,6 @@ function renderMyProfile() {
   const badge = document.getElementById('my-status-badge');
   if (!el || !badge) return;
   badge.innerText = currentUser.grade;
-  const gradeCls = GRADE_BADGE_CLASS[currentUser.grade] || 'badge-recrue';
   const branchColor = BRANCH_COLORS[currentUser.branch] || 'var(--accent3)';
 
   el.innerHTML = `
@@ -893,7 +943,7 @@ function renderMyProfile() {
       </div>
       <div>
         <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:2px;margin-bottom:6px;">GRADE</div>
-        <span class="grade-badge ${gradeCls}">${currentUser.grade}</span>
+        <span class="grade-badge ${GRADE_BADGE_CLASS[currentUser.grade] || 'badge-recrue'}">${currentUser.grade}</span>
       </div>
     </div>
     ${currentUser.steamPseudo || currentUser.steamId ? `
@@ -951,7 +1001,6 @@ async function renderMembersPage() {
     if (!snap.exists()) { container.innerHTML = '<div class="empty-state">AUCUN MEMBRE</div>'; return; }
     const members = Object.values(snap.val()).filter(m => m.status === 'active');
 
-    // Group by grade order (highest first)
     const byGrade = {};
     members.forEach(m => {
       const g = m.grade || 'Recrue';
@@ -1045,16 +1094,12 @@ async function renderRapports() {
     allRapports = snap.exists() ? Object.entries(snap.val()).map(([k,v]) => ({...v, _key: k})) : [];
     allRapports.sort((a,b) => (b.timestamp||0) - (a.timestamp||0));
 
-    // Mes rapports
     const mesRapports = allRapports.filter(r => r.auteur === currentUser.name);
     const mesEl = document.getElementById('mes-rapports-list');
-    if (mesRapports.length === 0) {
-      mesEl.innerHTML = '<div class="empty-state">AUCUN RAPPORT ENVOYÉ</div>';
-    } else {
-      mesEl.innerHTML = mesRapports.map(r => renderRapportItem(r, false)).join('');
-    }
+    mesEl.innerHTML = mesRapports.length === 0
+      ? '<div class="empty-state">AUCUN RAPPORT ENVOYÉ</div>'
+      : mesRapports.map(r => renderRapportItem(r, false)).join('');
 
-    // Rapports reçus (superviseur)
     if (currentUser.isAdmin || currentUser.grade === 'Superviseur') {
       const nonLus = allRapports.filter(r => !r.lu).length;
       document.getElementById('rapports-recus-count').innerText = nonLus > 0 ? `(${nonLus} non lu${nonLus>1?'s':''})` : '';
@@ -1067,11 +1112,9 @@ async function renderRapports() {
 function renderRapportsFiltres() {
   const filtered = currentRapportFilter === 'all' ? allRapports : allRapports.filter(r => r.type === currentRapportFilter);
   const el = document.getElementById('rapports-recus-list');
-  if (filtered.length === 0) {
-    el.innerHTML = '<div class="empty-state">AUCUN RAPPORT</div>';
-  } else {
-    el.innerHTML = filtered.map(r => renderRapportItem(r, true)).join('');
-  }
+  el.innerHTML = filtered.length === 0
+    ? '<div class="empty-state">AUCUN RAPPORT</div>'
+    : filtered.map(r => renderRapportItem(r, true)).join('');
 }
 
 function renderRapportItem(r, isAdmin) {
@@ -1079,7 +1122,7 @@ function renderRapportItem(r, isAdmin) {
   const statusClass = r.lu ? 'report-status-read' : 'report-status-new';
   const statusText = r.lu ? 'LU' : 'NOUVEAU';
   return `
-    <div class="report-item type-${r.type}" onclick="${isAdmin ? `markRapportLu('${r._key}')` : ''}">
+    <div class="report-item type-${r.type}" ${isAdmin ? `onclick="markRapportLu('${r._key}')" style="cursor:pointer;"` : ''}>
       <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px;">
         <span class="report-type-tag type-${r.type}" style="border-color:currentColor;">${typeInfo.icon} ${typeInfo.label}</span>
         ${isAdmin ? `<span class="report-type-tag ${statusClass}">${statusText}</span>` : ''}
@@ -1135,7 +1178,7 @@ async function renderPending() {
           <div class="request-name">${p.name}</div>
           <div class="request-email">${p.email}</div>
           <div class="request-branch">Branche : ${p.branch}</div>
-          ${p.steamPseudo ? `<div class="request-steam">Steam : ${p.steamPseudo} ${p.steamId ? `— ID: ${p.steamId}` : ''}</div>` : ''}
+          ${p.steamPseudo ? `<div class="request-steam">Steam : ${p.steamPseudo}${p.steamId ? ` — ID: ${p.steamId}` : ''}</div>` : ''}
           ${p.steamUrl ? `<div class="request-steam"><a href="${p.steamUrl}" target="_blank" style="color:var(--accent);text-decoration:none;">→ Profil Steam</a></div>` : ''}
           <div class="request-date">Soumis le ${p.date}</div>
         </div>
@@ -1191,24 +1234,29 @@ async function renderMembers() {
   const tbody = document.getElementById('members-tbody');
   try {
     const snap = await dbGet('members');
-    if (!snap.exists()) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-dim);font-family:\'Share Tech Mono\',monospace;font-size:11px;">AUCUN MEMBRE</td></tr>'; return; }
+    if (!snap.exists()) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-dim);font-family:\'Share Tech Mono\',monospace;font-size:11px;">AUCUN MEMBRE</td></tr>';
+      return;
+    }
     const members = Object.entries(snap.val()).filter(([,m]) => m.status === 'active');
 
     tbody.innerHTML = members.map(([key, m]) => {
       const gradeCls = m.isAdmin ? 'badge-admin' : (GRADE_BADGE_CLASS[m.grade] || 'badge-recrue');
-      const isMe = m.id === currentUser.id;
+      const isMe = m.email && m.email.toLowerCase() === currentUser.email.toLowerCase();
       const gradeOptions = GRADES.map(g => `<option value="${g}" ${m.grade===g?'selected':''}>${g}</option>`).join('');
       const branchOptions = ['Direction',...BRANCHES].map(b => `<option value="${b}" ${m.branch===b?'selected':''}>${b}</option>`).join('');
-      const steamInfo = m.steamPseudo ? `<div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--accent);">${m.steamPseudo}</div>${m.steamUrl?`<a href="${m.steamUrl}" target="_blank" style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);text-decoration:none;border-bottom:1px solid rgba(255,255,255,0.1);">→ profil</a>`:''}` : '<span style="color:var(--text-dim);font-size:11px;">—</span>';
+      const steamInfo = m.steamPseudo
+        ? `<div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--accent);">${m.steamPseudo}</div>${m.steamUrl ? `<a href="${m.steamUrl}" target="_blank" style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);text-decoration:none;border-bottom:1px solid rgba(255,255,255,0.1);">→ profil</a>` : ''}`
+        : '<span style="color:var(--text-dim);font-size:11px;">—</span>';
 
       return `
         <tr>
-          <td style="font-weight:700;color:var(--text-bright);">${m.name}${isMe?' <span style="font-size:9px;color:var(--accent);font-family:\'Share Tech Mono\',monospace;">(MOI)</span>':''}</td>
+          <td style="font-weight:700;color:var(--text-bright);">${m.name}${isMe ? ' <span style="font-size:9px;color:var(--accent);font-family:\'Share Tech Mono\',monospace;">(MOI)</span>' : ''}</td>
           <td style="font-family:'Share Tech Mono',monospace;font-size:10px;">${m.email}</td>
           <td>${steamInfo}</td>
-          <td>${isMe?`<span style="color:var(--accent3);font-family:'Share Tech Mono',monospace;font-size:11px;">${m.branch}</span>`:`<select class="select-branch" onchange="changeBranch('${key}', this.value)">${branchOptions}</select>`}</td>
-          <td>${isMe?`<span class="grade-badge ${gradeCls}">${m.isAdmin?'ADMIN':m.grade}</span>`:`<select class="select-grade" onchange="changeGrade('${key}', this.value)">${gradeOptions}</select>`}</td>
-          <td>${isMe?'<span style="color:var(--text-dim);font-size:10px;">—</span>':`<button class="btn-kick" onclick="kickMember('${key}','${m.name}')">EXCLURE</button>`}</td>
+          <td>${isMe ? `<span style="color:var(--accent3);font-family:'Share Tech Mono',monospace;font-size:11px;">${m.branch}</span>` : `<select class="select-branch" onchange="changeBranch('${key}', this.value)">${branchOptions}</select>`}</td>
+          <td>${isMe ? `<span class="grade-badge ${gradeCls}">${m.isAdmin ? 'ADMIN' : m.grade}</span>` : `<select class="select-grade" onchange="changeGrade('${key}', this.value)">${gradeOptions}</select>`}</td>
+          <td>${isMe ? '<span style="color:var(--text-dim);font-size:10px;">—</span>' : `<button class="btn-kick" onclick="kickMember('${key}','${m.name}')">EXCLURE</button>`}</td>
         </tr>
       `;
     }).join('');
