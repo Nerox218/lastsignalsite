@@ -148,36 +148,82 @@
 
   /* ===== GRADE BADGES ===== */
   .grade-badge { font-family: 'Share Tech Mono', monospace; font-size: 10px; padding: 3px 10px; border: 1px solid; letter-spacing: 1px; display: inline-block; }
-  .badge-superviseur { color: #ffd700; border-color: #ffd700; background: rgba(255,215,0,0.08); }
-  .badge-adjoint { color: #c0c0c0; border-color: #c0c0c0; background: rgba(192,192,192,0.08); }
-  .badge-chef-branche { color: #00ccff; border-color: #00ccff; background: rgba(0,200,255,0.08); }
-  .badge-chef-equipe { color: #00aaff; border-color: #00aaff; background: rgba(0,170,255,0.08); }
-  .badge-senior { color: #00ffcc; border-color: #00ffcc; background: rgba(0,255,200,0.08); }
-  .badge-confirme { color: #66ffaa; border-color: #66ffaa; background: rgba(100,255,150,0.08); }
-  .badge-experimente { color: #aaffcc; border-color: #aaffcc; background: rgba(150,255,200,0.08); }
-  .badge-apprenti { color: #88ccff; border-color: #88ccff; background: rgba(100,200,255,0.08); }
-  .badge-recrue { color: #5588aa; border-color: #5588aa; background: rgba(80,130,170,0.08); }
-  .badge-en-attente { color: var(--warn); border-color: var(--warn); background: rgba(255,100,0,0.08); }
-  .badge-admin { color: var(--warn); border-color: var(--warn); background: rgba(255,100,0,0.1); }
+  .badge-directeur    { color: #ffd700; border-color: #ffd700; background: rgba(255,215,0,0.08); }
+  .badge-inspecteur   { color: #00ccff; border-color: #00ccff; background: rgba(0,200,255,0.08); }
+  .badge-surintendant { color: #00aaff; border-color: #00aaff; background: rgba(0,170,255,0.08); }
+  .badge-bio-ingenieur{ color: #00ffcc; border-color: #00ffcc; background: rgba(0,255,200,0.08); }
+  .badge-intendant    { color: #66ffaa; border-color: #66ffaa; background: rgba(100,255,150,0.08); }
+  .badge-bio-tech     { color: #aaffcc; border-color: #aaffcc; background: rgba(150,255,200,0.08); }
+  .badge-contremaitre { color: #88ccff; border-color: #88ccff; background: rgba(100,200,255,0.08); }
+  .badge-apprenti     { color: #5588aa; border-color: #5588aa; background: rgba(80,130,170,0.08); }
+  .badge-en-attente   { color: var(--warn); border-color: var(--warn); background: rgba(255,100,0,0.08); }
+  .badge-admin        { color: var(--warn); border-color: var(--warn); background: rgba(255,100,0,0.1); }
 
-  /* ===== HIERARCHY ===== */
-  .hierarchy-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .grade-card { background: rgba(0,20,40,0.6); border: 1px solid var(--border2); padding: 16px 20px; position: relative; transition: border-color 0.2s, box-shadow 0.2s; }
-  .grade-card:hover { border-color: var(--accent2); box-shadow: 0 0 15px rgba(0,100,200,0.15); }
-  .grade-card.highlight { border-color: var(--accent); background: rgba(0,100,200,0.1); }
-  .grade-card.highlight::after { content: 'VOTRE GRADE'; position: absolute; top: 8px; right: 10px; font-family: 'Share Tech Mono', monospace; font-size: 8px; color: var(--accent3); letter-spacing: 1px; }
-  .grade-num { font-family: 'Orbitron', monospace; font-size: 9px; color: var(--text-dim); letter-spacing: 2px; margin-bottom: 4px; }
-  .grade-name { font-family: 'Rajdhani', sans-serif; font-size: 17px; font-weight: 700; color: var(--text-bright); letter-spacing: 1px; margin-bottom: 8px; }
-  .grade-desc { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
-  .grade-resp { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border2); }
-  .grade-resp-title { font-family: 'Share Tech Mono', monospace; font-size: 9px; color: var(--accent); letter-spacing: 2px; margin-bottom: 6px; text-transform: uppercase; }
-  .grade-resp ul { list-style: none; padding: 0; }
-  .grade-resp ul li { font-size: 12px; color: var(--text-dim); padding: 2px 0 2px 14px; position: relative; }
-  .grade-resp ul li::before { content: '›'; position: absolute; left: 0; color: var(--accent); }
-  .promo-info { background: rgba(0,100,60,0.1); border: 1px solid rgba(0,200,100,0.2); padding: 14px 18px; margin-bottom: 20px; font-family: 'Share Tech Mono', monospace; font-size: 12px; color: var(--success); letter-spacing: 1px; }
-  .promo-info::before { content: '⚑  '; }
+  /* ===== HIERARCHY NEW ===== */
+  /* Entry grade */
+  .hier-entry-card {
+    background: rgba(85,136,170,0.08);
+    border: 1px solid #5588aa;
+    padding: 22px 26px;
+    margin-bottom: 32px;
+    position: relative;
+  }
+  .hier-entry-card::before { content:''; position:absolute; top:0; left:0; width:3px; height:100%; background:#5588aa; }
+  /* Department block */
+  .dept-block { margin-bottom: 36px; }
+  .dept-header {
+    display: flex; align-items: center; gap: 16px;
+    padding: 18px 24px; margin-bottom: 2px;
+    border: 1px solid; position: relative;
+  }
+  .dept-header::before { content:''; position:absolute; top:0; left:0; width:4px; height:100%; }
+  .dept-dpb { border-color: rgba(0,204,255,0.4); background: rgba(0,100,150,0.12); }
+  .dept-dpb::before { background: #00ccff; }
+  .dept-dgc { border-color: rgba(255,170,0,0.4); background: rgba(150,100,0,0.12); }
+  .dept-dgc::before { background: #ffaa00; }
+  .dept-dir { border-color: rgba(255,215,0,0.4); background: rgba(150,120,0,0.12); }
+  .dept-dir::before { background: #ffd700; }
+  .dept-tag { font-family: 'Orbitron', monospace; font-size: 18px; font-weight: 900; letter-spacing: 3px; }
+  .dept-tag-dpb { color: #00ccff; text-shadow: 0 0 12px rgba(0,204,255,0.4); }
+  .dept-tag-dgc { color: #ffaa00; text-shadow: 0 0 12px rgba(255,170,0,0.4); }
+  .dept-tag-dir { color: #ffd700; text-shadow: 0 0 12px rgba(255,215,0,0.4); }
+  .dept-fullname { font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 600; color: var(--text-bright); letter-spacing: 1px; }
+  .dept-desc { font-size: 13px; color: var(--text-dim); margin-top: 4px; }
+  .dept-resp-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .dept-resp-tag { font-family: 'Share Tech Mono', monospace; font-size: 10px; padding: 2px 10px; border: 1px solid rgba(255,255,255,0.1); color: var(--text-dim); letter-spacing: 1px; }
 
-  /* ===== BRANCHES ===== */
+  /* Grade rows inside dept */
+  .dept-grades { display: flex; flex-direction: column; gap: 2px; }
+  .dept-grade-card {
+    background: rgba(0,15,30,0.7); border: 1px solid var(--border2);
+    padding: 16px 22px; display: flex; gap: 20px; align-items: flex-start;
+    transition: border-color 0.2s, background 0.2s; position: relative;
+    margin-left: 28px;
+  }
+  .dept-grade-card::before {
+    content: ''; position: absolute; left: -28px; top: 50%;
+    width: 28px; height: 1px; background: var(--border);
+  }
+  .dept-grade-card:hover { border-color: var(--accent2); background: rgba(0,30,60,0.5); }
+  .dept-grade-card.highlight { border-color: var(--accent); background: rgba(0,80,160,0.15); }
+  .dept-grade-card.highlight::after { content: 'VOTRE GRADE'; position: absolute; top: 8px; right: 12px; font-family: 'Share Tech Mono', monospace; font-size: 8px; color: var(--accent3); letter-spacing: 1px; }
+  .dgc-grade::before { background: rgba(255,170,0,0.3); }
+  .dpb-grade::before { background: rgba(0,204,255,0.3); }
+  .dir-grade::before { background: rgba(255,215,0,0.3); }
+  .grade-info { flex: 1; }
+  .grade-label { font-family: 'Share Tech Mono', monospace; font-size: 9px; color: var(--text-dim); letter-spacing: 2px; margin-bottom: 4px; }
+  .grade-name-big { font-family: 'Rajdhani', sans-serif; font-size: 19px; font-weight: 700; color: var(--text-bright); letter-spacing: 1px; margin-bottom: 6px; }
+  .grade-info-txt { font-size: 13px; color: var(--text-dim); line-height: 1.5; margin-bottom: 10px; }
+  .grade-resp-block { border-top: 1px solid var(--border2); padding-top: 10px; margin-top: 4px; }
+  .grade-resp-block-title { font-family: 'Share Tech Mono', monospace; font-size: 9px; color: var(--accent); letter-spacing: 2px; margin-bottom: 6px; text-transform: uppercase; }
+  .grade-resp-block ul { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 2px 16px; }
+  .grade-resp-block ul li { font-size: 12px; color: var(--text-dim); padding: 2px 0 2px 14px; position: relative; }
+  .grade-resp-block ul li::before { content: '›'; position: absolute; left: 0; color: var(--accent); }
+
+  /* connector line */
+  .dept-connector { width: 3px; background: var(--border2); margin-left: 13px; height: 12px; }
+
+  /* BRANCHES */
   .branches-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   .branch-card { background: rgba(0,20,40,0.6); border: 1px solid var(--border2); padding: 20px; transition: all 0.2s; position: relative; overflow: hidden; }
   .branch-card::after { content: ''; position: absolute; top: -30px; right: -30px; width: 80px; height: 80px; border-radius: 50%; background: var(--branch-color, var(--accent)); opacity: 0.05; transition: opacity 0.2s; }
@@ -274,6 +320,8 @@
   .sep { height: 1px; background: linear-gradient(90deg, var(--accent2), transparent); margin: 24px 0; }
   .warn-box { background: rgba(255,100,0,0.05); border: 1px solid rgba(255,100,0,0.3); padding: 14px 18px; margin-bottom: 16px; font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--warn); letter-spacing: 1px; }
   .warn-box::before { content: '⚠  '; }
+  .promo-info { background: rgba(0,100,60,0.1); border: 1px solid rgba(0,200,100,0.2); padding: 14px 18px; margin-bottom: 20px; font-family: 'Share Tech Mono', monospace; font-size: 12px; color: var(--success); letter-spacing: 1px; }
+  .promo-info::before { content: '⚑  '; }
   .notif-dot { display: inline-block; width: 6px; height: 6px; background: var(--warn); border-radius: 50%; margin-left: 6px; vertical-align: middle; animation: pulse 1.5s ease-in-out infinite; }
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
   #toast { position: fixed; bottom: 24px; right: 24px; background: var(--panel); border: 1px solid var(--accent); color: var(--accent); font-family: 'Share Tech Mono', monospace; font-size: 12px; letter-spacing: 2px; padding: 12px 24px; z-index: 9999; display: none; animation: slideIn 0.3s ease; box-shadow: var(--glow); max-width: 360px; }
@@ -292,7 +340,16 @@
   .loading-screen { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 500; flex-direction: column; gap: 16px; }
   .loading-logo { font-family: 'Orbitron', monospace; font-size: 32px; font-weight: 900; color: var(--accent); letter-spacing: 8px; text-shadow: 0 0 30px rgba(0,170,255,0.6); animation: pulse 1s ease-in-out infinite; }
   .loading-text { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--text-dim); letter-spacing: 3px; }
-  @media (max-width: 700px) { .hierarchy-grid, .branches-grid, .session-examples { grid-template-columns: 1fr; } .stat-row { grid-template-columns: 1fr 1fr; } .topbar-nav { display: none; } .member-cards-grid { grid-template-columns: 1fr; } .report-row { grid-template-columns: 1fr; } }
+  @media (max-width: 700px) {
+    .branches-grid, .session-examples { grid-template-columns: 1fr; }
+    .stat-row { grid-template-columns: 1fr 1fr; }
+    .topbar-nav { display: none; }
+    .member-cards-grid { grid-template-columns: 1fr; }
+    .report-row { grid-template-columns: 1fr; }
+    .dept-grade-card { margin-left: 12px; }
+    .dept-grade-card::before { width: 12px; left: -12px; }
+    .grade-resp-block ul { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
@@ -325,7 +382,7 @@
       <div class="pending-msg" id="login-pending">› Votre inscription est en attente de validation.</div>
     </div>
     <div class="login-footer">
-      <span>CWU-INT v3.1 // FIREBASE</span>
+      <span>CWU-INT v3.2 // FIREBASE</span>
       <button class="btn-secondary" onclick="showRegister()">INSCRIPTION</button>
     </div>
   </div>
@@ -355,13 +412,11 @@
         </div>
       </div>
       <div class="field-group">
-        <label>Branche souhaitée</label>
+        <label>Département souhaité</label>
         <select id="reg-branch">
           <option value="">— Sélectionner —</option>
-          <option value="SMC">SMC — Service Médical Civil</option>
-          <option value="SDC">SDC — Service de Distribution Civile</option>
-          <option value="SIC">SIC — Service d'Ingénierie Civile</option>
-          <option value="SHC">SHC — Service Hazmat Civil</option>
+          <option value="DPB">DPB — Département de Propreté Biologique &amp; Médical</option>
+          <option value="DGC">DGC — Département de Gestion Civique</option>
         </select>
       </div>
       <div class="sep" style="margin:12px 0;"></div>
@@ -382,10 +437,10 @@
       </div>
       <button class="btn-primary" onclick="doRegister()">SOUMETTRE LA DEMANDE</button>
       <div class="error-msg" id="reg-error">› Erreur. Vérifiez les champs.</div>
-      <div class="success-msg" id="reg-success">› Demande envoyée. En attente de validation superviseur.</div>
+      <div class="success-msg" id="reg-success">› Demande envoyée. En attente de validation Directeur.</div>
     </div>
     <div class="login-footer">
-      <span>Les demandes sont validées par le Superviseur</span>
+      <span>Les demandes sont validées par le Directeur CWU</span>
       <button class="btn-secondary" onclick="showLogin()">RETOUR</button>
     </div>
   </div>
@@ -400,14 +455,13 @@
       <button class="nav-btn active" onclick="showPage('accueil', this)">ACCUEIL</button>
       <button class="nav-btn" onclick="showPage('membres', this)">MEMBRES</button>
       <button class="nav-btn" onclick="showPage('hierarchie', this)">HIÉRARCHIE</button>
-      <button class="nav-btn" onclick="showPage('branches', this)">BRANCHES</button>
       <button class="nav-btn" onclick="showPage('protocoles', this)">PROTOCOLES</button>
       <button class="nav-btn" onclick="showPage('sessions', this)">SESSIONS</button>
       <button class="nav-btn" onclick="showPage('rapports', this)" id="rapports-nav-btn">
         RAPPORTS <span class="notif-dot" id="rapports-notif" style="display:none"></span>
       </button>
       <button class="nav-btn admin-only" id="admin-nav-btn" onclick="showPage('admin', this)" style="display:none">
-        SUPERVISEUR <span class="notif-dot" id="notif-dot" style="display:none"></span>
+        DIRECTEUR <span class="notif-dot" id="notif-dot" style="display:none"></span>
       </button>
     </div>
     <div class="topbar-user">
@@ -431,8 +485,8 @@
       <div class="stat-row">
         <div class="stat-box"><div class="stat-num" id="stat-members">—</div><div class="stat-label">Membres Actifs</div></div>
         <div class="stat-box"><div class="stat-num" id="stat-pending">—</div><div class="stat-label">En Attente</div></div>
-        <div class="stat-box"><div class="stat-num">4</div><div class="stat-label">Branches</div></div>
-        <div class="stat-box"><div class="stat-num">9</div><div class="stat-label">Grades</div></div>
+        <div class="stat-box"><div class="stat-num">2</div><div class="stat-label">Départements</div></div>
+        <div class="stat-box"><div class="stat-num">8</div><div class="stat-label">Grades</div></div>
       </div>
       <div class="card">
         <div class="card-title">Mon Dossier <span class="badge" id="my-status-badge">—</span></div>
@@ -441,10 +495,10 @@
       <div class="card">
         <div class="card-title">Dernières Directives</div>
         <div class="protocol-text">
-          <p style="margin-bottom:10px;font-size:14px;line-height:1.7;">La CWU est l'organisation civile chargée du maintien de la production, de la logistique, des soins et des infrastructures de la cité. Elle fonctionne sous une hiérarchie stricte divisée en plusieurs branches spécialisées.</p>
+          <p style="margin-bottom:10px;font-size:14px;line-height:1.7;">La CWU est l'organisation civile chargée du maintien de la production, de la logistique, des soins et des infrastructures de la cité. Elle fonctionne sous une hiérarchie stricte divisée en deux départements spécialisés.</p>
           <div class="warn-box" style="margin-bottom:8px;">Tout membre doit porter sa tenue réglementaire en service.</div>
           <div class="warn-box" style="margin-bottom:8px;">Les informations internes ne doivent pas être divulguées aux civils sans autorisation.</div>
-          <div class="warn-box">Les zones de branche sont interdites sans autorisation ou appartenance à ladite branche.</div>
+          <div class="warn-box">Les zones de département sont interdites sans autorisation ou appartenance audit département.</div>
         </div>
       </div>
     </div>
@@ -460,44 +514,243 @@
       </div>
     </div>
 
-    <!-- HIERARCHIE -->
+    <!-- HIERARCHIE (NOUVELLE STRUCTURE) -->
     <div id="page-hierarchie" class="page">
-      <div class="page-header"><div class="page-title">Hiérarchie</div><div class="page-subtitle">Structure des grades — Civil Workers' Union</div></div>
-      <div class="promo-info">Promotions effectuées uniquement par le Superviseur.</div>
-      <div class="hierarchy-grid">
-        <div class="grade-card" data-grade="Superviseur"><div class="grade-num">RANG 09</div><div class="grade-name">Superviseur</div><div class="grade-desc">Autorité maximale de la CWU.</div><div class="grade-resp"><div class="grade-resp-title">Responsabilités</div><ul><li>Direction globale des opérations</li><li>Gestion de toutes les branches</li><li>Maintien de la productivité civile</li><li>Relations avec l'administration</li></ul></div></div>
-        <div class="grade-card" data-grade="Adjoint"><div class="grade-num">RANG 08</div><div class="grade-name">Adjoint</div><div class="grade-desc">Second du Superviseur.</div><div class="grade-resp"><div class="grade-resp-title">Responsabilités</div><ul><li>Coordination générale des branches</li><li>Validation des opérations importantes</li><li>Commandement en absence du Superviseur</li></ul></div></div>
-        <div class="grade-card" data-grade="Chef de Branche"><div class="grade-num">RANG 07</div><div class="grade-name">Chef de Branche</div><div class="grade-desc">Responsable d'une branche de la CWU.</div><div class="grade-resp"><div class="grade-resp-title">Responsabilités</div><ul><li>Supervision des équipes de branche</li><li>Gestion administrative</li><li>Communication avec le Superviseur</li></ul></div></div>
-        <div class="grade-card" data-grade="Chef d'Équipe"><div class="grade-num">RANG 06</div><div class="grade-name">Chef d'Équipe</div><div class="grade-desc">Responsable d'une unité opérationnelle.</div><div class="grade-resp"><div class="grade-resp-title">Responsabilités</div><ul><li>Organisation des équipes</li><li>Répartition des tâches</li><li>Contrôle de la productivité</li></ul></div></div>
-        <div class="grade-card" data-grade="Travailleur Senior"><div class="grade-num">RANG 05</div><div class="grade-name">Travailleur Senior</div><div class="grade-desc">Référence expérimentée de sa branche.</div><div class="grade-resp"><div class="grade-resp-title">Responsabilités</div><ul><li>Encadrement des travailleurs</li><li>Supervision légère</li><li>Formation avancée</li></ul></div></div>
-        <div class="grade-card" data-grade="Travailleur Confirmé"><div class="grade-num">RANG 04</div><div class="grade-name">Travailleur Confirmé</div><div class="grade-desc">Travailleur fiable disposant de responsabilités mineures.</div><div class="grade-resp"><div class="grade-resp-title">Responsabilités</div><ul><li>Assistance et tutorat des inférieurs</li><li>Participation aux opérations spécialisées</li></ul></div></div>
-        <div class="grade-card" data-grade="Travailleur Expérimenté"><div class="grade-num">RANG 03</div><div class="grade-name">Travailleur Expérimenté</div><div class="grade-desc">Travailleur autonome et fiable.</div><div class="grade-resp"><div class="grade-resp-title">Responsabilités</div><ul><li>Exécution autonome des tâches</li><li>Participation active aux opérations</li></ul></div></div>
-        <div class="grade-card" data-grade="Apprenti Travailleur"><div class="grade-num">RANG 02</div><div class="grade-name">Apprenti Travailleur</div><div class="grade-desc">Employé en formation opérationnelle.</div><div class="grade-resp"><div class="grade-resp-title">Responsabilités</div><ul><li>Participation aux sessions de travail</li><li>Apprentissage des procédures</li></ul></div></div>
-        <div class="grade-card" data-grade="Recrue" style="grid-column:span 2;"><div class="grade-num">RANG 01</div><div class="grade-name">Recrue</div><div class="grade-desc">Nouvelle arrivée au sein de la CWU. Formée par un Confirmé+ qui validera ses compétences.</div><div class="grade-resp"><div class="grade-resp-title">Responsabilités</div><ul style="columns:2;gap:20px;"><li>Apprentissage des protocoles</li><li>Tâches simples</li><li>Assistance aux supérieurs</li><li>Supervision obligatoire</li></ul></div></div>
+      <div class="page-header">
+        <div class="page-title">Hiérarchie & Départements</div>
+        <div class="page-subtitle">Structure opérationnelle — Civil Workers' Union</div>
       </div>
+      <div class="promo-info">Promotions effectuées uniquement par le Directeur CWU.</div>
+
+      <!-- APPRENTI (grade d'entrée) -->
+      <div class="hier-entry-card" id="grade-card-Apprenti">
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:12px;">
+          <span class="grade-badge badge-apprenti">APPRENTI</span>
+          <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:2px;">GRADE D'ENTRÉE</span>
+          <div style="flex:1;height:1px;background:linear-gradient(90deg,#5588aa44,transparent);"></div>
+        </div>
+        <div class="grade-name-big" style="color:#88ccff;">Apprenti</div>
+        <div class="grade-info-txt">
+          Grade d'entrée de la CWU. Affecté à un département après validation. Apprentissage des protocoles et procédures.
+        </div>
+        <div class="grade-resp-block">
+          <div class="grade-resp-block-title">Responsabilités</div>
+          <ul>
+            <li>Assistance des grades supérieurs</li>
+            <li>Tâches simples sous supervision</li>
+            <li>Participation aux opérations basiques</li>
+          </ul>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:12px;align-items:stretch;margin-bottom:32px;flex-wrap:wrap;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0;flex-shrink:0;padding-top:8px;">
+          <div style="width:2px;flex:1;background:linear-gradient(180deg,#5588aa,#00ccff44,#ffaa0044);min-height:40px;"></div>
+        </div>
+        <div style="flex:1;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;padding-top:12px;">Affectation au département après validation</div>
+      </div>
+
+      <!-- DEUX DÉPARTEMENTS CÔTE À CÔTE -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+
+        <!-- DPB -->
+        <div class="dept-block">
+          <div class="dept-header dept-dpb">
+            <div>
+              <div class="dept-tag dept-tag-dpb">DPB</div>
+              <div class="dept-fullname">Département de Propreté Biologique &amp; Médical</div>
+              <div class="dept-desc">Opérations médicales, sanitaires, biologiques et contaminées.</div>
+              <div class="dept-resp-row">
+                <span class="dept-resp-tag">Soins médicaux</span>
+                <span class="dept-resp-tag">Décontamination</span>
+                <span class="dept-resp-tag">Hazmat</span>
+                <span class="dept-resp-tag">Xenobiologie</span>
+              </div>
+            </div>
+          </div>
+          <div style="width:2px;height:12px;background:rgba(0,204,255,0.3);margin-left:20px;"></div>
+          <div class="dept-grades">
+            <!-- Bio-Technicien -->
+            <div class="dept-grade-card dpb-grade" id="grade-card-Bio-Technicien">
+              <div class="grade-info">
+                <div class="grade-label">RANG 01 — DPB</div>
+                <div class="grade-name-big" style="color:#aaffcc;">Bio-Technicien</div>
+                <div class="grade-info-txt">Personnel opérationnel du département.</div>
+                <div class="grade-resp-block">
+                  <div class="grade-resp-block-title">Responsabilités</div>
+                  <ul>
+                    <li>Soins de base</li>
+                    <li>Décontamination</li>
+                    <li>Assistance médicale</li>
+                    <li>Nettoyage des zones contaminées</li>
+                    <li>Interventions sanitaires</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div style="width:2px;height:10px;background:rgba(0,204,255,0.2);margin-left:20px;"></div>
+            <!-- Bio-Ingénieur -->
+            <div class="dept-grade-card dpb-grade" id="grade-card-Bio-Ingenieur">
+              <div class="grade-info">
+                <div class="grade-label">RANG 02 — DPB</div>
+                <div class="grade-name-big" style="color:#00ffcc;">Bio-Ingénieur</div>
+                <div class="grade-info-txt">Expert médical et Xenobiologique.</div>
+                <div class="grade-resp-block">
+                  <div class="grade-resp-block-title">Responsabilités</div>
+                  <ul>
+                    <li>Opérations médicales avancées</li>
+                    <li>Analyses biologiques</li>
+                    <li>Recherches Xenobiologiques</li>
+                    <li>Supervision technique du département</li>
+                    <li>Gestion des risques sanitaires</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div style="width:2px;height:10px;background:rgba(0,204,255,0.2);margin-left:20px;"></div>
+            <!-- Inspecteur Sanitaire -->
+            <div class="dept-grade-card dpb-grade" id="grade-card-Inspecteur-Sanitaire">
+              <div class="grade-info">
+                <div class="grade-label">CHEF — DPB</div>
+                <div class="grade-name-big" style="color:#00ccff;">Inspecteur Sanitaire</div>
+                <div class="grade-info-txt">Chef du Département de Propreté Biologique &amp; Médical.</div>
+                <div class="grade-resp-block">
+                  <div class="grade-resp-block-title">Responsabilités</div>
+                  <ul>
+                    <li>Supervision du département</li>
+                    <li>Gestion des quarantaines</li>
+                    <li>Validation des opérations sanitaires</li>
+                    <li>Coordination médicale de la cité</li>
+                    <li>Gestion du personnel médical et Hazmat</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DGC -->
+        <div class="dept-block">
+          <div class="dept-header dept-dgc">
+            <div>
+              <div class="dept-tag dept-tag-dgc">DGC</div>
+              <div class="dept-fullname">Département de Gestion Civique</div>
+              <div class="dept-desc">Gestion civile, logistique et technique de la cité.</div>
+              <div class="dept-resp-row">
+                <span class="dept-resp-tag">Commerces</span>
+                <span class="dept-resp-tag">Logements</span>
+                <span class="dept-resp-tag">Maintenance</span>
+                <span class="dept-resp-tag">Logistique</span>
+              </div>
+            </div>
+          </div>
+          <div style="width:2px;height:12px;background:rgba(255,170,0,0.3);margin-left:20px;"></div>
+          <div class="dept-grades">
+            <!-- Contremaître -->
+            <div class="dept-grade-card dgc-grade" id="grade-card-Contremaitre">
+              <div class="grade-info">
+                <div class="grade-label">RANG 01 — DGC</div>
+                <div class="grade-name-big" style="color:#88ccff;">Contremaître</div>
+                <div class="grade-info-txt">Personnel opérationnel du département.</div>
+                <div class="grade-resp-block">
+                  <div class="grade-resp-block-title">Responsabilités</div>
+                  <ul>
+                    <li>Supervision des travaux</li>
+                    <li>Gestion des commerces</li>
+                    <li>Maintenance légère</li>
+                    <li>Organisation des sessions de travail</li>
+                    <li>Encadrement des ouvriers civils</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div style="width:2px;height:10px;background:rgba(255,170,0,0.2);margin-left:20px;"></div>
+            <!-- Intendant -->
+            <div class="dept-grade-card dgc-grade" id="grade-card-Intendant">
+              <div class="grade-info">
+                <div class="grade-label">RANG 02 — DGC</div>
+                <div class="grade-name-big" style="color:#66ffaa;">Intendant</div>
+                <div class="grade-info-txt">Responsable administratif et logistique.</div>
+                <div class="grade-resp-block">
+                  <div class="grade-resp-block-title">Responsabilités</div>
+                  <ul>
+                    <li>Gestion immobilière</li>
+                    <li>Administration des logements</li>
+                    <li>Coordination des projets civiques</li>
+                    <li>Gestion logistique et commerciale</li>
+                    <li>Supervision des stocks et ressources</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div style="width:2px;height:10px;background:rgba(255,170,0,0.2);margin-left:20px;"></div>
+            <!-- Surintendant -->
+            <div class="dept-grade-card dgc-grade" id="grade-card-Surintendant">
+              <div class="grade-info">
+                <div class="grade-label">CHEF — DGC</div>
+                <div class="grade-name-big" style="color:#ffaa00;">Surintendant</div>
+                <div class="grade-info-txt">Chef du Département de Gestion Civique.</div>
+                <div class="grade-resp-block">
+                  <div class="grade-resp-block-title">Responsabilités</div>
+                  <ul>
+                    <li>Supervision globale du département</li>
+                    <li>Gestion des infrastructures</li>
+                    <li>Coordination logistique de la cité</li>
+                    <li>Validation des opérations civiques</li>
+                    <li>Gestion du personnel administratif et technique</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DIRECTION -->
+      <div style="display:flex;gap:12px;align-items:center;margin:20px 0 8px;">
+        <div style="flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(255,215,0,0.4));"></div>
+        <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(255,215,0,0.6);letter-spacing:3px;">DIRECTION</span>
+        <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(255,215,0,0.4),transparent);"></div>
+      </div>
+
+      <div class="dept-block">
+        <div class="dept-header dept-dir" style="margin-bottom:2px;">
+          <div>
+            <div class="dept-tag dept-tag-dir">DIRECTION CWU</div>
+            <div class="dept-fullname">Autorité Suprême de la Civil Workers' Union</div>
+          </div>
+        </div>
+        <div style="width:2px;height:12px;background:rgba(255,215,0,0.3);margin-left:20px;"></div>
+        <div class="dept-grades">
+          <div class="dept-grade-card dir-grade" id="grade-card-Directeur-CWU" style="border-color:rgba(255,215,0,0.3);">
+            <div class="grade-info">
+              <div class="grade-label">RANG MAXIMAL</div>
+              <div class="grade-name-big" style="color:#ffd700;">Directeur CWU</div>
+              <div class="grade-info-txt">Autorité maximale de la CWU.</div>
+              <div class="grade-resp-block">
+                <div class="grade-resp-block-title">Responsabilités</div>
+                <ul>
+                  <li>Direction générale de la CWU</li>
+                  <li>Supervision des départements</li>
+                  <li>Gestion des opérations majeures</li>
+                  <li>Validation des promotions importantes</li>
+                  <li>Liaison avec l'administration de l'Union</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="sep"></div>
       <div class="card">
         <div class="card-title">Conditions de Promotion</div>
         <ul class="rule-list">
-          <li data-num="A">Recrue → Apprenti : validé par un Confirmé+ après évaluation.</li>
-          <li data-num="B">Apprenti → Expérimenté : un sous-chef+ signale l'aptitude au superviseur.</li>
-          <li data-num="C">Expérimenté → Confirmé : test de branche validé par le chef ou le superviseur.</li>
-          <li data-num="D">Confirmé → Senior : sur autorisation du superviseur (ancienneté requise).</li>
-          <li data-num="E">Confirmé → Chef d'Équipe : désignation par le chef de branche.</li>
-          <li data-num="F">Confirmé → Chef de Branche : demande écrite avec motivation (place libre requise).</li>
-          <li data-num="★">Les promotions sont effectuées exclusivement par le Superviseur.</li>
+          <li data-num="A">Apprenti → Rang de département : validé par un chef de département après évaluation.</li>
+          <li data-num="B">Rang 01 → Rang 02 : aptitude signalée par le chef de département au Directeur.</li>
+          <li data-num="C">Rang 02 → Chef de département : désignation par le Directeur (place libre requise).</li>
+          <li data-num="★">Les promotions sont effectuées exclusivement par le Directeur CWU.</li>
         </ul>
-      </div>
-    </div>
-
-    <!-- BRANCHES -->
-    <div id="page-branches" class="page">
-      <div class="page-header"><div class="page-title">Branches</div><div class="page-subtitle">Unités spécialisées — Civil Workers' Union</div></div>
-      <div class="branches-grid">
-        <div class="branch-card" style="--branch-color:#00ccff;"><div class="branch-tag">SMC</div><div class="branch-fullname">Service Médical Civil</div><div class="branch-desc">Assure les soins globaux des civils et travailleurs. Garants de la santé publique dans la cité.</div><ul class="branch-resp-list"><li>Soins médicaux</li><li>Opérations chirurgicales</li><li>Assistance d'urgence</li><li>Surveillance sanitaire</li></ul></div>
-        <div class="branch-card" style="--branch-color:#00ffaa;"><div class="branch-tag">SDC</div><div class="branch-fullname">Service de Distribution Civile</div><div class="branch-desc">Gère les commerces autorisés et l'administration civile de la cité.</div><ul class="branch-resp-list"><li>Gestion des commerces</li><li>Approvisionnement et logistique</li><li>Attribution des logements civils</li></ul></div>
-        <div class="branch-card" style="--branch-color:#ffaa00;"><div class="branch-tag">SIC</div><div class="branch-fullname">Service d'Ingénierie Civile</div><div class="branch-desc">Branche spécialisée dans la maintenance et les infrastructures de la cité.</div><ul class="branch-resp-list"><li>Réparation des champs de force</li><li>Maintenance des infrastructures</li><li>Entretien des équipements industriels</li></ul></div>
-        <div class="branch-card" style="--branch-color:#ff4444;"><div class="branch-tag">SHC</div><div class="branch-fullname">Service Hazmat Civil</div><div class="branch-desc">Branche spécialisée dans les opérations dangereuses et contaminées.</div><ul class="branch-resp-list"><li>Ramassage et transport des corps</li><li>Interventions en quarantaine</li><li>Opérations en zones contaminées</li></ul></div>
       </div>
     </div>
 
@@ -510,13 +763,13 @@
       </div>
       <div class="card">
         <div class="card-title">Règlement RP</div>
-        <div class="protocol-item"><div class="protocol-num">ART. RP-01</div><div class="protocol-title">Zones Réservées</div><div class="protocol-text">Interdit d'entrer dans une zone réservée à une branche sans autorisation ou sans en faire partie.</div></div>
-        <div class="protocol-item"><div class="protocol-num">ART. RP-02</div><div class="protocol-title">Bureau du Superviseur</div><div class="protocol-text">Interdit d'entrer dans le bureau du Superviseur sans y avoir été expressément convié.</div></div>
+        <div class="protocol-item"><div class="protocol-num">ART. RP-01</div><div class="protocol-title">Zones Réservées</div><div class="protocol-text">Interdit d'entrer dans une zone réservée à un département sans autorisation ou sans en faire partie.</div></div>
+        <div class="protocol-item"><div class="protocol-num">ART. RP-02</div><div class="protocol-title">Bureau du Directeur</div><div class="protocol-text">Interdit d'entrer dans le bureau du Directeur sans y avoir été expressément convié.</div></div>
         <div class="protocol-item"><div class="protocol-num">ART. RP-03</div><div class="protocol-title">Infraction Civile</div><div class="protocol-text">L'infraction volontaire d'un verdict ou d'une réglementation civile est strictement interdite.</div></div>
-        <div class="protocol-item"><div class="protocol-num">ART. RP-04</div><div class="protocol-title">Tenue Réglementaire</div><div class="protocol-text">Tout membre en service est dans l'obligation de porter sa tenue réglementaire de branche.</div></div>
+        <div class="protocol-item"><div class="protocol-num">ART. RP-04</div><div class="protocol-title">Tenue Réglementaire</div><div class="protocol-text">Tout membre en service est dans l'obligation de porter sa tenue réglementaire de département.</div></div>
         <div class="protocol-item"><div class="protocol-num">ART. RP-05</div><div class="protocol-title">Respect de la Hiérarchie</div><div class="protocol-text">Les membres doivent respecter leur hiérarchie et appliquer les directives transmises par leurs supérieurs.</div></div>
         <div class="protocol-item"><div class="protocol-num">ART. RP-06</div><div class="protocol-title">Présence et Activité</div><div class="protocol-text">Toute absence prolongée ou inactivité non signalée peut entraîner une rétrogradation ou exclusion.</div></div>
-        <div class="protocol-item"><div class="protocol-num">ART. RP-07</div><div class="protocol-title">Équipements et Ressources</div><div class="protocol-text">L'utilisation abusive des équipements, accès ou ressources de branche est interdite.</div></div>
+        <div class="protocol-item"><div class="protocol-num">ART. RP-07</div><div class="protocol-title">Équipements et Ressources</div><div class="protocol-text">L'utilisation abusive des équipements, accès ou ressources de département est interdite.</div></div>
         <div class="protocol-item"><div class="protocol-num">ART. RP-08</div><div class="protocol-title">Confidentialité</div><div class="protocol-text">Les informations internes ne doivent pas être divulguées aux civils sans autorisation.</div></div>
       </div>
     </div>
@@ -531,7 +784,7 @@
         <div class="session-step"><div class="step-num">03</div><div class="step-text">Un camion de livraison est positionné sur la carte.</div></div>
         <div class="session-step"><div class="step-num">04</div><div class="step-text">Les membres CWU accompagnent les citoyens jusqu'au camion.</div></div>
         <div class="session-step"><div class="step-num">05</div><div class="step-text">Les citoyens déposent les objets contenus dans les caisses.</div></div>
-        <div class="session-step"><div class="step-num">06</div><div class="step-text">Les citoyens introduisent les objets dans la machine de production. <em style="color:var(--warn);font-size:12px;">(Panne possible — intervention SIC requise.)</em></div></div>
+        <div class="session-step"><div class="step-num">06</div><div class="step-text">Les citoyens introduisent les objets dans la machine de production. <em style="color:var(--warn);font-size:12px;">(Panne possible — intervention DGC requise.)</em></div></div>
         <div class="session-step"><div class="step-num">07</div><div class="step-text">La machine transforme les objets et produit un article fini.</div></div>
         <div class="session-step"><div class="step-num">08</div><div class="step-text">L'article produit est placé dans une caisse de livraison.</div></div>
         <div class="session-step"><div class="step-num">09</div><div class="step-text">Chaque citoyen prend en charge une caisse à livrer.</div></div>
@@ -553,7 +806,7 @@
     <div id="page-rapports" class="page">
       <div class="page-header">
         <div class="page-title">Rapports</div>
-        <div class="page-subtitle">Transmission au Superviseur — Compte-rendus opérationnels</div>
+        <div class="page-subtitle">Transmission au Directeur — Compte-rendus opérationnels</div>
       </div>
       <div class="card" id="rapport-form-card">
         <div class="card-title">Nouveau Rapport</div>
@@ -583,7 +836,7 @@
             <div class="report-label">Membres impliqués (optionnel)</div>
             <input type="text" id="rapport-membres" placeholder="Ex: Léon Pheter, Anna Koval..." style="width:100%;background:rgba(0,20,40,0.8);border:1px solid var(--border);color:var(--text-bright);font-family:'Share Tech Mono',monospace;font-size:13px;padding:10px 14px;outline:none;letter-spacing:0.5px;">
           </div>
-          <button class="btn-primary" onclick="sendRapport()" style="max-width:300px;">TRANSMETTRE AU SUPERVISEUR</button>
+          <button class="btn-primary" onclick="sendRapport()" style="max-width:300px;">TRANSMETTRE AU DIRECTEUR</button>
         </div>
       </div>
       <div class="card">
@@ -609,9 +862,9 @@
       </div>
     </div>
 
-    <!-- ADMIN / SUPERVISEUR -->
+    <!-- ADMIN / DIRECTEUR -->
     <div id="page-admin" class="page">
-      <div class="page-header"><div class="page-title">Terminal Superviseur</div><div class="page-subtitle">Accès restreint — Niveau Superviseur requis</div></div>
+      <div class="page-header"><div class="page-title">Terminal Directeur</div><div class="page-subtitle">Accès restreint — Niveau Directeur requis</div></div>
       <div class="warn-box">Accès classifié. Toutes les actions sont enregistrées dans Firebase.</div>
       <div class="admin-section">
         <div class="admin-section-title">⬡ Demandes d'Inscription en Attente <span id="pending-count-badge"></span></div>
@@ -626,7 +879,7 @@
               <th>Citoyen</th>
               <th>E-Mail</th>
               <th>Steam</th>
-              <th>Branche</th>
+              <th>Département</th>
               <th>Grade</th>
               <th>Actions</th>
             </tr>
@@ -656,42 +909,54 @@
 
 <script>
 // ===== CONSTANTS =====
+// Grades de la nouvelle hiérarchie
 const GRADES = [
-  'Recrue', 'Apprenti Travailleur', 'Travailleur Expérimenté',
-  'Travailleur Confirmé', 'Travailleur Senior', "Chef d'Équipe",
-  'Chef de Branche', 'Adjoint', 'Superviseur'
+  'Apprenti',
+  'Bio-Technicien', 'Bio-Ingénieur', 'Inspecteur Sanitaire',
+  'Contremaître', 'Intendant', 'Surintendant',
+  'Directeur CWU'
 ];
-const BRANCHES = ['SMC', 'SDC', 'SIC', 'SHC'];
+const DEPARTMENTS = ['DPB', 'DGC', 'Direction'];
 const GRADE_ORDER = {
-  'Superviseur': 9, 'Adjoint': 8, 'Chef de Branche': 7, "Chef d'Équipe": 6,
-  'Travailleur Senior': 5, 'Travailleur Confirmé': 4, 'Travailleur Expérimenté': 3,
-  'Apprenti Travailleur': 2, 'Recrue': 1
+  'Directeur CWU': 8,
+  'Inspecteur Sanitaire': 7, 'Surintendant': 6,
+  'Bio-Ingénieur': 5, 'Intendant': 4,
+  'Bio-Technicien': 3, 'Contremaître': 2,
+  'Apprenti': 1
 };
 const GRADE_BADGE_CLASS = {
-  'Superviseur': 'badge-superviseur', 'Adjoint': 'badge-adjoint',
-  'Chef de Branche': 'badge-chef-branche', "Chef d'Équipe": 'badge-chef-equipe',
-  'Travailleur Senior': 'badge-senior', 'Travailleur Confirmé': 'badge-confirme',
-  'Travailleur Expérimenté': 'badge-experimente', 'Apprenti Travailleur': 'badge-apprenti',
-  'Recrue': 'badge-recrue', 'En attente': 'badge-en-attente'
+  'Directeur CWU':       'badge-directeur',
+  'Inspecteur Sanitaire':'badge-inspecteur',
+  'Surintendant':        'badge-surintendant',
+  'Bio-Ingénieur':       'badge-bio-ingenieur',
+  'Intendant':           'badge-intendant',
+  'Bio-Technicien':      'badge-bio-tech',
+  'Contremaître':        'badge-contremaitre',
+  'Apprenti':            'badge-apprenti',
+  'En attente':          'badge-en-attente'
 };
 const GRADE_COLORS = {
-  'Superviseur': '#ffd700', 'Adjoint': '#c0c0c0', 'Chef de Branche': '#00ccff',
-  "Chef d'Équipe": '#00aaff', 'Travailleur Senior': '#00ffcc',
-  'Travailleur Confirmé': '#66ffaa', 'Travailleur Expérimenté': '#aaffcc',
-  'Apprenti Travailleur': '#88ccff', 'Recrue': '#5588aa'
+  'Directeur CWU':       '#ffd700',
+  'Inspecteur Sanitaire':'#00ccff',
+  'Surintendant':        '#ffaa00',
+  'Bio-Ingénieur':       '#00ffcc',
+  'Intendant':           '#66ffaa',
+  'Bio-Technicien':      '#aaffcc',
+  'Contremaître':        '#88ccff',
+  'Apprenti':            '#5588aa'
 };
-const BRANCH_COLORS = { 'SMC': '#00ccff', 'SDC': '#00ffaa', 'SIC': '#ffaa00', 'SHC': '#ff4444', 'Direction': '#ffd700' };
+const DEPT_COLORS = { 'DPB': '#00ccff', 'DGC': '#ffaa00', 'Direction': '#ffd700' };
 const RAPPORT_TYPES = {
-  session: { label: 'RAPPORT SESSION', icon: '📋' },
-  incident: { label: 'INCIDENT', icon: '🚨' },
-  promotion: { label: 'PROMOTION', icon: '⭐' },
-  disciplinaire: { label: 'DISCIPLINAIRE', icon: '⚠️' },
-  logistique: { label: 'LOGISTIQUE', icon: '📦' },
-  autre: { label: 'AUTRE', icon: '📝' }
+  session:      { label: 'RAPPORT SESSION', icon: '📋' },
+  incident:     { label: 'INCIDENT',        icon: '🚨' },
+  promotion:    { label: 'PROMOTION',       icon: '⭐' },
+  disciplinaire:{ label: 'DISCIPLINAIRE',   icon: '⚠️' },
+  logistique:   { label: 'LOGISTIQUE',      icon: '📦' },
+  autre:        { label: 'AUTRE',           icon: '📝' }
 };
 
+// Email du compte administrateur (détection automatique, pas de compte hardcodé)
 const ADMIN_EMAIL = 'alexandre.jacopin76@gmail.com';
-const ADMIN_PASSWORD = 'AlexAude10';
 
 let currentUser = null;
 let modalCallback = null;
@@ -700,123 +965,75 @@ let currentRapportFilter = 'all';
 
 // ===== FIREBASE HELPERS =====
 function dbRef(path) { return window._dbRef(window._db, path); }
-function dbGet(path) { return window._dbGet(dbRef(path)); }
-function dbSet(path, data) { return window._dbSet(dbRef(path), data); }
+function dbGet(path)  { return window._dbGet(dbRef(path)); }
+function dbSet(path, data)    { return window._dbSet(dbRef(path), data); }
 function dbUpdate(path, data) { return window._dbUpdate(dbRef(path), data); }
-function dbPush(path, data) { return window._dbPush(dbRef(path), data); }
-function dbRemove(path) { return window._dbRemove(dbRef(path)); }
-function dbListen(path, cb) { window._dbOnValue(dbRef(path), snap => cb(snap.val())); }
+function dbPush(path, data)   { return window._dbPush(dbRef(path), data); }
+function dbRemove(path)       { return window._dbRemove(dbRef(path)); }
 
-// ===== INIT =====
-document.addEventListener('firebaseReady', async () => {
+// ===== INIT — Aucun compte hardcodé, juste afficher le login =====
+document.addEventListener('firebaseReady', () => {
   document.getElementById('loading-screen').style.display = 'none';
-
-  try {
-    // Vérifie si le compte admin existe déjà par email
-    const snap = await dbGet('members');
-    let adminKey = null;
-    let adminExists = false;
-
-    if (snap.exists()) {
-      const members = snap.val();
-      const adminEntry = Object.entries(members).find(
-        ([, m]) => m.email && m.email.toLowerCase() === ADMIN_EMAIL
-      );
-      if (adminEntry) {
-        adminKey = adminEntry[0];
-        adminExists = true;
-        // Corrige le status si besoin
-        if (adminEntry[1].status !== 'active' || !adminEntry[1].isAdmin) {
-          await dbUpdate('members/' + adminKey, {
-            status: 'active',
-            isAdmin: true,
-            grade: 'Superviseur'
-          });
-        }
-      }
-    }
-
-    // Crée le compte admin s'il n'existe pas
-    if (!adminExists) {
-      await dbSet('members/admin', {
-        id: 'admin',
-        email: ADMIN_EMAIL,
-        password: ADMIN_PASSWORD,
-        name: 'Léon Pheter',
-        grade: 'Superviseur',
-        branch: 'Direction',
-        isAdmin: true,
-        status: 'active',
-        steamPseudo: 'Mr_Nerox',
-        steamId: '76561199386539766',
-        steamUrl: 'https://steamcommunity.com/profiles/76561199386539766/',
-        joinDate: new Date().toISOString()
-      });
-    }
-  } catch(e) {
-    console.warn('Erreur init admin:', e);
-  }
-
   document.getElementById('login-screen').style.display = 'flex';
 });
 
 // ===== AUTH =====
 async function doLogin() {
   const email = document.getElementById('login-email').value.trim().toLowerCase();
-  const pwd = document.getElementById('login-pwd').value;
-  const errEl = document.getElementById('login-error');
+  const pwd   = document.getElementById('login-pwd').value;
+  const errEl  = document.getElementById('login-error');
   const pendEl = document.getElementById('login-pending');
   errEl.style.display = 'none';
   pendEl.style.display = 'none';
 
   if (!email || !pwd) {
     errEl.innerText = '› E-mail et mot de passe requis.';
-    errEl.style.display = 'block';
-    return;
+    errEl.style.display = 'block'; return;
   }
 
   try {
-    // Vérification pending
+    // Vérif en attente
     const pendingSnap = await dbGet('pending');
     if (pendingSnap.exists()) {
-      const pending = pendingSnap.val();
-      if (Object.values(pending).find(p => p.email && p.email.toLowerCase() === email)) {
-        pendEl.style.display = 'block';
-        return;
+      if (Object.values(pendingSnap.val()).find(p => p.email && p.email.toLowerCase() === email)) {
+        pendEl.style.display = 'block'; return;
       }
     }
 
-    // Vérification membres
+    // Recherche dans les membres
     const membersSnap = await dbGet('members');
     if (!membersSnap.exists()) {
-      errEl.innerText = '› Aucun membre enregistré. Rechargez la page.';
-      errEl.style.display = 'block';
-      return;
+      errEl.innerText = '› Aucun compte trouvé. Inscrivez-vous.';
+      errEl.style.display = 'block'; return;
     }
 
     const members = membersSnap.val();
-    const allMembers = Object.values(members);
+    const entry = Object.entries(members).find(([,m]) => m.email && m.email.toLowerCase() === email);
 
-    // Recherche par email d'abord
-    const byEmail = allMembers.find(m => m.email && m.email.toLowerCase() === email);
-
-    if (!byEmail) {
+    if (!entry) {
       errEl.innerText = '› E-mail introuvable.';
-      errEl.style.display = 'block';
-      return;
-    }
-    if (byEmail.password !== pwd) {
-      errEl.innerText = '› Mot de passe incorrect.';
-      errEl.style.display = 'block';
-      return;
-    }
-    if (byEmail.status !== 'active') {
-      errEl.innerText = '› Compte inactif ou suspendu.';
-      errEl.style.display = 'block';
-      return;
+      errEl.style.display = 'block'; return;
     }
 
-    currentUser = byEmail;
+    const [key, member] = entry;
+
+    if (member.password !== pwd) {
+      errEl.innerText = '› Mot de passe incorrect.';
+      errEl.style.display = 'block'; return;
+    }
+    if (member.status !== 'active') {
+      errEl.innerText = '› Compte inactif ou suspendu.';
+      errEl.style.display = 'block'; return;
+    }
+
+    // Si l'email correspond à l'admin, on s'assure que isAdmin est bien à true en DB
+    if (email === ADMIN_EMAIL && !member.isAdmin) {
+      await dbUpdate('members/' + key, { isAdmin: true, grade: 'Directeur CWU' });
+      member.isAdmin = true;
+      member.grade = 'Directeur CWU';
+    }
+
+    currentUser = { ...member, _key: key };
     launchApp();
 
   } catch(e) {
@@ -834,13 +1051,13 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function doRegister() {
-  const name = document.getElementById('reg-name').value.trim();
-  const email = document.getElementById('reg-email').value.trim().toLowerCase();
-  const pwd = document.getElementById('reg-pwd').value;
-  const branch = document.getElementById('reg-branch').value;
-  const steamPseudo = document.getElementById('reg-steam-pseudo').value.trim();
-  const steamId = document.getElementById('reg-steam-id').value.trim();
-  const steamUrl = document.getElementById('reg-steam-url').value.trim();
+  const name       = document.getElementById('reg-name').value.trim();
+  const email      = document.getElementById('reg-email').value.trim().toLowerCase();
+  const pwd        = document.getElementById('reg-pwd').value;
+  const branch     = document.getElementById('reg-branch').value;
+  const steamPseudo= document.getElementById('reg-steam-pseudo').value.trim();
+  const steamId    = document.getElementById('reg-steam-id').value.trim();
+  const steamUrl   = document.getElementById('reg-steam-url').value.trim();
   document.getElementById('reg-error').style.display = 'none';
   document.getElementById('reg-success').style.display = 'none';
 
@@ -900,11 +1117,11 @@ function launchApp() {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
 
-  document.getElementById('topbar-name').innerText = currentUser.name;
-  document.getElementById('topbar-grade').innerText = currentUser.isAdmin ? 'SUPERVISEUR // ADMIN' : currentUser.grade;
+  document.getElementById('topbar-name').innerText  = currentUser.name;
+  document.getElementById('topbar-grade').innerText = currentUser.isAdmin ? 'DIRECTEUR // ADMIN' : currentUser.grade;
   document.getElementById('topbar-avatar').innerText = currentUser.name.charAt(0).toUpperCase();
 
-  if (currentUser.isAdmin || currentUser.grade === 'Superviseur') {
+  if (currentUser.isAdmin) {
     document.getElementById('admin-nav-btn').style.display = 'inline-flex';
     document.getElementById('rapports-recus-section').style.display = 'block';
     updateNotifDot();
@@ -917,19 +1134,45 @@ function launchApp() {
 }
 
 function highlightGrade() {
-  document.querySelectorAll('.grade-card').forEach(c => c.classList.remove('highlight'));
-  if (currentUser) {
-    const card = document.querySelector(`.grade-card[data-grade="${currentUser.grade}"]`);
-    if (card) card.classList.add('highlight');
+  // Supprime les highlights existants
+  document.querySelectorAll('.hier-entry-card, .dept-grade-card').forEach(c => {
+    c.classList.remove('highlight');
+    const tag = c.querySelector('.highlight-tag');
+    if (tag) tag.remove();
+  });
+  if (!currentUser) return;
+
+  // Map grade → id de l'élément
+  const gradeToId = {
+    'Apprenti':            'grade-card-Apprenti',
+    'Bio-Technicien':      'grade-card-Bio-Technicien',
+    'Bio-Ingénieur':       'grade-card-Bio-Ingenieur',
+    'Inspecteur Sanitaire':'grade-card-Inspecteur-Sanitaire',
+    'Contremaître':        'grade-card-Contremaitre',
+    'Intendant':           'grade-card-Intendant',
+    'Surintendant':        'grade-card-Surintendant',
+    'Directeur CWU':       'grade-card-Directeur-CWU'
+  };
+  const id = gradeToId[currentUser.grade];
+  if (id) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.classList.add('highlight');
+      const tag = document.createElement('span');
+      tag.className = 'highlight-tag';
+      tag.style.cssText = 'position:absolute;top:8px;right:12px;font-family:\'Share Tech Mono\',monospace;font-size:8px;color:var(--accent3);letter-spacing:1px;';
+      tag.innerText = 'VOTRE GRADE';
+      el.appendChild(tag);
+    }
   }
 }
 
 function renderMyProfile() {
-  const el = document.getElementById('my-profile-content');
+  const el    = document.getElementById('my-profile-content');
   const badge = document.getElementById('my-status-badge');
   if (!el || !badge) return;
   badge.innerText = currentUser.grade;
-  const branchColor = BRANCH_COLORS[currentUser.branch] || 'var(--accent3)';
+  const deptColor = DEPT_COLORS[currentUser.branch] || 'var(--accent3)';
 
   el.innerHTML = `
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:14px;">
@@ -938,12 +1181,12 @@ function renderMyProfile() {
         <div style="font-size:17px;font-weight:700;color:var(--text-bright);">${currentUser.name}</div>
       </div>
       <div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:2px;margin-bottom:6px;">BRANCHE</div>
-        <div style="font-size:17px;font-weight:700;color:${branchColor};">${currentUser.branch || '—'}</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:2px;margin-bottom:6px;">DÉPARTEMENT</div>
+        <div style="font-size:17px;font-weight:700;color:${deptColor};">${currentUser.branch || '—'}</div>
       </div>
       <div>
         <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:2px;margin-bottom:6px;">GRADE</div>
-        <span class="grade-badge ${GRADE_BADGE_CLASS[currentUser.grade] || 'badge-recrue'}">${currentUser.grade}</span>
+        <span class="grade-badge ${GRADE_BADGE_CLASS[currentUser.grade] || 'badge-apprenti'}">${currentUser.grade}</span>
       </div>
     </div>
     ${currentUser.steamPseudo || currentUser.steamId ? `
@@ -962,8 +1205,8 @@ function renderMyProfile() {
 async function renderStats() {
   try {
     const [membersSnap, pendingSnap] = await Promise.all([dbGet('members'), dbGet('pending')]);
-    const memberCount = membersSnap.exists() ? Object.values(membersSnap.val()).filter(m => m.status === 'active').length : 0;
-    const pendingCount = pendingSnap.exists() ? Object.keys(pendingSnap.val()).length : 0;
+    const memberCount  = membersSnap.exists()  ? Object.values(membersSnap.val()).filter(m => m.status === 'active').length : 0;
+    const pendingCount = pendingSnap.exists()  ? Object.keys(pendingSnap.val()).length : 0;
     document.getElementById('stat-members').innerText = memberCount;
     document.getElementById('stat-pending').innerText = pendingCount;
   } catch(e) {}
@@ -985,11 +1228,11 @@ function showPage(pageId, btn) {
   if (pg) pg.classList.add('active');
   if (btn) btn.classList.add('active');
 
-  if (pageId === 'admin') renderAdmin();
-  if (pageId === 'accueil') { renderStats(); renderMyProfile(); }
+  if (pageId === 'admin')     renderAdmin();
+  if (pageId === 'accueil')   { renderStats(); renderMyProfile(); }
   if (pageId === 'hierarchie') highlightGrade();
-  if (pageId === 'membres') renderMembersPage();
-  if (pageId === 'rapports') renderRapports();
+  if (pageId === 'membres')   renderMembersPage();
+  if (pageId === 'rapports')  renderRapports();
 }
 
 // ===== MEMBRES PAGE =====
@@ -1003,35 +1246,35 @@ async function renderMembersPage() {
 
     const byGrade = {};
     members.forEach(m => {
-      const g = m.grade || 'Recrue';
+      const g = m.grade || 'Apprenti';
       if (!byGrade[g]) byGrade[g] = [];
       byGrade[g].push(m);
     });
 
-    const sortedGrades = Object.keys(byGrade).sort((a, b) => (GRADE_ORDER[b] || 0) - (GRADE_ORDER[a] || 0));
+    const sortedGrades = Object.keys(byGrade).sort((a,b) => (GRADE_ORDER[b]||0) - (GRADE_ORDER[a]||0));
 
     let html = '';
     sortedGrades.forEach(grade => {
       const gradeMembers = byGrade[grade];
-      const gradeCls = GRADE_BADGE_CLASS[grade] || 'badge-recrue';
+      const gradeCls   = GRADE_BADGE_CLASS[grade] || 'badge-apprenti';
       const gradeColor = GRADE_COLORS[grade] || 'var(--accent)';
 
       html += `
         <div class="grade-section">
           <div class="grade-section-header">
             <span class="grade-section-name" style="color:${gradeColor};">${grade}</span>
-            <span class="grade-section-count">${gradeMembers.length} membre${gradeMembers.length > 1 ? 's' : ''}</span>
+            <span class="grade-section-count">${gradeMembers.length} membre${gradeMembers.length>1?'s':''}</span>
             <div class="grade-section-bar"></div>
             <span class="grade-badge ${gradeCls}">${grade.toUpperCase()}</span>
           </div>
           <div class="member-cards-grid">
             ${gradeMembers.map(m => {
-              const branchColor = BRANCH_COLORS[m.branch] || 'var(--text-dim)';
-              const joinDate = m.joinDate ? new Date(m.joinDate).toLocaleDateString('fr-FR') : '—';
+              const deptColor = DEPT_COLORS[m.branch] || 'var(--text-dim)';
+              const joinDate  = m.joinDate ? new Date(m.joinDate).toLocaleDateString('fr-FR') : '—';
               return `
                 <div class="member-card">
                   <div class="member-card-name">${m.name}</div>
-                  <div class="member-card-branch" style="color:${branchColor};">⬡ ${m.branch || '—'}</div>
+                  <div class="member-card-branch" style="color:${deptColor};">⬡ ${m.branch || '—'}</div>
                   ${m.steamPseudo ? `
                   <div class="member-card-steam">
                     <svg class="steam-icon" viewBox="0 0 24 24" fill="currentColor" style="color:var(--accent);">
@@ -1039,8 +1282,7 @@ async function renderMembersPage() {
                     </svg>
                     <span class="member-card-steam-id">${m.steamPseudo}</span>
                     ${m.steamUrl ? `<a href="${m.steamUrl}" target="_blank">Profil</a>` : ''}
-                  </div>
-                  ` : ''}
+                  </div>` : ''}
                   ${m.steamId ? `<div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);margin-top:4px;">ID: ${m.steamId}</div>` : ''}
                   <div class="member-card-join">Membre depuis le ${joinDate}</div>
                 </div>
@@ -1059,11 +1301,10 @@ async function renderMembersPage() {
 
 // ===== RAPPORTS =====
 async function sendRapport() {
-  const type = document.getElementById('rapport-type').value;
-  const titre = document.getElementById('rapport-titre').value.trim();
+  const type    = document.getElementById('rapport-type').value;
+  const titre   = document.getElementById('rapport-titre').value.trim();
   const contenu = document.getElementById('rapport-contenu').value.trim();
   const membres = document.getElementById('rapport-membres').value.trim();
-
   if (!titre || !contenu) { showToast('Titre et contenu requis.', 'error'); return; }
 
   try {
@@ -1076,22 +1317,19 @@ async function sendRapport() {
       timestamp: Date.now(),
       lu: false
     });
-
     document.getElementById('rapport-titre').value = '';
     document.getElementById('rapport-contenu').value = '';
     document.getElementById('rapport-membres').value = '';
     document.getElementById('rapport-type').value = 'session';
-    showToast('Rapport transmis au superviseur.', 'success');
+    showToast('Rapport transmis au Directeur.', 'success');
     renderRapports();
-  } catch(e) {
-    showToast('Erreur lors de l\'envoi.', 'error');
-  }
+  } catch(e) { showToast("Erreur lors de l'envoi.", 'error'); }
 }
 
 async function renderRapports() {
   try {
     const snap = await dbGet('rapports');
-    allRapports = snap.exists() ? Object.entries(snap.val()).map(([k,v]) => ({...v, _key: k})) : [];
+    allRapports = snap.exists() ? Object.entries(snap.val()).map(([k,v]) => ({...v, _key:k})) : [];
     allRapports.sort((a,b) => (b.timestamp||0) - (a.timestamp||0));
 
     const mesRapports = allRapports.filter(r => r.auteur === currentUser.name);
@@ -1100,7 +1338,7 @@ async function renderRapports() {
       ? '<div class="empty-state">AUCUN RAPPORT ENVOYÉ</div>'
       : mesRapports.map(r => renderRapportItem(r, false)).join('');
 
-    if (currentUser.isAdmin || currentUser.grade === 'Superviseur') {
+    if (currentUser.isAdmin) {
       const nonLus = allRapports.filter(r => !r.lu).length;
       document.getElementById('rapports-recus-count').innerText = nonLus > 0 ? `(${nonLus} non lu${nonLus>1?'s':''})` : '';
       document.getElementById('rapports-notif').style.display = nonLus > 0 ? 'inline-block' : 'none';
@@ -1118,9 +1356,9 @@ function renderRapportsFiltres() {
 }
 
 function renderRapportItem(r, isAdmin) {
-  const typeInfo = RAPPORT_TYPES[r.type] || { label: 'AUTRE', icon: '📝' };
+  const typeInfo    = RAPPORT_TYPES[r.type] || { label:'AUTRE', icon:'📝' };
   const statusClass = r.lu ? 'report-status-read' : 'report-status-new';
-  const statusText = r.lu ? 'LU' : 'NOUVEAU';
+  const statusText  = r.lu ? 'LU' : 'NOUVEAU';
   return `
     <div class="report-item type-${r.type}" ${isAdmin ? `onclick="markRapportLu('${r._key}')" style="cursor:pointer;"` : ''}>
       <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px;">
@@ -1131,7 +1369,7 @@ function renderRapportItem(r, isAdmin) {
       <div class="report-meta">
         <div class="report-meta-item">De : <span>${r.auteur}</span></div>
         <div class="report-meta-item">Grade : <span>${r.auteurGrade}</span></div>
-        <div class="report-meta-item">Branche : <span>${r.auteurBranch}</span></div>
+        <div class="report-meta-item">Département : <span>${r.auteurBranch}</span></div>
         <div class="report-meta-item">Date : <span>${r.date}</span></div>
       </div>
       <div class="report-content">${r.contenu}</div>
@@ -1141,12 +1379,8 @@ function renderRapportItem(r, isAdmin) {
 }
 
 async function markRapportLu(key) {
-  try {
-    await dbUpdate('rapports/' + key, { lu: true });
-    renderRapports();
-  } catch(e) {}
+  try { await dbUpdate('rapports/'+key, {lu:true}); renderRapports(); } catch(e) {}
 }
-
 function filterRapports(type, btn) {
   currentRapportFilter = type;
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -1162,7 +1396,7 @@ async function renderAdmin() {
 
 async function renderPending() {
   const container = document.getElementById('pending-requests');
-  const badge = document.getElementById('pending-count-badge');
+  const badge     = document.getElementById('pending-count-badge');
   try {
     const snap = await dbGet('pending');
     if (!snap.exists()) {
@@ -1172,19 +1406,19 @@ async function renderPending() {
     }
     const pending = Object.entries(snap.val());
     badge.innerText = `(${pending.length})`;
-    container.innerHTML = pending.map(([key, p]) => `
+    container.innerHTML = pending.map(([key,p]) => `
       <div class="request-card">
         <div class="request-info">
           <div class="request-name">${p.name}</div>
           <div class="request-email">${p.email}</div>
-          <div class="request-branch">Branche : ${p.branch}</div>
+          <div class="request-branch">Département : ${p.branch}</div>
           ${p.steamPseudo ? `<div class="request-steam">Steam : ${p.steamPseudo}${p.steamId ? ` — ID: ${p.steamId}` : ''}</div>` : ''}
           ${p.steamUrl ? `<div class="request-steam"><a href="${p.steamUrl}" target="_blank" style="color:var(--accent);text-decoration:none;">→ Profil Steam</a></div>` : ''}
           <div class="request-date">Soumis le ${p.date}</div>
         </div>
         <div class="request-actions">
           <button class="btn-accept" onclick="acceptRequest('${key}')">✓ ACCEPTER</button>
-          <button class="btn-refuse" onclick="refuseRequest('${key}', '${p.name}')">✗ REFUSER</button>
+          <button class="btn-refuse" onclick="refuseRequest('${key}','${p.name}')">✗ REFUSER</button>
         </div>
       </div>
     `).join('');
@@ -1196,25 +1430,27 @@ async function renderPending() {
 
 async function acceptRequest(key) {
   try {
-    const snap = await dbGet('pending/' + key);
+    const snap = await dbGet('pending/'+key);
     if (!snap.exists()) return;
     const req = snap.val();
     const newId = 'm_' + Date.now();
-    await dbSet('members/' + newId, {
+    // Si l'email est celui de l'admin, on lui donne directement le rang admin
+    const isAdminEmail = req.email && req.email.toLowerCase() === ADMIN_EMAIL;
+    await dbSet('members/'+newId, {
       id: newId,
       email: req.email,
       password: req.password,
       name: req.name,
-      grade: 'Recrue',
-      branch: req.branch,
-      isAdmin: false,
+      grade: isAdminEmail ? 'Directeur CWU' : 'Apprenti',
+      branch: isAdminEmail ? 'Direction' : req.branch,
+      isAdmin: isAdminEmail,
       status: 'active',
       steamPseudo: req.steamPseudo || '',
       steamId: req.steamId || '',
       steamUrl: req.steamUrl || '',
       joinDate: new Date().toISOString()
     });
-    await dbRemove('pending/' + key);
+    await dbRemove('pending/'+key);
     showToast('Inscription acceptée : ' + req.name, 'success');
     renderAdmin();
   } catch(e) { showToast('Erreur Firebase.', 'error'); }
@@ -1223,7 +1459,7 @@ async function acceptRequest(key) {
 function refuseRequest(key, name) {
   openModal('REFUSER LA DEMANDE', `Confirmer le refus de la demande de <strong>${name}</strong> ?`, async () => {
     try {
-      await dbRemove('pending/' + key);
+      await dbRemove('pending/'+key);
       showToast('Demande refusée.', 'warn');
       renderAdmin();
     } catch(e) { showToast('Erreur Firebase.', 'error'); }
@@ -1239,23 +1475,21 @@ async function renderMembers() {
       return;
     }
     const members = Object.entries(snap.val()).filter(([,m]) => m.status === 'active');
-
-    tbody.innerHTML = members.map(([key, m]) => {
-      const gradeCls = m.isAdmin ? 'badge-admin' : (GRADE_BADGE_CLASS[m.grade] || 'badge-recrue');
+    tbody.innerHTML = members.map(([key,m]) => {
+      const gradeCls = m.isAdmin ? 'badge-admin' : (GRADE_BADGE_CLASS[m.grade] || 'badge-apprenti');
       const isMe = m.email && m.email.toLowerCase() === currentUser.email.toLowerCase();
       const gradeOptions = GRADES.map(g => `<option value="${g}" ${m.grade===g?'selected':''}>${g}</option>`).join('');
-      const branchOptions = ['Direction',...BRANCHES].map(b => `<option value="${b}" ${m.branch===b?'selected':''}>${b}</option>`).join('');
+      const branchOptions = DEPARTMENTS.map(b => `<option value="${b}" ${m.branch===b?'selected':''}>${b}</option>`).join('');
       const steamInfo = m.steamPseudo
         ? `<div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--accent);">${m.steamPseudo}</div>${m.steamUrl ? `<a href="${m.steamUrl}" target="_blank" style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);text-decoration:none;border-bottom:1px solid rgba(255,255,255,0.1);">→ profil</a>` : ''}`
         : '<span style="color:var(--text-dim);font-size:11px;">—</span>';
-
       return `
         <tr>
           <td style="font-weight:700;color:var(--text-bright);">${m.name}${isMe ? ' <span style="font-size:9px;color:var(--accent);font-family:\'Share Tech Mono\',monospace;">(MOI)</span>' : ''}</td>
           <td style="font-family:'Share Tech Mono',monospace;font-size:10px;">${m.email}</td>
           <td>${steamInfo}</td>
-          <td>${isMe ? `<span style="color:var(--accent3);font-family:'Share Tech Mono',monospace;font-size:11px;">${m.branch}</span>` : `<select class="select-branch" onchange="changeBranch('${key}', this.value)">${branchOptions}</select>`}</td>
-          <td>${isMe ? `<span class="grade-badge ${gradeCls}">${m.isAdmin ? 'ADMIN' : m.grade}</span>` : `<select class="select-grade" onchange="changeGrade('${key}', this.value)">${gradeOptions}</select>`}</td>
+          <td>${isMe ? `<span style="color:var(--accent3);font-family:'Share Tech Mono',monospace;font-size:11px;">${m.branch}</span>` : `<select class="select-branch" onchange="changeBranch('${key}',this.value)">${branchOptions}</select>`}</td>
+          <td>${isMe ? `<span class="grade-badge ${gradeCls}">${m.isAdmin?'DIRECTEUR':m.grade}</span>` : `<select class="select-grade" onchange="changeGrade('${key}',this.value)">${gradeOptions}</select>`}</td>
           <td>${isMe ? '<span style="color:var(--text-dim);font-size:10px;">—</span>' : `<button class="btn-kick" onclick="kickMember('${key}','${m.name}')">EXCLURE</button>`}</td>
         </tr>
       `;
@@ -1267,9 +1501,9 @@ async function renderMembers() {
 
 async function changeGrade(key, newGrade) {
   try {
-    const snap = await dbGet('members/' + key);
+    const snap = await dbGet('members/'+key);
     const m = snap.val();
-    await dbUpdate('members/' + key, { grade: newGrade });
+    await dbUpdate('members/'+key, { grade: newGrade });
     showToast(`${m.name} → ${newGrade}`, 'success');
     renderStats();
   } catch(e) { showToast('Erreur Firebase.', 'error'); }
@@ -1277,17 +1511,17 @@ async function changeGrade(key, newGrade) {
 
 async function changeBranch(key, newBranch) {
   try {
-    const snap = await dbGet('members/' + key);
+    const snap = await dbGet('members/'+key);
     const m = snap.val();
-    await dbUpdate('members/' + key, { branch: newBranch });
-    showToast(`${m.name} → branche ${newBranch}`, 'success');
+    await dbUpdate('members/'+key, { branch: newBranch });
+    showToast(`${m.name} → département ${newBranch}`, 'success');
   } catch(e) { showToast('Erreur Firebase.', 'error'); }
 }
 
 function kickMember(key, name) {
   openModal('EXCLURE UN MEMBRE', `Confirmer l'exclusion de <strong>${name}</strong> ? Action irréversible.`, async () => {
     try {
-      await dbRemove('members/' + key);
+      await dbRemove('members/'+key);
       showToast(name + ' exclu(e).', 'warn');
       renderAdmin();
     } catch(e) { showToast('Erreur Firebase.', 'error'); }
@@ -1308,7 +1542,7 @@ function closeModal() {
 document.getElementById('modal-confirm-btn').onclick = () => { if (modalCallback) modalCallback(); closeModal(); };
 
 // ===== TOAST =====
-function showToast(msg, type = '') {
+function showToast(msg, type='') {
   const t = document.getElementById('toast');
   t.innerText = '› ' + msg;
   t.className = type;
