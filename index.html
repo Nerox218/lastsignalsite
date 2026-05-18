@@ -94,13 +94,8 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .status-dot.on{background:var(--green);box-shadow:0 0 6px var(--green);}
 .role-tag{padding:2px 7px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;font-family:'Share Tech Mono',monospace;}
 .role-tag.directeur{background:rgba(244,162,28,0.12);border:1px solid var(--orange);color:var(--orange);}
-.role-tag.inspecteur Sanitaire{background:rgba(56,161,105,0.08);border:1px solid #38a169;color:#68d391;}
-.role-tag.Surintendant{background:rgba(56,161,105,0.08);border:1px solid #38a169;color:#68d391;}
-.role-tag.Bio-ingénieur{background:rgba(56,161,105,0.08);border:1px solid #38a169;color:#68d391;}
-.role-tag.Intendant{background:rgba(56,161,105,0.08);border:1px solid #38a169;color:#68d391;}
-.role-tag.Bio-technicien{background:rgba(56,161,105,0.08);border:1px solid #38a169;color:#68d391;}
-.role-tag.Contremaitre{background:rgba(56,161,105,0.08);border:1px solid #38a169;color:#68d391;}
-.role-tag.Apprenti{background:rgba(56,161,105,0.08);border:1px solid #38a169;color:#68d391;}
+.role-tag.superviseur{background:rgba(0,180,216,0.08);border:1px solid var(--accent-dim);color:var(--accent);}
+.role-tag.membre{background:rgba(56,161,105,0.08);border:1px solid #38a169;color:#68d391;}
 .logout-btn{background:none;border:1px solid var(--border);color:var(--text-secondary);padding:5px 11px;font-family:'Share Tech Mono',monospace;font-size:10px;cursor:pointer;transition:all 0.2s;}
 .logout-btn:hover{border-color:var(--red);color:#fc8181;}
 .site-layout{display:flex;flex:1;min-height:calc(100vh - 58px);}
@@ -269,16 +264,16 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
       <div class="login-title">Accès syndical</div>
       <div class="login-sub">Connectez-vous ou demandez votre adhésion</div>
       <div class="tab-bar">
-        <button class="tab-btn" id="tab-login" onclick="switchTab('login')">Connexion</button>
-        <button class="tab-btn active" id="tab-register" onclick="switchTab('register')">Demander l'entrée</button>
+        <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">Connexion</button>
+        <button class="tab-btn" id="tab-register" onclick="switchTab('register')">Demander l'entrée</button>
       </div>
-      <div class="tab-panel" id="panel-login">
+      <div class="tab-panel active" id="panel-login">
         <div class="err-msg" id="login-err"></div>
         <div class="field"><label>Email</label><input type="email" id="login-email" placeholder="exemple@email.com"></div>
         <div class="field"><label>Mot de passe</label><input type="password" id="login-pass" placeholder="••••••••"></div>
         <button class="btn-primary" id="btn-login" onclick="doLogin()">SE CONNECTER</button>
       </div>
-      <div class="tab-panel active" id="panel-register">
+      <div class="tab-panel" id="panel-register">
         <div class="ok-msg" id="reg-ok"></div>
         <div class="err-msg" id="reg-err"></div>
         <div class="field"><label>CID (Nom RP + matricule)</label><input type="text" id="reg-cid" placeholder="Jack Latrousse, #52468"></div>
@@ -377,19 +372,17 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
   </div>
 </div>
 
-<!-- Indicateur connexion Firebase -->
 <div class="firebase-status loading" id="fb-status">● FIREBASE...</div>
 
 <!-- ===================== FIREBASE SDK ===================== -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, set, get, push, remove, update, onValue, child }
+import { getDatabase, ref, set, get, push, remove, update, onValue }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
   signOut, onAuthStateChanged }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-// ─── CONFIG FIREBASE ───────────────────────────────────────
 const firebaseConfig = {
   apiKey: "AIzaSyA7aaQo9lUvoPjqv93vH_xnAqWsuac5vrE",
   authDomain: "lastsignal-7f6e7.firebaseapp.com",
@@ -397,51 +390,48 @@ const firebaseConfig = {
   projectId: "lastsignal-7f6e7",
   storageBucket: "lastsignal-7f6e7.firebasestorage.app",
   messagingSenderId: "523051023821",
-  appId: "1:523051023821:web:50da417109bb0b9bed9884",
-  measurementId: "G-4T3M2L5E6C"
+  appId: "1:523051023821:web:50da417109bb0b9bed9884"
 };
 
 const app  = initializeApp(firebaseConfig);
 const db   = getDatabase(app);
 const auth = getAuth(app);
 
-// ─── CONSTANTES ────────────────────────────────────────────
 const ADMIN_EMAIL = 'alexandre.jacopin76@gmail.com';
-const ROLES = ['directeur'];
 
-// ─── ÉTAT GLOBAL ────────────────────────────────────────────
-let CU = null; // current user (données profil depuis DB)
-let _DB = {    // cache local des données Firebase
-  users: {},
-  pages: {},
-  reports: {},
-  announcements: {},
-  grades: { roles: ROLES, divisions: [] },
-  config: {}
-};
+// FIX : hiérarchie complète avec les 3 rôles dans le bon ordre (croissant)
+const ROLES = ['membre', 'superviseur', 'directeur'];
+
+let CU = null;
+let _DB = { users:{}, pages:{}, reports:{}, announcements:{}, grades:{ roles: ROLES, divisions:[] }, config:{} };
 let _rfFiles = [];
 let _editPageId = null;
 
-// ─── INDICATEUR CONNEXION ───────────────────────────────────
+// Indicateur Firebase
 const fbStatus = document.getElementById('fb-status');
 onValue(ref(db, '.info/connected'), snap => {
-  if (snap.val()) {
-    fbStatus.textContent = '● HEBERGEMENT CONNECTÉ';
-    fbStatus.className = 'firebase-status connected';
+  if(snap.val()){
+    fbStatus.textContent='● FIREBASE CONNECTÉ'; fbStatus.className='firebase-status connected';
   } else {
-    fbStatus.textContent = '● HEBERGEMENT HORS LIGNE';
-    fbStatus.className = 'firebase-status disconnected';
+    fbStatus.textContent='● FIREBASE HORS LIGNE'; fbStatus.className='firebase-status disconnected';
   }
 });
 
 // ─── HELPERS ────────────────────────────────────────────────
 function roleLevel(r){ return ROLES.indexOf(r); }
+
+// FIX : canAccess gère correctement 'tous', les tableaux, et les rôles individuels
 function canAccess(userRole, required){
-  if(required==='tous'||required==='all') return true;
-  if(!required||required==='none') return false;
-  const rArr = Array.isArray(required)?required:[required];
-  return rArr.some(r => roleLevel(userRole) >= roleLevel(r));
+  if(!required || required === 'tous' || required === 'all') return true;
+  if(required === 'none') return false;
+  const rArr = Array.isArray(required) ? required : [required];
+  // Si 'tous' est dans le tableau, tout le monde peut accéder
+  if(rArr.includes('tous') || rArr.includes('all')) return true;
+  // Sinon vérifie que le niveau de l'utilisateur est >= au niveau requis minimum
+  const minRequired = Math.min(...rArr.map(r => roleLevel(r)).filter(l => l >= 0));
+  return roleLevel(userRole) >= minRequired;
 }
+
 function showErr(el, msg){ el.textContent=msg; el.style.display='block'; setTimeout(()=>el.style.display='none',4000); }
 function openModal(id){ document.getElementById(id).classList.add('active'); }
 function closeModal(id){ document.getElementById(id).classList.remove('active'); }
@@ -449,40 +439,43 @@ function showView(id){ document.querySelectorAll('.view').forEach(v=>v.classList
 function formatAccess(a){ if(a==='tous'||a==='all')return 'Tous'; if(Array.isArray(a))return a.join(', '); return a||'Tous'; }
 function typeLabel(t){ const m={unite:'Unité',division:'Division',alert:'ALERTE',prioritaire:'Prioritaire'}; return m[t]||t; }
 function setLoading(msg){ document.getElementById('loading-msg').textContent = msg||'Chargement...'; }
-
-// Encode email pour clé Firebase (remplace . et @)
 function emailToKey(email){ return email.replace(/\./g,'_dot_').replace(/@/g,'_at_'); }
-function keyToEmail(key){ return key.replace(/_dot_/g,'.').replace(/_at_/g,'@'); }
 
 // ─── INIT DONNÉES PAR DÉFAUT ────────────────────────────────
 async function initDefaultData(){
-  // Vérifie si les données existent déjà
   const snap = await get(ref(db, 'config/siteName'));
-  if(snap.exists()) return; // déjà initialisé
+  if(snap.exists()) return;
 
   const adminKey = emailToKey(ADMIN_EMAIL);
 
-  // Admin user
+  // FIX : crée le compte Firebase Auth pour l'admin s'il n'existe pas
+  try {
+    await createUserWithEmailAndPassword(auth, ADMIN_EMAIL, 'Admin1234!');
+  } catch(e) {
+    // auth/email-already-in-use = compte déjà créé, c'est normal
+    if(e.code !== 'auth/email-already-in-use') console.warn('Admin auth:', e.code);
+  }
+  // Déconnecte immédiatement après création silencieuse
+  await signOut(auth);
+
   await set(ref(db, `users/${adminKey}`), {
     email: ADMIN_EMAIL, cid: 'Alexandre J., Directeur', steam: 'alexandre_jacopin',
     role: 'directeur', division: 'Direction', status: 'approved',
     matricule: '001', joined: new Date().toISOString()
   });
 
-  // Grades
+  // FIX : grades avec les 3 rôles corrects
   await set(ref(db, 'grades'), {
     roles: { 0:'membre', 1:'superviseur', 2:'directeur' },
     divisions: { 0:'Logistique', 1:'Maintenance', 2:'Sécurité', 3:'Administration', 4:'Direction' }
   });
 
-  // Config
   await set(ref(db, 'config'), {
     siteName: "Civil Worker's Union",
     siteSubtitle: 'Centre Syndicale — Last Signal RP',
     adminEmail: ADMIN_EMAIL
   });
 
-  // Pages par défaut
   const pages = [
     {id:'accueil',title:'Accueil',category:'Général',navOrder:0,inSidebar:false,accessRoles:'tous',
      content:[
@@ -492,18 +485,15 @@ async function initDefaultData(){
     {id:'reglement',title:'Règlement',category:'Syndicat',navOrder:1,inSidebar:true,accessRoles:'tous',
      content:[
        {cat:'Code de conduite',title:'Règles générales',body:"I. Tout membre du CWU se doit d'obéir aux ordres de sa hiérarchie.\nII. La propagande anti-Union est strictement interdite.\nIII. Tout comportement perturbateur sera sanctionné."},
-       {cat:'Sanctions',title:'Procédures disciplinaires',body:'Les manquements aux règles peuvent entraîner un avertissement, une suspension temporaire, ou l\'exclusion définitive.'}
+       {cat:'Sanctions',title:'Procédures disciplinaires',body:"Les manquements aux règles peuvent entraîner un avertissement, une suspension temporaire, ou l'exclusion définitive."}
      ]},
     {id:'annonces',title:'Annonces',category:'Général',navOrder:2,inSidebar:false,accessRoles:'tous',content:[]},
     {id:'rapports',title:'Rapports',category:'Activité',navOrder:3,inSidebar:false,accessRoles:'membre',content:[]},
     {id:'classifie',title:'Zone Classifiée',category:'Direction',navOrder:99,inSidebar:true,accessRoles:'superviseur',
      content:[{cat:'CONFIDENTIEL',title:'Directives internes',body:'Ce salon est réservé aux superviseurs et directeurs.'}]}
   ];
-  for(const p of pages){
-    await set(ref(db, `pages/${p.id}`), p);
-  }
+  for(const p of pages) await set(ref(db, `pages/${p.id}`), p);
 
-  // Annonce initiale
   const annId = Date.now();
   await set(ref(db, `announcements/${annId}`), {
     id: annId, author: 'Direction',
@@ -518,41 +508,20 @@ async function initDefaultData(){
 async function loadAllData(){
   const snap = await get(ref(db));
   const data = snap.val() || {};
-
-  // Users : objet { emailKey: {...} }
   _DB.users = data.users || {};
-
-  // Grades
   const gr = data.grades || {};
   _DB.grades = {
     roles: gr.roles ? Object.values(gr.roles) : ROLES,
     divisions: gr.divisions ? Object.values(gr.divisions) : []
   };
-
-  // Pages : objet { pageId: {...} }
   _DB.pages = data.pages || {};
-
-  // Reports : objet { reportId: {...} }
   _DB.reports = data.reports || {};
-
-  // Announcements : objet { annId: {...} }
   _DB.announcements = data.announcements || {};
-
-  // Config
   _DB.config = data.config || {};
 }
 
-// Écoute en temps réel les changements (rapports, annonces, membres)
 function startRealtime(){
-  onValue(ref(db,'users'), snap => {
-    _DB.users = snap.val() || {};
-    updatePendingCount();
-    // Recharge la vue admin si ouverte
-    const ac = document.getElementById('admin-content');
-    if(ac && document.getElementById('view-admin').classList.contains('active')) {
-      // optionnel : rafraîchir silencieusement
-    }
-  });
+  onValue(ref(db,'users'), snap => { _DB.users = snap.val() || {}; updatePendingCount(); });
   onValue(ref(db,'reports'), snap => { _DB.reports = snap.val() || {}; });
   onValue(ref(db,'announcements'), snap => { _DB.announcements = snap.val() || {}; });
 }
@@ -570,10 +539,17 @@ onAuthStateChanged(auth, async (firebaseUser) => {
         startRealtime();
         enterSite();
         return;
+      } else if(userData.status === 'pending'){
+        await signOut(auth);
+        hideSplash();
+        const err = document.getElementById('login-err');
+        if(err){ err.textContent = 'Votre demande est en attente de validation.'; err.style.display='block'; }
+        return;
       }
     }
+    // Utilisateur Auth mais pas dans la DB ou rejeté
+    await signOut(auth);
   }
-  // Non connecté ou rejeté
   hideSplash();
 });
 
@@ -597,14 +573,14 @@ async function doLogin(){
   const err   = document.getElementById('login-err');
   const btn   = document.getElementById('btn-login');
   if(!email||!pass){ showErr(err,'Remplissez tous les champs.'); return; }
-
-  btn.disabled = true; btn.textContent = 'CONNEXION...';
+  btn.disabled=true; btn.textContent='CONNEXION...';
   try {
     await signInWithEmailAndPassword(auth, email, pass);
     // onAuthStateChanged prend le relais
   } catch(e) {
     let msg = 'Identifiants incorrects.';
-    if(e.code==='auth/too-many-requests') msg = 'Trop de tentatives. Réessayez plus tard.';
+    if(e.code==='auth/too-many-requests') msg='Trop de tentatives. Réessayez plus tard.';
+    if(e.code==='auth/user-not-found'||e.code==='auth/wrong-password'||e.code==='auth/invalid-credential') msg='Email ou mot de passe incorrect.';
     showErr(err, msg);
     btn.disabled=false; btn.textContent='SE CONNECTER';
   }
@@ -620,28 +596,20 @@ async function doRegister(){
   const err   = document.getElementById('reg-err');
   const ok    = document.getElementById('reg-ok');
   const btn   = document.getElementById('btn-register');
-
   if(!cid||!steam||!email||!pass){ showErr(err,'Remplissez tous les champs obligatoires.'); return; }
-  if(pass.length<6){ showErr(err,'Mot de passe trop court.'); return; }
-
+  if(pass.length<6){ showErr(err,'Mot de passe trop court (6 caractères minimum).'); return; }
   btn.disabled=true; btn.textContent='ENVOI...';
   try {
-    // Crée le compte Firebase Auth
     const cred = await createUserWithEmailAndPassword(auth, email, pass);
-    // Déconnecte immédiatement (en attente de validation)
     await signOut(auth);
-
-    // Calcule le matricule
     const userCount = Object.keys(_DB.users).length + 1;
     const mat = String(userCount).padStart(3,'0');
     const key = emailToKey(email);
-
     await set(ref(db, `users/${key}`), {
       email, cid, steam, division: div||'Non assigné',
       role: 'membre', status: 'pending',
       matricule: mat, joined: new Date().toISOString()
     });
-
     err.style.display='none';
     ok.textContent='✓ Demande envoyée. Un responsable examinera votre candidature.';
     ok.style.display='block';
@@ -665,27 +633,18 @@ async function doSupLogin(){
   try {
     await signInWithEmailAndPassword(auth, email, pass);
     closeModal('modal-sup');
-    // onAuthStateChanged gère la suite
-  } catch(e) {
-    showErr(err,'Identifiants incorrects.');
-  }
+  } catch(e) { showErr(err,'Identifiants incorrects.'); }
 }
 window.doSupLogin = doSupLogin;
 
 async function doLogout(){
-  await signOut(auth);
-  CU = null;
-  showView('view-login');
+  await signOut(auth); CU=null; showView('view-login');
 }
 window.doLogout = doLogout;
 
 // ─── SITE ────────────────────────────────────────────────────
 function enterSite(){
-  hideSplash();
-  buildNav();
-  updateBar();
-  showView('view-site');
-  showPage('accueil');
+  hideSplash(); buildNav(); updateBar(); showView('view-site'); showPage('accueil');
 }
 
 function updateBar(){
@@ -695,6 +654,7 @@ function updateBar(){
   const labels = {directeur:'DIRECTEUR',superviseur:'SUPERVISEUR',membre:'MEMBRE'};
   r.textContent = labels[CU.role]||CU.role;
   r.className = 'role-tag '+CU.role;
+  // FIX : affiche le bouton admin pour superviseur ET directeur
   document.getElementById('admin-btn').style.display = ['directeur','superviseur'].includes(CU.role)?'':'none';
 }
 
@@ -703,40 +663,31 @@ function buildNav(){
   const navPages = pages
     .filter(p => p.navOrder !== undefined && p.navOrder !== null && canAccess(CU.role, p.accessRoles))
     .sort((a,b) => a.navOrder - b.navOrder);
-
   const nav = document.getElementById('main-nav');
-  nav.innerHTML = '';
+  nav.innerHTML='';
   navPages.forEach(p => {
-    const b = document.createElement('button');
+    const b=document.createElement('button');
     b.className='nav-btn'; b.textContent=p.title; b.onclick=()=>showPage(p.id); b.id='nav-'+p.id;
     nav.appendChild(b);
   });
-
   const sb = document.getElementById('sidebar-nav');
-  sb.innerHTML = '';
+  sb.innerHTML='';
   const sidebarPages = pages.filter(p => p.inSidebar && canAccess(CU.role, p.accessRoles));
   const cats = [...new Set(sidebarPages.map(p=>p.category))];
   cats.forEach(cat => {
-    const label = document.createElement('div');
-    label.className='sidebar-cat'; label.textContent=cat; sb.appendChild(label);
+    const label=document.createElement('div'); label.className='sidebar-cat'; label.textContent=cat; sb.appendChild(label);
     sidebarPages.filter(p=>p.category===cat).forEach(p=>{
-      const link = document.createElement('div');
-      link.className='sidebar-link';
-      link.innerHTML=`<span class="sidebar-icon">▸</span>${p.title}`;
-      link.id='slink-'+p.id;
-      link.onclick=()=>showPage(p.id);
-      sb.appendChild(link);
+      const link=document.createElement('div'); link.className='sidebar-link';
+      link.innerHTML=`<span class="sidebar-icon">▸</span>${p.title}`; link.id='slink-'+p.id;
+      link.onclick=()=>showPage(p.id); sb.appendChild(link);
     });
   });
-
-  const hr = document.createElement('hr'); hr.className='sidebar-divider'; sb.appendChild(hr);
+  const hr=document.createElement('hr'); hr.className='sidebar-divider'; sb.appendChild(hr);
   if(canAccess(CU.role,'membre')){
-    const rl = document.createElement('div'); rl.className='sidebar-link';
-    rl.innerHTML='<span class="sidebar-icon">📋</span>Mes rapports';
-    rl.onclick=()=>showPage('rapports'); sb.appendChild(rl);
-    const wrl = document.createElement('div'); wrl.className='sidebar-link';
-    wrl.innerHTML='<span class="sidebar-icon">✏️</span>Rédiger un rapport';
-    wrl.onclick=()=>showPage('write-report'); sb.appendChild(wrl);
+    const rl=document.createElement('div'); rl.className='sidebar-link';
+    rl.innerHTML='<span class="sidebar-icon">📋</span>Mes rapports'; rl.onclick=()=>showPage('rapports'); sb.appendChild(rl);
+    const wrl=document.createElement('div'); wrl.className='sidebar-link';
+    wrl.innerHTML='<span class="sidebar-icon">✏️</span>Rédiger un rapport'; wrl.onclick=()=>showPage('write-report'); sb.appendChild(wrl);
   }
 }
 window.buildNav = buildNav;
@@ -746,19 +697,17 @@ function showPage(id){
   document.querySelectorAll('.sidebar-link').forEach(b=>b.classList.remove('active'));
   const nb=document.getElementById('nav-'+id); if(nb)nb.classList.add('active');
   const sl=document.getElementById('slink-'+id); if(sl)sl.classList.add('active');
-
   if(id==='annonces'){renderAnnounces();return;}
   if(id==='rapports'){renderReports();return;}
   if(id==='write-report'){renderWriteReport();return;}
-
-  const page = _DB.pages[id];
-  if(!page){ document.getElementById('page-content').innerHTML='<div class="card"><div class="card-body">Page introuvable.</div></div>'; return; }
+  const page=_DB.pages[id];
+  if(!page){document.getElementById('page-content').innerHTML='<div class="card"><div class="card-body">Page introuvable.</div></div>';return;}
   if(!canAccess(CU.role, page.accessRoles)){
     document.getElementById('page-content').innerHTML=`<div class="access-denied"><div class="access-denied-icon">🔒</div><div class="access-denied-title">ACCÈS REFUSÉ</div><div class="access-denied-sub">Ce salon est réservé aux grades supérieurs.</div></div>`;
     return;
   }
   let html=`<div class="page-header"><div class="page-title"><span class="prefix">▸ ${page.category}</span>${page.title}</div></div>`;
-  const content = Array.isArray(page.content) ? page.content : Object.values(page.content||{});
+  const content=Array.isArray(page.content)?page.content:Object.values(page.content||{});
   if(content.length){
     content.forEach(s=>{
       html+=`<div class="card"><div class="card-title">${s.cat}</div><div class="card-body"><h3 style="color:var(--text-primary);font-size:15px;margin-bottom:6px;font-weight:600">${s.title}</h3><div style="white-space:pre-line;margin-top:6px">${s.body}</div></div></div>`;
@@ -771,36 +720,30 @@ function showPage(id){
 window.showPage = showPage;
 
 function renderAnnounces(){
-  const anns = Object.values(_DB.announcements).sort((a,b)=>b.id-a.id);
+  const anns=Object.values(_DB.announcements).sort((a,b)=>b.id-a.id);
   let html=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Général</span>Annonces</div></div>`;
   if(!anns.length) html+=`<div class="alert info">Aucune annonce publiée.</div>`;
-  else anns.forEach(a=>{
-    html+=`<div class="ann-item"><div class="ann-meta">${a.date} — par ${a.author}</div><div class="ann-title">${a.title}</div><div class="ann-body">${a.body}</div></div>`;
-  });
+  else anns.forEach(a=>{html+=`<div class="ann-item"><div class="ann-meta">${a.date} — par ${a.author}</div><div class="ann-title">${a.title}</div><div class="ann-body">${a.body}</div></div>`;});
   document.getElementById('page-content').innerHTML=html;
 }
 
 // ─── RAPPORTS ────────────────────────────────────────────────
 function renderReports(){
-  const reports = Object.values(_DB.reports);
-  let visible = reports;
-  if(CU.role==='membre') visible = reports.filter(r=>r.authorEmail===CU.email);
-  const weekAgo = Date.now()-7*24*60*60*1000;
-  const weekCount = visible.filter(r=>new Date(r.date).getTime()>weekAgo).length;
-  const alertCount = visible.filter(r=>r.type==='alert').length;
-
+  const reports=Object.values(_DB.reports);
+  let visible=reports;
+  if(CU.role==='membre') visible=reports.filter(r=>r.authorEmail===CU.email);
+  const weekAgo=Date.now()-7*24*60*60*1000;
   let statsHtml='';
   if(['superviseur','directeur'].includes(CU.role)){
     statsHtml=`<div class="stats-grid">
       <div class="stat-card blue"><div class="stat-number">${visible.length}</div><div class="stat-label">Total</div></div>
-      <div class="stat-card green"><div class="stat-number">${weekCount}</div><div class="stat-label">Semaine</div></div>
-      <div class="stat-card red"><div class="stat-number">${alertCount}</div><div class="stat-label">Alertes</div></div>
+      <div class="stat-card green"><div class="stat-number">${visible.filter(r=>new Date(r.date).getTime()>weekAgo).length}</div><div class="stat-label">Semaine</div></div>
+      <div class="stat-card red"><div class="stat-number">${visible.filter(r=>r.type==='alert').length}</div><div class="stat-label">Alertes</div></div>
       <div class="stat-card orange"><div class="stat-number">${visible.filter(r=>r.type==='prioritaire').length}</div><div class="stat-label">Prioritaires</div></div>
     </div>`;
   }
-  const authorFilter = ['superviseur','directeur'].includes(CU.role)
-    ? `<select id="rf-author" onchange="filterReports()"><option value="">Tous les auteurs</option>${[...new Set(visible.map(r=>r.author))].map(a=>`<option value="${a}">${a}</option>`).join('')}</select>` : '';
-
+  const authorFilter=['superviseur','directeur'].includes(CU.role)
+    ?`<select id="rf-author" onchange="filterReports()"><option value="">Tous les auteurs</option>${[...new Set(visible.map(r=>r.author))].map(a=>`<option value="${a}">${a}</option>`).join('')}</select>`:'';
   let html=`<div class="page-header">
     <div class="page-title"><span class="prefix">▸ Activité</span>Registre des rapports</div>
     <button class="btn-submit" onclick="showPage('write-report')">✏️ Rédiger un rapport</button>
@@ -808,29 +751,16 @@ function renderReports(){
   ${statsHtml}
   <div class="report-filters">
     <input type="text" id="rf-search" placeholder="Rechercher..." oninput="filterReports()">
-    <select id="rf-type" onchange="filterReports()">
-      <option value="">Tous les types</option>
-      <option value="unite">Rapport unité</option>
-      <option value="division">Rapport division</option>
-      <option value="alert">Alerte</option>
-      <option value="prioritaire">Prioritaire</option>
-    </select>
+    <select id="rf-type" onchange="filterReports()"><option value="">Tous les types</option><option value="unite">Rapport unité</option><option value="division">Rapport division</option><option value="alert">Alerte</option><option value="prioritaire">Prioritaire</option></select>
     ${authorFilter}
   </div>
-  <div class="report-row">
-    <div class="report-cell header">DATE</div>
-    <div class="report-cell header">MATRICULE</div>
-    <div class="report-cell header">AUTEUR</div>
-    <div class="report-cell header">TYPE</div>
-    <div class="report-cell header">SECTEUR</div>
-    <div class="report-cell header">PJ</div>
-  </div>
+  <div class="report-row"><div class="report-cell header">DATE</div><div class="report-cell header">MATRICULE</div><div class="report-cell header">AUTEUR</div><div class="report-cell header">TYPE</div><div class="report-cell header">SECTEUR</div><div class="report-cell header">PJ</div></div>
   <div id="report-list"></div>`;
   document.getElementById('page-content').innerHTML=html;
   window._rVisible=visible;
   filterReports();
 }
-window.renderReports = renderReports;
+window.renderReports=renderReports;
 
 function filterReports(){
   const search=(document.getElementById('rf-search')||{}).value?.toLowerCase()||'';
@@ -840,8 +770,7 @@ function filterReports(){
   if(search)list=list.filter(r=>r.author?.toLowerCase().includes(search)||r.matricule?.toLowerCase().includes(search)||r.resume?.toLowerCase().includes(search)||r.secteur?.toLowerCase().includes(search));
   if(type)list=list.filter(r=>r.type===type);
   if(author)list=list.filter(r=>r.author===author);
-  const container=document.getElementById('report-list');
-  if(!container)return;
+  const container=document.getElementById('report-list'); if(!container)return;
   if(!list.length){container.innerHTML=`<div class="alert info" style="margin-top:8px">Aucun rapport trouvé.</div>`;return;}
   container.innerHTML=[...list].sort((a,b)=>new Date(b.date)-new Date(a.date)).map(r=>`<div class="report-row" onclick="openReport('${r.id}')">
     <div class="report-cell">${new Date(r.date).toLocaleDateString('fr-FR')}</div>
@@ -852,11 +781,10 @@ function filterReports(){
     <div class="report-cell">${r.files&&r.files.length?'📎 '+r.files.length:'—'}</div>
   </div>`).join('');
 }
-window.filterReports = filterReports;
+window.filterReports=filterReports;
 
 function openReport(id){
-  const r = _DB.reports[id];
-  if(!r)return;
+  const r=_DB.reports[id]; if(!r)return;
   if(CU.role==='membre'&&r.authorEmail!==CU.email)return;
   const body=document.getElementById('modal-report-body');
   body.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--border)">
@@ -875,15 +803,13 @@ function openReport(id){
   ${['superviseur','directeur'].includes(CU.role)?`<div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border)"><button class="btn-sm del" onclick="deleteReport('${r.id}')">🗑 Supprimer</button></div>`:''}`;
   openModal('modal-report');
 }
-window.openReport = openReport;
+window.openReport=openReport;
 
 async function deleteReport(id){
   if(!confirm('Supprimer ce rapport ?'))return;
-  await remove(ref(db,`reports/${id}`));
-  closeModal('modal-report');
-  renderReports();
+  await remove(ref(db,`reports/${id}`)); closeModal('modal-report'); renderReports();
 }
-window.deleteReport = deleteReport;
+window.deleteReport=deleteReport;
 
 function renderWriteReport(){
   const canDiv=['superviseur','directeur'].includes(CU.role);
@@ -898,7 +824,7 @@ function renderWriteReport(){
   document.getElementById('page-content').innerHTML=html;
   switchReportTab('unite');
 }
-window.renderWriteReport = renderWriteReport;
+window.renderWriteReport=renderWriteReport;
 
 function switchReportTab(type){
   document.querySelectorAll('.rtab').forEach(t=>t.classList.remove('active'));
@@ -937,14 +863,11 @@ function switchReportTab(type){
   </div>`;
   _rfFiles=[];
 }
-window.switchReportTab = switchReportTab;
+window.switchReportTab=switchReportTab;
 
 function doDragOver(e){e.preventDefault();document.getElementById('drop-zone').classList.add('dragover');}
 function doDrop(e){e.preventDefault();document.getElementById('drop-zone').classList.remove('dragover');handleFiles(e.dataTransfer.files);}
-function handleFiles(files){
-  _rfFiles=Array.from(files).slice(0,2);
-  document.getElementById('file-list').innerHTML=_rfFiles.map((f,i)=>`<div class="file-item"><span>📎 ${f.name}</span><button onclick="removeFile(${i})">✕</button></div>`).join('');
-}
+function handleFiles(files){_rfFiles=Array.from(files).slice(0,2);document.getElementById('file-list').innerHTML=_rfFiles.map((f,i)=>`<div class="file-item"><span>📎 ${f.name}</span><button onclick="removeFile(${i})">✕</button></div>`).join('');}
 function removeFile(i){_rfFiles.splice(i,1);document.getElementById('file-list').innerHTML=_rfFiles.map((f,j)=>`<div class="file-item"><span>📎 ${f.name}</span><button onclick="removeFile(${j})">✕</button></div>`).join('');}
 window.doDragOver=doDragOver; window.doDrop=doDrop; window.handleFiles=handleFiles; window.removeFile=removeFile;
 
@@ -955,7 +878,6 @@ async function submitReport(){
   if(!acttype||!resume){alert("Remplissez le type d'activité et le résumé.");return;}
   const btn=document.getElementById('btn-submit-report');
   btn.disabled=true; btn.textContent='ENVOI...';
-
   const id='rpt-'+Date.now();
   await set(ref(db,`reports/${id}`),{
     id, type:window._reportType||'unite',
@@ -965,20 +887,19 @@ async function submitReport(){
     acttype, secteur,
     division:document.getElementById('fr-division')?.value||'',
     unites:document.getElementById('fr-unites')?.value.trim()||'',
-    resume,
-    notes:document.getElementById('fr-notes')?.value.trim()||'',
+    resume, notes:document.getElementById('fr-notes')?.value.trim()||'',
     files:_rfFiles.map(f=>({name:f.name}))
   });
   _rfFiles=[];
   document.getElementById('page-content').innerHTML=`
   <div class="page-header"><div class="page-title"><span class="prefix">▸ Activité</span>Rapport soumis</div></div>
-  <div class="alert success">✓ Rapport soumis avec succès et enregistré dans Firebase.</div>
+  <div class="alert success">✓ Rapport soumis avec succès.</div>
   <div style="margin-top:16px;display:flex;gap:10px">
     <button class="btn-submit" onclick="showPage('write-report')">✏️ Nouveau rapport</button>
     <button class="btn-reset" onclick="showPage('rapports')">📋 Voir les rapports</button>
   </div>`;
 }
-window.submitReport = submitReport;
+window.submitReport=submitReport;
 
 // ─── ADMIN ───────────────────────────────────────────────────
 function goAdmin(){ showView('view-admin'); adminSec('members'); }
@@ -986,7 +907,7 @@ function goSite(){ showView('view-site'); }
 window.goAdmin=goAdmin; window.goSite=goSite;
 
 function updatePendingCount(){
-  const n = Object.values(_DB.users).filter(u=>u.status==='pending').length;
+  const n=Object.values(_DB.users).filter(u=>u.status==='pending').length;
   const el=document.getElementById('pending-count'); if(el)el.textContent=n;
 }
 
@@ -995,9 +916,7 @@ async function adminSec(sec){
   const nav=document.getElementById('anav-'+sec.replace('-admin',''));
   if(nav)nav.classList.add('active');
   const c=document.getElementById('admin-content');
-  // Recharge les données fraîches
-  await loadAllData();
-  updatePendingCount();
+  await loadAllData(); updatePendingCount();
 
   if(sec==='members'){
     const users=Object.values(_DB.users).filter(u=>u.status==='approved');
@@ -1034,7 +953,7 @@ async function adminSec(sec){
       <div class="card">
         <div class="card-title">Grades (hiérarchie fixe)</div>
         <div class="card-body">
-          ${_DB.grades.roles.map((r,i)=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span class="grade-tag grade-${r}">${r}</span><span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim)">Niveau ${i+1}</span></div>`).join('')}
+          ${ROLES.map((r,i)=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span class="grade-tag grade-${r}">${r}</span><span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim)">Niveau ${i+1}</span></div>`).join('')}
         </div>
       </div>
       <div class="card">
@@ -1107,7 +1026,7 @@ async function adminSec(sec){
     </div>`;
   }
   else if(sec==='new-page'){
-    const roleChecks=_DB.grades.roles.map(r=>`<label><input type="checkbox" name="np-access" value="${r}"> ${r}</label>`).join('');
+    const roleChecks=ROLES.map(r=>`<label><input type="checkbox" name="np-access" value="${r}"> ${r}</label>`).join('');
     c.innerHTML=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Administration</span>Créer une page</div></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
       <div class="card">
@@ -1145,30 +1064,16 @@ async function adminSec(sec){
     </div>
     <div class="card" style="margin-top:14px">
       <div class="card-title">Sauvegarde</div>
-      <div class="card-body">
-        <button class="btn-ghost" onclick="exportAllData()">📥 Exporter JSON</button>
-      </div>
+      <div class="card-body"><button class="btn-ghost" onclick="exportAllData()">📥 Exporter JSON</button></div>
     </div>`;
   }
 }
-window.adminSec = adminSec;
+window.adminSec=adminSec;
 
 // ─── ACTIONS ADMIN ───────────────────────────────────────────
-async function approveUser(email){
-  const key=emailToKey(email);
-  await update(ref(db,`users/${key}`),{status:'approved'});
-  adminSec('pending');
-}
-async function rejectUser(email){
-  const key=emailToKey(email);
-  await update(ref(db,`users/${key}`),{status:'rejected'});
-  adminSec('pending');
-}
-async function kickUser(email){
-  if(!confirm('Retirer ce membre ?'))return;
-  await remove(ref(db,`users/${emailToKey(email)}`));
-  adminSec('members');
-}
+async function approveUser(email){ await update(ref(db,`users/${emailToKey(email)}`),{status:'approved'}); adminSec('pending'); }
+async function rejectUser(email){ await update(ref(db,`users/${emailToKey(email)}`),{status:'rejected'}); adminSec('pending'); }
+async function kickUser(email){ if(!confirm('Retirer ce membre ?'))return; await remove(ref(db,`users/${emailToKey(email)}`)); adminSec('members'); }
 async function promoteUser(email){
   const u=_DB.users[emailToKey(email)]; if(!u)return;
   const i=ROLES.indexOf(u.role);
@@ -1183,49 +1088,26 @@ async function demoteUser(email){
 }
 async function addDiv(){
   const val=document.getElementById('new-div').value.trim(); if(!val)return;
-  const divs=[..._DB.grades.divisions,val];
-  const obj={}; divs.forEach((d,i)=>obj[i]=d);
-  await set(ref(db,'grades/divisions'),obj);
-  adminSec('grades');
+  const divs=[..._DB.grades.divisions,val]; const obj={}; divs.forEach((d,i)=>obj[i]=d);
+  await set(ref(db,'grades/divisions'),obj); adminSec('grades');
 }
 async function removeDiv(i){
-  const divs=[..._DB.grades.divisions]; divs.splice(i,1);
-  const obj={}; divs.forEach((d,j)=>obj[j]=d);
-  await set(ref(db,'grades/divisions'),obj);
-  adminSec('grades');
+  const divs=[..._DB.grades.divisions]; divs.splice(i,1); const obj={}; divs.forEach((d,j)=>obj[j]=d);
+  await set(ref(db,'grades/divisions'),obj); adminSec('grades');
 }
 async function publishAnn(){
   const title=document.getElementById('ann-title').value.trim();
   const body=document.getElementById('ann-body').value.trim();
   if(!title||!body){alert('Remplissez tous les champs.');return;}
   const id=Date.now();
-  await set(ref(db,`announcements/${id}`),{
-    id, author:CU?CU.cid:'Directeur',
-    date:new Date().toLocaleDateString('fr-FR'),
-    title, body
-  });
+  await set(ref(db,`announcements/${id}`),{id,author:CU?CU.cid:'Directeur',date:new Date().toLocaleDateString('fr-FR'),title,body});
   adminSec('announcements');
 }
-async function deleteAnn(id){
-  if(!confirm('Supprimer ?'))return;
-  await remove(ref(db,`announcements/${id}`));
-  adminSec('announcements');
-}
-async function adminDeleteReport(id){
-  if(!confirm('Supprimer ce rapport ?'))return;
-  await remove(ref(db,`reports/${id}`));
-  adminSec('reports-admin');
-}
-async function saveConfig(){
-  await update(ref(db,'config'),{
-    siteName:document.getElementById('cfg-name').value,
-    siteSubtitle:document.getElementById('cfg-sub').value
-  });
-  alert('Configuration sauvegardée !');
-}
+async function deleteAnn(id){ if(!confirm('Supprimer ?'))return; await remove(ref(db,`announcements/${id}`)); adminSec('announcements'); }
+async function adminDeleteReport(id){ if(!confirm('Supprimer ce rapport ?'))return; await remove(ref(db,`reports/${id}`)); adminSec('reports-admin'); }
+async function saveConfig(){ await update(ref(db,'config'),{siteName:document.getElementById('cfg-name').value,siteSubtitle:document.getElementById('cfg-sub').value}); alert('Configuration sauvegardée !'); }
 function exportAllData(){
-  const data={users:_DB.users,pages:_DB.pages,reports:_DB.reports,announcements:_DB.announcements,grades:_DB.grades,config:_DB.config};
-  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({users:_DB.users,pages:_DB.pages,reports:_DB.reports,announcements:_DB.announcements,grades:_DB.grades,config:_DB.config},null,2)],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='cwu-backup.json';a.click();
 }
 async function createPage(){
@@ -1243,25 +1125,17 @@ async function createPage(){
   const blBody=document.getElementById('np-bl-body').value.trim();
   const content=[];
   if(blCat||blTitle||blBody) content.push({cat:blCat||'Section',title:blTitle||'Titre',body:blBody||''});
-  await set(ref(db,`pages/${id}`),{
-    id,title,category:cat,
-    navOrder:navVal!==''?parseInt(navVal):null,
-    inSidebar:sidebar,accessRoles,content
-  });
+  await set(ref(db,`pages/${id}`),{id,title,category:cat,navOrder:navVal!==''?parseInt(navVal):null,inSidebar:sidebar,accessRoles,content});
   await loadAllData(); buildNav(); adminSec('pages');
 }
-async function deletePage(id){
-  if(!confirm('Supprimer ?'))return;
-  await remove(ref(db,`pages/${id}`));
-  await loadAllData(); buildNav(); adminSec('pages');
-}
+async function deletePage(id){ if(!confirm('Supprimer ?'))return; await remove(ref(db,`pages/${id}`)); await loadAllData(); buildNav(); adminSec('pages'); }
 
 // ─── EDIT PAGE MODAL ─────────────────────────────────────────
 function openEditPage(id){
   _editPageId=id;
   const page=_DB.pages[id]; if(!page)return;
   const curAccess=Array.isArray(page.accessRoles)?page.accessRoles:[page.accessRoles];
-  const roleChecks=['tous',..._DB.grades.roles].map(r=>`<label><input type="checkbox" name="ep-access" value="${r}" ${curAccess.includes(r)||page.accessRoles==='tous'&&r==='tous'?'checked':''}> ${r}</label>`).join('');
+  const roleChecks=['tous',...ROLES].map(r=>`<label><input type="checkbox" name="ep-access" value="${r}" ${curAccess.includes(r)||(page.accessRoles==='tous'&&r==='tous')?'checked':''}> ${r}</label>`).join('');
   const content=Array.isArray(page.content)?page.content:Object.values(page.content||{});
   const blks=content.map((s,i)=>`<div class="card" style="margin-bottom:10px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
@@ -1327,6 +1201,7 @@ function exportReports(){
   const blob=new Blob([csv],{type:'text/csv'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='rapports-cwu.csv';a.click();
 }
+
 window.approveUser=approveUser; window.rejectUser=rejectUser; window.kickUser=kickUser;
 window.promoteUser=promoteUser; window.demoteUser=demoteUser;
 window.addDiv=addDiv; window.removeDiv=removeDiv;
@@ -1342,7 +1217,6 @@ window.openModal=openModal; window.closeModal=closeModal;
 function updateTime(){ const el=document.getElementById('footer-time'); if(el)el.textContent=new Date().toLocaleTimeString('fr-FR'); }
 setInterval(updateTime,1000); updateTime();
 
-// ─── ENTER KEY ───────────────────────────────────────────────
 document.addEventListener('keydown',e=>{
   if(e.key==='Enter'){
     const lp=document.getElementById('panel-login');
@@ -1357,11 +1231,7 @@ document.addEventListener('keydown',e=>{
   setLoading('Chargement des données...');
   await loadAllData();
   setLoading('Authentification...');
-  // onAuthStateChanged gère le reste automatiquement
-  // Si pas d'utilisateur connecté après 3s, on affiche le login
-  setTimeout(()=>{
-    if(!auth.currentUser) hideSplash();
-  }, 3000);
+  setTimeout(()=>{ if(!auth.currentUser) hideSplash(); }, 3000);
 })();
 </script>
 </body>
