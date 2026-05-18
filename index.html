@@ -6,1101 +6,281 @@
 <title>Civil Worker's Union — Centre Syndicale</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg-deep: #0a0c0f;
-    --bg-panel: #0f1318;
-    --bg-card: #141921;
-    --bg-input: #0c0f14;
-    --border: #1e2a38;
-    --border-active: #00b4d8;
-    --accent: #00b4d8;
-    --accent-dim: #007a99;
-    --accent-glow: rgba(0,180,216,0.15);
-    --orange: #f4a21c;
-    --orange-dim: #b37510;
-    --red: #e53e3e;
-    --green: #38a169;
-    --text-primary: #d4dde8;
-    --text-secondary: #7a8fa6;
-    --text-dim: #3d5166;
-    --scanline: rgba(0,180,216,0.03);
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    font-family: 'Rajdhani', sans-serif;
-    background: var(--bg-deep);
-    color: var(--text-primary);
-    min-height: 100vh;
-    overflow-x: hidden;
-    position: relative;
-  }
-
-  /* Scanline overlay */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      var(--scanline) 2px,
-      var(--scanline) 4px
-    );
-    pointer-events: none;
-    z-index: 9999;
-  }
-
-  /* Noise texture */
-  body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 9998;
-    opacity: 0.4;
-  }
-
-  /* ===== GRID BACKGROUND ===== */
-  .grid-bg {
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(0,180,216,0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,180,216,0.04) 1px, transparent 1px);
-    background-size: 40px 40px;
-    z-index: 0;
-  }
-
-  .corner-decoration {
-    position: fixed;
-    width: 120px;
-    height: 120px;
-    z-index: 1;
-    pointer-events: none;
-  }
-  .corner-decoration.tl { top: 0; left: 0; border-top: 2px solid var(--accent-dim); border-left: 2px solid var(--accent-dim); }
-  .corner-decoration.tr { top: 0; right: 0; border-top: 2px solid var(--accent-dim); border-right: 2px solid var(--accent-dim); }
-  .corner-decoration.bl { bottom: 0; left: 0; border-bottom: 2px solid var(--accent-dim); border-left: 2px solid var(--accent-dim); }
-  .corner-decoration.br { bottom: 0; right: 0; border-bottom: 2px solid var(--accent-dim); border-right: 2px solid var(--accent-dim); }
-
-  /* ===== APP WRAPPER ===== */
-  #app { position: relative; z-index: 10; min-height: 100vh; }
-
-  /* ===== VIEWS ===== */
-  .view { display: none; min-height: 100vh; }
-  .view.active { display: flex; }
-
-  /* ===== LOGIN VIEW ===== */
-  #view-login {
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    padding: 20px;
-  }
-
-  .login-container {
-    width: 100%;
-    max-width: 580px;
-    background: var(--bg-panel);
-    border: 1px solid var(--border);
-    position: relative;
-    animation: slideUp 0.6s ease;
-  }
-
-  @keyframes slideUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .login-container::before {
-    content: '';
-    position: absolute;
-    top: -1px; left: 10%; right: 10%;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--accent), transparent);
-  }
-
-  .login-header {
-    padding: 28px 36px 20px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-
-  .cwu-logo {
-    width: 52px;
-    height: 52px;
-    background: var(--orange);
-    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Orbitron', monospace;
-    font-weight: 900;
-    font-size: 14px;
-    color: #000;
-    flex-shrink: 0;
-  }
-
-  .login-header-text h1 {
-    font-family: 'Orbitron', monospace;
-    font-size: 18px;
-    font-weight: 700;
-    color: #fff;
-    letter-spacing: 1px;
-  }
-
-  .login-header-text p {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 11px;
-    color: var(--text-secondary);
-    margin-top: 2px;
-  }
-
-  .login-body { padding: 28px 36px 32px; }
-
-  .login-title {
-    font-family: 'Orbitron', monospace;
-    font-size: 22px;
-    font-weight: 700;
-    color: #fff;
-    margin-bottom: 4px;
-  }
-
-  .login-sub {
-    font-size: 14px;
-    color: var(--text-secondary);
-    margin-bottom: 24px;
-    font-family: 'Share Tech Mono', monospace;
-  }
-
-  /* Tabs */
-  .tab-bar {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    background: var(--bg-deep);
-    border: 1px solid var(--border);
-    margin-bottom: 24px;
-  }
-
-  .tab-btn {
-    padding: 11px;
-    text-align: center;
-    cursor: pointer;
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text-secondary);
-    border: none;
-    background: transparent;
-    transition: all 0.2s;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
-
-  .tab-btn.active {
-    background: var(--accent);
-    color: #000;
-    font-weight: 700;
-  }
-
-  /* Form fields */
-  .field { margin-bottom: 18px; }
-
-  .field label {
-    display: block;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 12px;
-    color: var(--accent);
-    margin-bottom: 8px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
-
-  .field input, .field textarea, .field select {
-    width: 100%;
-    background: var(--bg-input);
-    border: 1px solid var(--border);
-    color: var(--text-primary);
-    padding: 12px 14px;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 14px;
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-  }
-
-  .field input:focus, .field textarea:focus, .field select:focus {
-    border-color: var(--border-active);
-    box-shadow: 0 0 0 1px var(--accent-glow), inset 0 0 20px rgba(0,180,216,0.03);
-  }
-
-  .field input::placeholder { color: var(--text-dim); }
-
-  .btn-primary {
-    width: 100%;
-    padding: 15px;
-    background: var(--accent);
-    border: none;
-    color: #000;
-    font-family: 'Orbitron', monospace;
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-top: 8px;
-  }
-
-  .btn-primary:hover { background: #00c8f0; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,180,216,0.3); }
-
-  .login-footer-note {
-    text-align: center;
-    margin-top: 16px;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 11px;
-    color: var(--text-dim);
-  }
-
-  /* Supervisor access */
-  .supervisor-btn {
-    position: fixed;
-    bottom: 24px;
-    left: 24px;
-    background: rgba(15,19,24,0.9);
-    border: 1px solid var(--border);
-    color: var(--text-secondary);
-    padding: 10px 16px;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 12px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.2s;
-    z-index: 100;
-  }
-
-  .supervisor-btn:hover { border-color: var(--orange); color: var(--orange); }
-
-  .supervisor-btn::before {
-    content: '⬡';
-    font-size: 14px;
-  }
-
-  /* Error message */
-  .error-msg {
-    background: rgba(229,62,62,0.1);
-    border: 1px solid rgba(229,62,62,0.4);
-    color: #fc8181;
-    padding: 10px 14px;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 12px;
-    margin-bottom: 16px;
-    display: none;
-  }
-
-  .success-msg {
-    background: rgba(56,161,105,0.1);
-    border: 1px solid rgba(56,161,105,0.4);
-    color: #68d391;
-    padding: 10px 14px;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 12px;
-    margin-bottom: 16px;
-    display: none;
-  }
-
-  /* ===== MAIN SITE VIEW ===== */
-  #view-site { flex-direction: column; }
-
-  /* Top bar */
-  .topbar {
-    background: var(--bg-panel);
-    border-bottom: 1px solid var(--border);
-    padding: 0 32px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 60px;
-    position: sticky;
-    top: 0;
-    z-index: 500;
-  }
-
-  .topbar-logo {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    text-decoration: none;
-    cursor: pointer;
-  }
-
-  .topbar-logo .cwu-logo { width: 36px; height: 36px; font-size: 10px; }
-
-  .topbar-logo-text {
-    font-family: 'Orbitron', monospace;
-    font-size: 14px;
-    font-weight: 700;
-    color: #fff;
-  }
-
-  .topbar-logo-text span {
-    display: block;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 10px;
-    color: var(--text-secondary);
-    font-weight: 400;
-    margin-top: 1px;
-  }
-
-  .topbar-nav {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-
-  .nav-btn {
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    padding: 8px 14px;
-    cursor: pointer;
-    transition: color 0.2s;
-    position: relative;
-  }
-
-  .nav-btn::after {
-    content: '';
-    position: absolute;
-    bottom: 0; left: 14px; right: 14px;
-    height: 1px;
-    background: var(--accent);
-    transform: scaleX(0);
-    transition: transform 0.2s;
-  }
-
-  .nav-btn:hover { color: var(--text-primary); }
-  .nav-btn:hover::after, .nav-btn.active::after { transform: scaleX(1); }
-  .nav-btn.active { color: var(--accent); }
-
-  .topbar-right {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .user-badge {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 12px;
-    color: var(--text-secondary);
-  }
-
-  .role-tag {
-    padding: 3px 8px;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
-
-  .role-tag.directeur { background: rgba(244,162,28,0.15); border: 1px solid var(--orange); color: var(--orange); }
-  .role-tag.superviseur { background: rgba(0,180,216,0.1); border: 1px solid var(--accent-dim); color: var(--accent); }
-  .role-tag.membre { background: rgba(56,161,105,0.1); border: 1px solid #38a169; color: #68d391; }
-  .role-tag.en_attente { background: rgba(229,62,62,0.1); border: 1px solid var(--red); color: #fc8181; }
-
-  .logout-btn {
-    background: none;
-    border: 1px solid var(--border);
-    color: var(--text-secondary);
-    padding: 6px 12px;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 11px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .logout-btn:hover { border-color: var(--red); color: #fc8181; }
-
-  /* Main content area */
-  .site-layout {
-    display: flex;
-    flex: 1;
-    min-height: calc(100vh - 60px);
-  }
-
-  /* Sidebar */
-  .sidebar {
-    width: 240px;
-    background: var(--bg-panel);
-    border-right: 1px solid var(--border);
-    padding: 20px 0;
-    flex-shrink: 0;
-  }
-
-  .sidebar-section {
-    margin-bottom: 8px;
-  }
-
-  .sidebar-cat {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 10px;
-    color: var(--text-dim);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    padding: 8px 20px 4px;
-  }
-
-  .sidebar-link {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 9px 20px;
-    cursor: pointer;
-    transition: all 0.15s;
-    border-left: 2px solid transparent;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text-secondary);
-    position: relative;
-  }
-
-  .sidebar-link:hover { background: rgba(0,180,216,0.05); color: var(--text-primary); border-left-color: var(--border); }
-  .sidebar-link.active { background: rgba(0,180,216,0.08); color: var(--accent); border-left-color: var(--accent); }
-
-  .sidebar-link .icon {
-    font-size: 14px;
-    width: 18px;
-    text-align: center;
-    opacity: 0.7;
-  }
-
-  .sidebar-divider {
-    border: none;
-    border-top: 1px solid var(--border);
-    margin: 12px 16px;
-  }
-
-  /* Content area */
-  .content-area {
-    flex: 1;
-    padding: 32px;
-    overflow-y: auto;
-  }
-
-  /* Page header */
-  .page-header {
-    margin-bottom: 28px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-  }
-
-  .page-title {
-    font-family: 'Orbitron', monospace;
-    font-size: 20px;
-    font-weight: 700;
-    color: #fff;
-  }
-
-  .page-title .prefix {
-    font-size: 11px;
-    color: var(--accent);
-    font-weight: 400;
-    display: block;
-    margin-bottom: 4px;
-    letter-spacing: 2px;
-    font-family: 'Share Tech Mono', monospace;
-  }
-
-  /* Cards */
-  .card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    padding: 22px;
-    margin-bottom: 16px;
-    position: relative;
-  }
-
-  .card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, var(--accent-dim), transparent);
-    opacity: 0.4;
-  }
-
-  .card-title {
-    font-family: 'Orbitron', monospace;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--accent);
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .card-body { font-size: 14px; line-height: 1.7; color: var(--text-secondary); }
-  .card-body p { margin-bottom: 10px; }
-  .card-body h3 { color: var(--text-primary); font-size: 15px; margin-bottom: 6px; font-weight: 600; }
-
-  /* Stats grid */
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 12px;
-    margin-bottom: 24px;
-  }
-
-  .stat-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    padding: 18px;
-    text-align: center;
-    position: relative;
-  }
-
-  .stat-card::after {
-    content: '';
-    position: absolute;
-    bottom: 0; left: 20%; right: 20%;
-    height: 1px;
-    background: var(--accent-dim);
-    opacity: 0.3;
-  }
-
-  .stat-number {
-    font-family: 'Orbitron', monospace;
-    font-size: 28px;
-    font-weight: 700;
-    color: var(--accent);
-  }
-
-  .stat-label {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 11px;
-    color: var(--text-secondary);
-    margin-top: 4px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-
-  /* Alert banner */
-  .alert {
-    padding: 12px 16px;
-    border-left: 3px solid;
-    margin-bottom: 12px;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 12px;
-  }
-
-  .alert.warning { border-color: var(--orange); background: rgba(244,162,28,0.08); color: var(--orange); }
-  .alert.info { border-color: var(--accent); background: rgba(0,180,216,0.08); color: var(--accent); }
-  .alert.danger { border-color: var(--red); background: rgba(229,62,62,0.08); color: #fc8181; }
-  .alert.success { border-color: var(--green); background: rgba(56,161,105,0.08); color: #68d391; }
-
-  /* Members table */
-  .data-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-  }
-
-  .data-table th {
-    background: var(--bg-deep);
-    border: 1px solid var(--border);
-    padding: 10px 14px;
-    text-align: left;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 11px;
-    color: var(--accent);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
-
-  .data-table td {
-    border: 1px solid var(--border);
-    padding: 10px 14px;
-    color: var(--text-secondary);
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 12px;
-  }
-
-  .data-table tr:hover td { background: rgba(0,180,216,0.03); }
-
-  /* Action buttons */
-  .btn-sm {
-    padding: 4px 10px;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 11px;
-    cursor: pointer;
-    border: 1px solid;
-    background: none;
-    transition: all 0.15s;
-    margin-right: 4px;
-  }
-
-  .btn-sm.approve { border-color: var(--green); color: #68d391; }
-  .btn-sm.approve:hover { background: rgba(56,161,105,0.2); }
-  .btn-sm.reject { border-color: var(--red); color: #fc8181; }
-  .btn-sm.reject:hover { background: rgba(229,62,62,0.2); }
-  .btn-sm.edit { border-color: var(--accent-dim); color: var(--accent); }
-  .btn-sm.edit:hover { background: rgba(0,180,216,0.1); }
-  .btn-sm.delete { border-color: var(--red); color: #fc8181; }
-  .btn-sm.delete:hover { background: rgba(229,62,62,0.2); }
-  .btn-sm.promote { border-color: var(--orange); color: var(--orange); }
-  .btn-sm.promote:hover { background: rgba(244,162,28,0.1); }
-
-  /* ===== ADMIN VIEW ===== */
-  #view-admin { flex-direction: column; }
-
-  .admin-topbar {
-    background: var(--bg-panel);
-    border-bottom: 2px solid var(--orange);
-    padding: 0 32px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 56px;
-    position: sticky;
-    top: 0;
-    z-index: 500;
-  }
-
-  .admin-topbar-title {
-    font-family: 'Orbitron', monospace;
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--orange);
-    letter-spacing: 2px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .admin-badge {
-    background: rgba(244,162,28,0.15);
-    border: 1px solid var(--orange);
-    padding: 2px 8px;
-    font-size: 10px;
-    color: var(--orange);
-    font-family: 'Share Tech Mono', monospace;
-    letter-spacing: 1px;
-  }
-
-  .admin-layout {
-    display: flex;
-    flex: 1;
-    min-height: calc(100vh - 56px);
-  }
-
-  .admin-sidebar {
-    width: 220px;
-    background: var(--bg-panel);
-    border-right: 1px solid var(--border);
-    padding: 16px 0;
-    flex-shrink: 0;
-  }
-
-  .admin-nav-item {
-    padding: 10px 20px;
-    cursor: pointer;
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text-secondary);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    border-left: 2px solid transparent;
-    transition: all 0.15s;
-  }
-
-  .admin-nav-item:hover { color: var(--text-primary); background: rgba(244,162,28,0.05); border-left-color: var(--border); }
-  .admin-nav-item.active { color: var(--orange); background: rgba(244,162,28,0.08); border-left-color: var(--orange); }
-
-  .admin-content { flex: 1; padding: 28px; overflow-y: auto; }
-
-  /* Page editor */
-  .editor-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-  }
-
-  .editor-panel {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    padding: 20px;
-  }
-
-  .editor-panel-title {
-    font-family: 'Orbitron', monospace;
-    font-size: 12px;
-    color: var(--orange);
-    margin-bottom: 16px;
-    letter-spacing: 1px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .field textarea {
-    min-height: 120px;
-    resize: vertical;
-    line-height: 1.5;
-  }
-
-  .field select {
-    cursor: pointer;
-  }
-
-  .btn-orange {
-    background: var(--orange);
-    border: none;
-    color: #000;
-    padding: 10px 20px;
-    font-family: 'Orbitron', monospace;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-right: 8px;
-  }
-
-  .btn-orange:hover { background: #f5b73a; }
-
-  .btn-ghost {
-    background: none;
-    border: 1px solid var(--border);
-    color: var(--text-secondary);
-    padding: 10px 20px;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .btn-ghost:hover { border-color: var(--text-secondary); color: var(--text-primary); }
-
-  /* Pages list in admin */
-  .pages-list { }
-
-  .page-item {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    padding: 14px 18px;
-    margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    transition: border-color 0.15s;
-  }
-
-  .page-item:hover { border-color: var(--accent-dim); }
-
-  .page-item-info { }
-
-  .page-item-title {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text-primary);
-  }
-
-  .page-item-cat {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 11px;
-    color: var(--text-dim);
-    margin-top: 2px;
-  }
-
-  .page-item-actions { display: flex; gap: 6px; }
-
-  /* Modal */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.8);
-    z-index: 1000;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
-
-  .modal-overlay.active { display: flex; }
-
-  .modal {
-    background: var(--bg-panel);
-    border: 1px solid var(--border);
-    width: 100%;
-    max-width: 520px;
-    position: relative;
-    animation: slideUp 0.3s ease;
-  }
-
-  .modal::before {
-    content: '';
-    position: absolute;
-    top: -1px; left: 10%; right: 10%;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--orange), transparent);
-  }
-
-  .modal-header {
-    padding: 18px 22px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .modal-title {
-    font-family: 'Orbitron', monospace;
-    font-size: 14px;
-    font-weight: 600;
-    color: #fff;
-  }
-
-  .modal-close {
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    font-size: 18px;
-    cursor: pointer;
-    transition: color 0.15s;
-  }
-
-  .modal-close:hover { color: var(--red); }
-
-  .modal-body { padding: 22px; }
-
-  .modal-footer {
-    padding: 16px 22px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-  }
-
-  /* Status indicator */
-  .status-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    display: inline-block;
-    margin-right: 6px;
-  }
-
-  .status-dot.online { background: var(--green); box-shadow: 0 0 6px var(--green); }
-  .status-dot.offline { background: var(--red); }
-  .status-dot.pending { background: var(--orange); }
-
-  /* Notification badge */
-  .notif-badge {
-    background: var(--red);
-    color: #fff;
-    font-size: 10px;
-    font-weight: 700;
-    padding: 1px 5px;
-    border-radius: 2px;
-    font-family: 'Share Tech Mono', monospace;
-    margin-left: 6px;
-  }
-
-  /* Back to site link */
-  .back-link {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 12px;
-    color: var(--text-secondary);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: color 0.15s;
-  }
-
-  .back-link:hover { color: var(--text-primary); }
-
-  /* Announcement section */
-  .announcements { }
-
-  .announcement {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    padding: 16px 20px;
-    margin-bottom: 10px;
-    border-left: 3px solid var(--accent);
-  }
-
-  .announcement-meta {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 11px;
-    color: var(--text-dim);
-    margin-bottom: 6px;
-  }
-
-  .announcement-title {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 8px;
-  }
-
-  .announcement-body {
-    font-size: 14px;
-    color: var(--text-secondary);
-    line-height: 1.6;
-  }
-
-  /* Footer */
-  .site-footer {
-    background: var(--bg-panel);
-    border-top: 1px solid var(--border);
-    padding: 16px 32px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .footer-text {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 11px;
-    color: var(--text-dim);
-  }
-
-  /* Responsive */
-  @media (max-width: 900px) {
-    .editor-grid { grid-template-columns: 1fr; }
-    .sidebar, .admin-sidebar { width: 200px; }
-  }
-
-  @media (max-width: 700px) {
-    .sidebar, .admin-sidebar { display: none; }
-    .topbar-nav { display: none; }
-  }
-
-  /* Pending tab form (hidden by default) */
-  .tab-panel { display: none; }
-  .tab-panel.active { display: block; }
-
-  /* Inline editable page content */
-  .custom-page-content { }
-  .custom-page-content .page-section { margin-bottom: 24px; }
-  .custom-page-content .section-cat {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 10px;
-    color: var(--accent);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-  }
-  .custom-page-content .section-title {
-    font-family: 'Orbitron', monospace;
-    font-size: 16px;
-    color: #fff;
-    margin-bottom: 10px;
-  }
-  .custom-page-content .section-body {
-    font-size: 14px;
-    color: var(--text-secondary);
-    line-height: 1.7;
-  }
-
-  /* Loading screen */
-  #loading-screen {
-    position: fixed;
-    inset: 0;
-    background: var(--bg-deep);
-    z-index: 9000;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    animation: fadeOut 0.5s 1.5s ease forwards;
-  }
-
-  @keyframes fadeOut {
-    to { opacity: 0; pointer-events: none; }
-  }
-
-  .loading-logo {
-    width: 70px;
-    height: 70px;
-    background: var(--orange);
-    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Orbitron', monospace;
-    font-size: 18px;
-    font-weight: 900;
-    color: #000;
-    margin-bottom: 20px;
-    animation: pulse 1s ease infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
-  }
-
-  .loading-text {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 12px;
-    color: var(--accent);
-    letter-spacing: 3px;
-    text-transform: uppercase;
-  }
-
-  .loading-bar {
-    width: 200px;
-    height: 2px;
-    background: var(--border);
-    margin-top: 16px;
-    overflow: hidden;
-  }
-
-  .loading-bar-fill {
-    height: 100%;
-    background: var(--accent);
-    animation: load 1.5s ease forwards;
-  }
-
-  @keyframes load {
-    from { width: 0; }
-    to { width: 100%; }
-  }
+:root {
+  --bg-deep: #060809;
+  --bg-panel: #0b0e12;
+  --bg-card: #0f1419;
+  --bg-input: #080b0f;
+  --border: #182030;
+  --border-active: #00b4d8;
+  --accent: #00b4d8;
+  --accent-dim: #006f85;
+  --accent-glow: rgba(0,180,216,0.12);
+  --orange: #f4a21c;
+  --orange-dim: #9a6610;
+  --red: #e53e3e;
+  --green: #38a169;
+  --purple: #9f7aea;
+  --text-primary: #c8d8e8;
+  --text-secondary: #6a8099;
+  --text-dim: #2d4258;
+  --scanline: rgba(0,180,216,0.025);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Rajdhani',sans-serif;background:var(--bg-deep);color:var(--text-primary);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,var(--scanline) 2px,var(--scanline) 4px);pointer-events:none;z-index:9999;}
+.grid-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(0,180,216,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,180,216,0.03) 1px,transparent 1px);background-size:48px 48px;z-index:0;}
+.corner{position:fixed;width:100px;height:100px;z-index:1;pointer-events:none;}
+.corner.tl{top:0;left:0;border-top:1px solid var(--accent-dim);border-left:1px solid var(--accent-dim);}
+.corner.tr{top:0;right:0;border-top:1px solid var(--accent-dim);border-right:1px solid var(--accent-dim);}
+.corner.bl{bottom:0;left:0;border-bottom:1px solid var(--accent-dim);border-left:1px solid var(--accent-dim);}
+.corner.br{bottom:0;right:0;border-bottom:1px solid var(--accent-dim);border-right:1px solid var(--accent-dim);}
+#app{position:relative;z-index:10;min-height:100vh;}
+.view{display:none;min-height:100vh;}
+.view.active{display:flex;}
+
+/* ========= LOADING ========= */
+#loading-screen{position:fixed;inset:0;background:var(--bg-deep);z-index:9000;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+#loading-screen.fade-out{animation:fadeOut 0.6s ease forwards;}
+@keyframes fadeOut{to{opacity:0;pointer-events:none;}}
+.loading-logo{width:72px;height:72px;background:var(--orange);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-weight:900;font-size:16px;color:#000;margin-bottom:24px;animation:pulse 1s ease infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.6;}}
+.loading-text{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--accent);letter-spacing:3px;text-transform:uppercase;}
+.loading-bar{width:240px;height:2px;background:var(--border);margin-top:16px;overflow:hidden;}
+.loading-bar-fill{height:100%;background:var(--accent);animation:loadBar 1.8s ease forwards;}
+@keyframes loadBar{from{width:0;}to{width:100%;}}
+
+/* ========= LOGIN ========= */
+#view-login{align-items:center;justify-content:center;flex-direction:column;padding:20px;}
+.login-wrap{width:100%;max-width:560px;background:var(--bg-panel);border:1px solid var(--border);position:relative;animation:slideUp 0.5s ease;}
+@keyframes slideUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+.login-wrap::before{content:'';position:absolute;top:-1px;left:15%;right:15%;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);}
+.login-head{padding:24px 32px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;}
+.cwu-hex{width:48px;height:48px;background:var(--orange);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-weight:900;font-size:13px;color:#000;flex-shrink:0;}
+.login-head h1{font-family:'Orbitron',monospace;font-size:17px;font-weight:700;color:#fff;letter-spacing:1px;}
+.login-head p{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-secondary);margin-top:2px;}
+.login-body{padding:26px 32px 30px;}
+.login-title{font-family:'Orbitron',monospace;font-size:20px;font-weight:700;color:#fff;margin-bottom:4px;}
+.login-sub{font-size:13px;color:var(--text-secondary);margin-bottom:20px;font-family:'Share Tech Mono',monospace;}
+.tab-bar{display:grid;grid-template-columns:1fr 1fr;background:var(--bg-deep);border:1px solid var(--border);margin-bottom:22px;}
+.tab-btn{padding:10px;text-align:center;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;color:var(--text-secondary);border:none;background:transparent;transition:all 0.2s;letter-spacing:1px;text-transform:uppercase;}
+.tab-btn.active{background:var(--accent);color:#000;font-weight:700;}
+.field{margin-bottom:16px;}
+.field label{display:block;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--accent);margin-bottom:7px;letter-spacing:1px;text-transform:uppercase;}
+.field input,.field textarea,.field select{width:100%;background:var(--bg-input);border:1px solid var(--border);color:var(--text-primary);padding:11px 13px;font-family:'Share Tech Mono',monospace;font-size:13px;outline:none;transition:border-color 0.2s,box-shadow 0.2s;}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--border-active);box-shadow:0 0 0 1px var(--accent-glow);}
+.field input::placeholder,.field textarea::placeholder{color:var(--text-dim);}
+.btn-primary{width:100%;padding:14px;background:var(--accent);border:none;color:#000;font-family:'Orbitron',monospace;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;margin-top:6px;}
+.btn-primary:hover{background:#00c8f0;transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,180,216,0.3);}
+.login-note{text-align:center;margin-top:14px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);}
+.sup-btn{position:fixed;bottom:22px;left:22px;background:rgba(11,14,18,0.95);border:1px solid var(--border);color:var(--text-secondary);padding:9px 14px;font-family:'Share Tech Mono',monospace;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:7px;transition:all 0.2s;z-index:100;}
+.sup-btn:hover{border-color:var(--orange);color:var(--orange);}
+.err-msg{background:rgba(229,62,62,0.1);border:1px solid rgba(229,62,62,0.4);color:#fc8181;padding:9px 13px;font-family:'Share Tech Mono',monospace;font-size:11px;margin-bottom:14px;display:none;}
+.ok-msg{background:rgba(56,161,105,0.1);border:1px solid rgba(56,161,105,0.4);color:#68d391;padding:9px 13px;font-family:'Share Tech Mono',monospace;font-size:11px;margin-bottom:14px;display:none;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* ========= MAIN SITE ========= */
+#view-site{flex-direction:column;}
+.topbar{background:var(--bg-panel);border-bottom:1px solid var(--border);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:58px;position:sticky;top:0;z-index:500;}
+.topbar-logo{display:flex;align-items:center;gap:11px;cursor:pointer;}
+.topbar-logo .cwu-hex{width:34px;height:34px;font-size:9px;}
+.logo-text{font-family:'Orbitron',monospace;font-size:13px;font-weight:700;color:#fff;}
+.logo-text span{display:block;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-secondary);font-weight:400;margin-top:1px;}
+.topbar-nav{display:flex;align-items:center;gap:2px;}
+.nav-btn{background:none;border:none;color:var(--text-secondary);font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:8px 13px;cursor:pointer;transition:color 0.2s;position:relative;}
+.nav-btn::after{content:'';position:absolute;bottom:0;left:13px;right:13px;height:1px;background:var(--accent);transform:scaleX(0);transition:transform 0.2s;}
+.nav-btn:hover{color:var(--text-primary);}
+.nav-btn:hover::after,.nav-btn.active::after{transform:scaleX(1);}
+.nav-btn.active{color:var(--accent);}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.user-badge{display:flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--text-secondary);}
+.status-dot{width:6px;height:6px;border-radius:50%;}
+.status-dot.on{background:var(--green);box-shadow:0 0 6px var(--green);}
+.role-tag{padding:2px 7px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;font-family:'Share Tech Mono',monospace;}
+.role-tag.directeur{background:rgba(244,162,28,0.12);border:1px solid var(--orange);color:var(--orange);}
+.role-tag.superviseur{background:rgba(0,180,216,0.08);border:1px solid var(--accent-dim);color:var(--accent);}
+.role-tag.membre{background:rgba(56,161,105,0.08);border:1px solid #38a169;color:#68d391;}
+.role-tag.admin{background:rgba(159,122,234,0.12);border:1px solid var(--purple);color:var(--purple);}
+.logout-btn{background:none;border:1px solid var(--border);color:var(--text-secondary);padding:5px 11px;font-family:'Share Tech Mono',monospace;font-size:10px;cursor:pointer;transition:all 0.2s;}
+.logout-btn:hover{border-color:var(--red);color:#fc8181;}
+.site-layout{display:flex;flex:1;min-height:calc(100vh - 58px);}
+.sidebar{width:230px;background:var(--bg-panel);border-right:1px solid var(--border);padding:16px 0;flex-shrink:0;overflow-y:auto;}
+.sidebar-cat{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;padding:10px 18px 4px;}
+.sidebar-link{display:flex;align-items:center;gap:9px;padding:8px 18px;cursor:pointer;transition:all 0.15s;border-left:2px solid transparent;font-size:13px;font-weight:500;color:var(--text-secondary);}
+.sidebar-link:hover{background:rgba(0,180,216,0.04);color:var(--text-primary);border-left-color:var(--border);}
+.sidebar-link.active{background:rgba(0,180,216,0.07);color:var(--accent);border-left-color:var(--accent);}
+.sidebar-icon{font-size:13px;width:16px;text-align:center;opacity:0.65;}
+.sidebar-divider{border:none;border-top:1px solid var(--border);margin:10px 14px;}
+.lock-icon{font-size:10px;margin-left:auto;opacity:0.5;}
+.content-area{flex:1;padding:28px;overflow-y:auto;}
+.page-header{margin-bottom:24px;padding-bottom:14px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.page-title{font-family:'Orbitron',monospace;font-size:18px;font-weight:700;color:#fff;}
+.page-title .prefix{font-size:10px;color:var(--accent);font-weight:400;display:block;margin-bottom:4px;letter-spacing:2px;font-family:'Share Tech Mono',monospace;}
+.card{background:var(--bg-card);border:1px solid var(--border);padding:20px;margin-bottom:14px;position:relative;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--accent-dim),transparent);opacity:0.35;}
+.card-title{font-family:'Orbitron',monospace;font-size:13px;font-weight:600;color:var(--accent);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.card-body{font-size:14px;line-height:1.7;color:var(--text-secondary);}
+
+/* Stats */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:20px;}
+.stat-card{background:var(--bg-card);border:1px solid var(--border);padding:16px;text-align:center;position:relative;}
+.stat-number{font-family:'Orbitron',monospace;font-size:26px;font-weight:700;}
+.stat-label{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-secondary);margin-top:3px;text-transform:uppercase;letter-spacing:1px;}
+.stat-card.blue .stat-number{color:var(--accent);}
+.stat-card.orange .stat-number{color:var(--orange);}
+.stat-card.red .stat-number{color:var(--red);}
+.stat-card.green .stat-number{color:var(--green);}
+.stat-card.purple .stat-number{color:var(--purple);}
+
+/* Tables */
+.data-table{width:100%;border-collapse:collapse;font-size:12px;}
+.data-table th{background:var(--bg-deep);border:1px solid var(--border);padding:9px 13px;text-align:left;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:1px;text-transform:uppercase;}
+.data-table td{border:1px solid var(--border);padding:9px 13px;color:var(--text-secondary);font-family:'Share Tech Mono',monospace;font-size:11px;}
+.data-table tr:hover td{background:rgba(0,180,216,0.025);}
+.btn-sm{padding:3px 9px;font-family:'Share Tech Mono',monospace;font-size:10px;cursor:pointer;border:1px solid;background:none;transition:all 0.15s;margin-right:3px;}
+.btn-sm.approve{border-color:var(--green);color:#68d391;}
+.btn-sm.approve:hover{background:rgba(56,161,105,0.2);}
+.btn-sm.reject{border-color:var(--red);color:#fc8181;}
+.btn-sm.reject:hover{background:rgba(229,62,62,0.2);}
+.btn-sm.edit{border-color:var(--accent-dim);color:var(--accent);}
+.btn-sm.edit:hover{background:rgba(0,180,216,0.1);}
+.btn-sm.del{border-color:var(--red);color:#fc8181;}
+.btn-sm.del:hover{background:rgba(229,62,62,0.2);}
+.btn-sm.promote{border-color:var(--orange);color:var(--orange);}
+.btn-sm.promote:hover{background:rgba(244,162,28,0.1);}
+
+/* Alerts */
+.alert{padding:11px 15px;border-left:3px solid;margin-bottom:10px;font-family:'Share Tech Mono',monospace;font-size:11px;}
+.alert.warning{border-color:var(--orange);background:rgba(244,162,28,0.07);color:var(--orange);}
+.alert.info{border-color:var(--accent);background:rgba(0,180,216,0.07);color:var(--accent);}
+.alert.danger{border-color:var(--red);background:rgba(229,62,62,0.07);color:#fc8181;}
+.alert.success{border-color:var(--green);background:rgba(56,161,105,0.07);color:#68d391;}
+
+/* Announcements */
+.ann-item{background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--accent);padding:14px 18px;margin-bottom:10px;}
+.ann-meta{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);margin-bottom:5px;}
+.ann-title{font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:600;color:var(--text-primary);margin-bottom:7px;}
+.ann-body{font-size:13px;color:var(--text-secondary);line-height:1.6;}
+
+/* Reports */
+.report-filters{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;}
+.report-filters select,.report-filters input{background:var(--bg-input);border:1px solid var(--border);color:var(--text-primary);padding:8px 12px;font-family:'Share Tech Mono',monospace;font-size:12px;outline:none;flex:1;min-width:140px;}
+.report-filters select:focus,.report-filters input:focus{border-color:var(--border-active);}
+.report-row{display:grid;grid-template-columns:110px 90px 1fr 130px 90px 70px;gap:0;border:1px solid var(--border);margin-bottom:4px;transition:background 0.15s;cursor:pointer;}
+.report-row:hover{background:rgba(0,180,216,0.04);}
+.report-cell{padding:9px 12px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-secondary);border-right:1px solid var(--border);}
+.report-cell:last-child{border-right:none;}
+.report-cell.header{color:var(--accent);font-size:10px;letter-spacing:1px;background:var(--bg-deep);}
+.report-type-badge{display:inline-block;padding:2px 7px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;font-family:'Share Tech Mono',monospace;}
+.report-type-badge.unite{background:rgba(0,180,216,0.12);border:1px solid var(--accent-dim);color:var(--accent);}
+.report-type-badge.division{background:rgba(159,122,234,0.12);border:1px solid var(--purple);color:var(--purple);}
+.report-type-badge.alert{background:rgba(229,62,62,0.12);border:1px solid var(--red);color:#fc8181;}
+.report-type-badge.prioritaire{background:rgba(244,162,28,0.12);border:1px solid var(--orange);color:var(--orange);}
+
+/* Report form */
+.report-form-tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:22px;}
+.rtab{padding:10px 18px;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;color:var(--text-secondary);border-bottom:2px solid transparent;transition:all 0.2s;}
+.rtab:hover{color:var(--text-primary);}
+.rtab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.rtab.locked{color:var(--text-dim);cursor:not-allowed;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.form-grid-1{grid-column:span 2;}
+.form-section{background:var(--bg-card);border:1px solid var(--border);padding:20px;margin-bottom:14px;}
+.form-section-title{font-family:'Orbitron',monospace;font-size:11px;color:var(--accent);margin-bottom:16px;letter-spacing:1px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.btn-submit{background:var(--accent);border:none;color:#000;padding:12px 28px;font-family:'Orbitron',monospace;font-size:12px;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all 0.2s;text-transform:uppercase;}
+.btn-submit:hover{background:#00c8f0;box-shadow:0 0 20px rgba(0,180,216,0.4);}
+.btn-reset{background:none;border:1px solid var(--border);color:var(--text-secondary);padding:12px 20px;font-family:'Share Tech Mono',monospace;font-size:12px;cursor:pointer;transition:all 0.2s;margin-right:10px;}
+.btn-reset:hover{border-color:var(--text-secondary);color:var(--text-primary);}
+.form-actions{display:flex;align-items:center;justify-content:flex-end;padding-top:16px;border-top:1px solid var(--border);}
+.form-id{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;margin-right:auto;}
+
+/* Report detail modal */
+.report-detail{background:var(--bg-panel);border:1px solid var(--border);padding:24px;max-width:700px;margin:0 auto;}
+.report-detail-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+.report-detail-field{margin-bottom:14px;}
+.report-detail-label{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:1px;margin-bottom:5px;}
+.report-detail-value{font-size:13px;color:var(--text-primary);line-height:1.6;}
+
+/* Dropzone */
+.dropzone{border:1px dashed var(--border);padding:24px;text-align:center;cursor:pointer;transition:border-color 0.2s;background:var(--bg-input);}
+.dropzone:hover,.dropzone.dragover{border-color:var(--accent);}
+.dropzone-text{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-secondary);}
+.dropzone-link{color:var(--accent);cursor:pointer;text-decoration:underline;}
+.file-list{margin-top:10px;}
+.file-item{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:var(--bg-card);border:1px solid var(--border);margin-bottom:4px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-secondary);}
+.file-item button{background:none;border:none;color:var(--red);cursor:pointer;font-size:13px;}
+
+/* Access denied */
+.access-denied{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:300px;text-align:center;}
+.access-denied-icon{font-size:48px;margin-bottom:16px;opacity:0.3;}
+.access-denied-title{font-family:'Orbitron',monospace;font-size:16px;color:var(--red);margin-bottom:8px;}
+.access-denied-sub{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--text-dim);}
+
+/* Footer */
+.site-footer{background:var(--bg-panel);border-top:1px solid var(--border);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;}
+.footer-text{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);}
+
+/* ========= ADMIN PANEL ========= */
+#view-admin{flex-direction:column;}
+.admin-bar{background:var(--bg-panel);border-bottom:2px solid var(--orange);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:500;}
+.admin-bar-title{font-family:'Orbitron',monospace;font-size:13px;font-weight:700;color:var(--orange);letter-spacing:2px;display:flex;align-items:center;gap:10px;}
+.admin-badge{background:rgba(244,162,28,0.12);border:1px solid var(--orange);padding:2px 8px;font-size:9px;color:var(--orange);font-family:'Share Tech Mono',monospace;letter-spacing:1px;}
+.admin-layout{display:flex;flex:1;min-height:calc(100vh - 52px);}
+.admin-sidebar{width:210px;background:var(--bg-panel);border-right:1px solid var(--border);padding:14px 0;flex-shrink:0;}
+.admin-nav{padding:8px 18px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:500;color:var(--text-secondary);display:flex;align-items:center;gap:9px;border-left:2px solid transparent;transition:all 0.15s;}
+.admin-nav:hover{color:var(--text-primary);background:rgba(244,162,28,0.04);border-left-color:var(--border);}
+.admin-nav.active{color:var(--orange);background:rgba(244,162,28,0.06);border-left-color:var(--orange);}
+.admin-content{flex:1;padding:24px;overflow-y:auto;}
+.btn-orange{background:var(--orange);border:none;color:#000;padding:9px 18px;font-family:'Orbitron',monospace;font-size:11px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all 0.2s;}
+.btn-orange:hover{background:#f5b73a;}
+.btn-ghost{background:none;border:1px solid var(--border);color:var(--text-secondary);padding:9px 18px;font-family:'Share Tech Mono',monospace;font-size:11px;cursor:pointer;transition:all 0.2s;}
+.btn-ghost:hover{border-color:var(--text-secondary);color:var(--text-primary);}
+.notif-badge{background:var(--red);color:#fff;font-size:9px;font-weight:700;padding:1px 5px;font-family:'Share Tech Mono',monospace;margin-left:5px;}
+.page-item{background:var(--bg-card);border:1px solid var(--border);padding:13px 16px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;}
+.page-item:hover{border-color:var(--accent-dim);}
+.page-item-title{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;color:var(--text-primary);}
+.page-item-meta{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);margin-top:2px;}
+.section-selector{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+.section-selector label{display:flex;align-items:center;gap:5px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-secondary);cursor:pointer;padding:4px 10px;border:1px solid var(--border);transition:all 0.15s;}
+.section-selector input[type=checkbox]{accent-color:var(--accent);}
+.section-selector label:hover{border-color:var(--accent-dim);color:var(--text-primary);}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.active{display:flex;}
+.modal{background:var(--bg-panel);border:1px solid var(--border);width:100%;max-width:500px;position:relative;animation:slideUp 0.3s ease;}
+.modal.wide{max-width:720px;}
+.modal::before{content:'';position:absolute;top:-1px;left:12%;right:12%;height:2px;background:linear-gradient(90deg,transparent,var(--orange),transparent);}
+.modal-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.modal-title{font-family:'Orbitron',monospace;font-size:13px;font-weight:600;color:#fff;}
+.modal-close{background:none;border:none;color:var(--text-secondary);font-size:17px;cursor:pointer;transition:color 0.15s;}
+.modal-close:hover{color:var(--red);}
+.modal-body{padding:20px;}
+.modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;}
+.back-link{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;gap:5px;transition:color 0.15s;}
+.back-link:hover{color:var(--text-primary);}
+
+/* Inline report detail */
+.report-back{margin-bottom:16px;}
+
+/* Grade tag colors */
+.grade-tag{padding:2px 7px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;font-family:'Share Tech Mono',monospace;border:1px solid;display:inline-block;}
+.grade-directeur{background:rgba(244,162,28,0.12);border-color:var(--orange);color:var(--orange);}
+.grade-superviseur{background:rgba(0,180,216,0.08);border-color:var(--accent-dim);color:var(--accent);}
+.grade-membre{background:rgba(56,161,105,0.08);border-color:#38a169;color:#68d391;}
+
+/* Checkbox pill selection */
+.pill-check{display:flex;flex-wrap:wrap;gap:6px;}
+.pill-check label{display:flex;align-items:center;gap:5px;padding:4px 10px;border:1px solid var(--border);font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-secondary);cursor:pointer;transition:all 0.15s;}
+.pill-check label:hover{border-color:var(--accent-dim);color:var(--text-primary);}
+.pill-check input[type=checkbox]{accent-color:var(--accent);}
 </style>
 </head>
 <body>
-
 <div class="grid-bg"></div>
-<div class="corner-decoration tl"></div>
-<div class="corner-decoration tr"></div>
-<div class="corner-decoration bl"></div>
-<div class="corner-decoration br"></div>
+<div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
 
-<!-- Loading screen -->
 <div id="loading-screen">
   <div class="loading-logo">CWU</div>
   <div class="loading-text">Connexion au réseau syndical...</div>
@@ -1109,866 +289,926 @@
 
 <div id="app">
 
-  <!-- ====== LOGIN VIEW ====== -->
-  <div id="view-login" class="view active">
-    <div class="login-container">
-      <div class="login-header">
-        <div class="cwu-logo">CWU</div>
-        <div class="login-header-text">
-          <h1>Civil Worker's Union</h1>
-          <p>Centre syndicale — Last Signal</p>
-        </div>
-      </div>
-      <div class="login-body">
-        <div class="login-title">Accès syndical</div>
-        <div class="login-sub">Connectez-vous ou demandez votre adhésion</div>
-
-        <div class="tab-bar">
-          <button class="tab-btn" id="tab-login" onclick="switchTab('login')">Connexion</button>
-          <button class="tab-btn active" id="tab-register" onclick="switchTab('register')">Demander l'entrée</button>
-        </div>
-
-        <!-- Login form -->
-        <div class="tab-panel" id="panel-login">
-          <div class="error-msg" id="login-error"></div>
-          <div class="field">
-            <label>Email</label>
-            <input type="email" id="login-email" placeholder="exemple@email.com">
-          </div>
-          <div class="field">
-            <label>Mot de passe</label>
-            <input type="password" id="login-password" placeholder="••••••••">
-          </div>
-          <button class="btn-primary" onclick="doLogin()">SE CONNECTER</button>
-        </div>
-
-        <!-- Register form -->
-        <div class="tab-panel active" id="panel-register">
-          <div class="success-msg" id="register-success"></div>
-          <div class="error-msg" id="register-error"></div>
-          <div class="field">
-            <label>CID (pseudo RP)</label>
-            <input type="text" id="reg-cid" placeholder="Jack Latrousse, #52468">
-          </div>
-          <div class="field">
-            <label>Pseudo Steam</label>
-            <input type="text" id="reg-steam" placeholder="votre_pseudo_steam">
-          </div>
-          <div class="field">
-            <label>Email</label>
-            <input type="email" id="reg-email" placeholder="exemple@email.com">
-          </div>
-          <div class="field">
-            <label>Mot de passe (6+ caractères)</label>
-            <input type="password" id="reg-password" placeholder="••••••••">
-          </div>
-          <button class="btn-primary" onclick="doRegister()">ENVOYER LA DEMANDE</button>
-        </div>
-
-        <div class="login-footer-note">
-          Votre entrée doit être validée par un responsable.
-        </div>
+<!-- ======== LOGIN ======== -->
+<div id="view-login" class="view active">
+  <div class="login-wrap">
+    <div class="login-head">
+      <div class="cwu-hex">CWU</div>
+      <div>
+        <h1>Civil Worker's Union</h1>
+        <p>Centre Syndicale — Last Signal RP</p>
       </div>
     </div>
-
-    <button class="supervisor-btn" onclick="openSupervisor()">Accès superviseur</button>
-  </div>
-
-  <!-- ====== MAIN SITE VIEW ====== -->
-  <div id="view-site" class="view">
-    <div class="topbar">
-      <div class="topbar-logo" onclick="showPage('accueil')">
-        <div class="cwu-logo">CWU</div>
-        <div class="topbar-logo-text">
-          Civil Worker's Union
-          <span>Centre Syndicale — Last Signal</span>
-        </div>
+    <div class="login-body">
+      <div class="login-title">Accès syndical</div>
+      <div class="login-sub">Connectez-vous ou demandez votre adhésion</div>
+      <div class="tab-bar">
+        <button class="tab-btn" id="tab-login" onclick="switchTab('login')">Connexion</button>
+        <button class="tab-btn active" id="tab-register" onclick="switchTab('register')">Demander l'entrée</button>
       </div>
-      <nav class="topbar-nav" id="main-nav"></nav>
-      <div class="topbar-right">
-        <div class="user-badge">
-          <span class="status-dot online"></span>
-          <span id="display-name">—</span>
-          <span class="role-tag" id="display-role">—</span>
-        </div>
-        <button class="logout-btn" onclick="doLogout()">DÉCONN.</button>
-        <button class="logout-btn" id="admin-access-btn" onclick="goAdmin()" style="border-color:var(--orange);color:var(--orange);display:none">ADMIN ⬡</button>
+      <div class="tab-panel" id="panel-login">
+        <div class="err-msg" id="login-err"></div>
+        <div class="field"><label>Email</label><input type="email" id="login-email" placeholder="exemple@email.com"></div>
+        <div class="field"><label>Mot de passe</label><input type="password" id="login-pass" placeholder="••••••••"></div>
+        <button class="btn-primary" onclick="doLogin()">SE CONNECTER</button>
       </div>
-    </div>
-
-    <div class="site-layout">
-      <aside class="sidebar" id="sidebar-nav"></aside>
-      <main class="content-area" id="page-content">
-        <!-- Dynamic content -->
-      </main>
-    </div>
-
-    <footer class="site-footer">
-      <div class="footer-text">© Civil Worker's Union — Last Signal RP Server</div>
-      <div class="footer-text">SYSTÈME ACTIF — <span id="footer-time"></span></div>
-    </footer>
-  </div>
-
-  <!-- ====== ADMIN VIEW ====== -->
-  <div id="view-admin" class="view">
-    <div class="admin-topbar">
-      <div class="admin-topbar-title">
-        ⬡ PANNEAU DE CONTRÔLE
-        <span class="admin-badge">DIRECTEUR</span>
+      <div class="tab-panel active" id="panel-register">
+        <div class="ok-msg" id="reg-ok"></div>
+        <div class="err-msg" id="reg-err"></div>
+        <div class="field"><label>CID (Nom RP + matricule)</label><input type="text" id="reg-cid" placeholder="Jack Latrousse, #52468"></div>
+        <div class="field"><label>Pseudo Steam</label><input type="text" id="reg-steam" placeholder="votre_pseudo_steam"></div>
+        <div class="field"><label>Division (optionnel)</label><input type="text" id="reg-div" placeholder="Ex: Logistique, Maintenance..."></div>
+        <div class="field"><label>Email</label><input type="email" id="reg-email" placeholder="exemple@email.com"></div>
+        <div class="field"><label>Mot de passe (6+ caractères)</label><input type="password" id="reg-pass" placeholder="••••••••"></div>
+        <button class="btn-primary" onclick="doRegister()">ENVOYER LA DEMANDE</button>
       </div>
-      <div style="display:flex;align-items:center;gap:16px;">
-        <span class="back-link" onclick="goSite()">← Retour au site</span>
-        <button class="logout-btn" onclick="doLogout()">DÉCONN.</button>
-      </div>
-    </div>
-    <div class="admin-layout">
-      <aside class="admin-sidebar">
-        <div class="admin-nav-item active" onclick="adminSection('members')" id="anav-members">👥 Membres</div>
-        <div class="admin-nav-item" onclick="adminSection('pending')" id="anav-pending">⏳ En attente <span class="notif-badge" id="pending-count">0</span></div>
-        <div class="admin-nav-item" onclick="adminSection('pages')" id="anav-pages">📄 Pages du site</div>
-        <div class="admin-nav-item" onclick="adminSection('announcements')" id="anav-announcements">📢 Annonces</div>
-        <div class="admin-nav-item" onclick="adminSection('new-page')" id="anav-new-page">➕ Nouvelle page</div>
-      </aside>
-      <div class="admin-content" id="admin-content"></div>
+      <div class="login-note">Votre entrée doit être validée par un responsable.</div>
     </div>
   </div>
-
+  <button class="sup-btn" onclick="openModal('modal-sup')">⬡ Accès superviseur</button>
 </div>
 
-<!-- Modal supervisor -->
-<div class="modal-overlay" id="modal-supervisor">
+<!-- ======== MAIN SITE ======== -->
+<div id="view-site" class="view">
+  <div class="topbar">
+    <div class="topbar-logo" onclick="showPage('accueil')">
+      <div class="cwu-hex">CWU</div>
+      <div class="logo-text">Civil Worker's Union<span>Centre Syndicale — Last Signal</span></div>
+    </div>
+    <nav class="topbar-nav" id="main-nav"></nav>
+    <div class="topbar-right">
+      <div class="user-badge">
+        <span class="status-dot on"></span>
+        <span id="disp-name">—</span>
+        <span class="role-tag" id="disp-role">—</span>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">DÉCONN.</button>
+      <button class="logout-btn" id="admin-btn" onclick="goAdmin()" style="border-color:var(--orange);color:var(--orange);display:none">⬡ ADMIN</button>
+    </div>
+  </div>
+  <div class="site-layout">
+    <aside class="sidebar" id="sidebar-nav"></aside>
+    <main class="content-area" id="page-content"></main>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-text">© Civil Worker's Union — Last Signal RP</div>
+    <div class="footer-text">SYSTÈME ACTIF — <span id="footer-time"></span></div>
+  </footer>
+</div>
+
+<!-- ======== ADMIN ======== -->
+<div id="view-admin" class="view">
+  <div class="admin-bar">
+    <div class="admin-bar-title">⬡ PANNEAU DE CONTRÔLE <span class="admin-badge">DIRECTION</span></div>
+    <div style="display:flex;align-items:center;gap:14px;">
+      <span class="back-link" onclick="goSite()">← Retour au site</span>
+      <button class="logout-btn" onclick="doLogout()">DÉCONN.</button>
+    </div>
+  </div>
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="admin-nav active" id="anav-members" onclick="adminSec('members')">👥 Membres</div>
+      <div class="admin-nav" id="anav-pending" onclick="adminSec('pending')">⏳ En attente <span class="notif-badge" id="pending-count">0</span></div>
+      <div class="admin-nav" id="anav-grades" onclick="adminSec('grades')">🏷 Grades & Divisions</div>
+      <div class="admin-nav" id="anav-reports" onclick="adminSec('reports-admin')">📋 Rapports</div>
+      <div class="admin-nav" id="anav-pages" onclick="adminSec('pages')">📄 Pages du site</div>
+      <div class="admin-nav" id="anav-ann" onclick="adminSec('announcements')">📢 Annonces</div>
+      <div class="admin-nav" id="anav-newpage" onclick="adminSec('new-page')">➕ Nouvelle page</div>
+      <div class="admin-nav" id="anav-config" onclick="adminSec('config')">⚙️ Configuration</div>
+    </aside>
+    <div class="admin-content" id="admin-content"></div>
+  </div>
+</div>
+
+</div><!-- #app -->
+
+<!-- ======== MODALS ======== -->
+<!-- Supervisor login -->
+<div class="modal-overlay" id="modal-sup">
   <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">⬡ ACCÈS SUPERVISEUR</div>
-      <button class="modal-close" onclick="closeModal('modal-supervisor')">✕</button>
-    </div>
+    <div class="modal-head"><div class="modal-title">⬡ ACCÈS SUPERVISEUR</div><button class="modal-close" onclick="closeModal('modal-sup')">✕</button></div>
     <div class="modal-body">
-      <div class="error-msg" id="sup-error"></div>
-      <div class="field">
-        <label>Email superviseur</label>
-        <input type="email" id="sup-email" placeholder="directeur@cwu.rp">
-      </div>
-      <div class="field">
-        <label>Code d'accès</label>
-        <input type="password" id="sup-password" placeholder="••••••••">
-      </div>
+      <div class="err-msg" id="sup-err"></div>
+      <div class="field"><label>Email</label><input type="email" id="sup-email" placeholder="directeur@cwu.rp"></div>
+      <div class="field"><label>Code d'accès</label><input type="password" id="sup-pass" placeholder="••••••••"></div>
     </div>
-    <div class="modal-footer">
-      <button class="btn-ghost" onclick="closeModal('modal-supervisor')">Annuler</button>
-      <button class="btn-orange" onclick="doSupervisorLogin()">ACCÉDER</button>
-    </div>
+    <div class="modal-footer"><button class="btn-ghost" onclick="closeModal('modal-sup')">Annuler</button><button class="btn-orange" onclick="doSupLogin()">ACCÉDER</button></div>
   </div>
 </div>
 
-<!-- Modal edit page -->
+<!-- Edit page modal -->
 <div class="modal-overlay" id="modal-edit-page">
-  <div class="modal" style="max-width:680px">
-    <div class="modal-header">
-      <div class="modal-title">✏️ MODIFIER LA PAGE</div>
-      <button class="modal-close" onclick="closeModal('modal-edit-page')">✕</button>
-    </div>
-    <div class="modal-body" id="edit-page-body"></div>
-    <div class="modal-footer">
-      <button class="btn-ghost" onclick="closeModal('modal-edit-page')">Annuler</button>
-      <button class="btn-orange" onclick="saveEditedPage()">SAUVEGARDER</button>
-    </div>
+  <div class="modal wide">
+    <div class="modal-head"><div class="modal-title">✏️ MODIFIER LA PAGE</div><button class="modal-close" onclick="closeModal('modal-edit-page')">✕</button></div>
+    <div class="modal-body" id="edit-page-body" style="max-height:70vh;overflow-y:auto;"></div>
+    <div class="modal-footer"><button class="btn-ghost" onclick="closeModal('modal-edit-page')">Annuler</button><button class="btn-orange" onclick="saveEditedPage()">SAUVEGARDER</button></div>
+  </div>
+</div>
+
+<!-- Report detail modal -->
+<div class="modal-overlay" id="modal-report">
+  <div class="modal wide">
+    <div class="modal-head"><div class="modal-title">📋 RAPPORT D'ACTIVITÉ</div><button class="modal-close" onclick="closeModal('modal-report')">✕</button></div>
+    <div class="modal-body" id="modal-report-body" style="max-height:75vh;overflow-y:auto;"></div>
+    <div class="modal-footer"><button class="btn-ghost" onclick="closeModal('modal-report')">Fermer</button></div>
   </div>
 </div>
 
 <script>
 // ============================================================
-// DATA STORE (localStorage-based for GitHub Pages)
+// CONSTANTS & HELPERS
 // ============================================================
-
 const ADMIN_EMAIL = 'alexandre.jacopin76@gmail.com';
-const ADMIN_PASSWORD = 'cwu-admin-2024'; // changeable
+const ADMIN_PASS  = 'cwu-admin-2024';
 
-function getData(key, def) {
-  try {
-    const v = localStorage.getItem(key);
-    return v ? JSON.parse(v) : def;
-  } catch { return def; }
+function gd(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch{return d;}}
+function sd(k,v){localStorage.setItem(k,JSON.stringify(v));}
+
+// Roles hierarchy: higher index = more power
+const ROLES = ['membre','superviseur','directeur'];
+function roleLevel(r){return ROLES.indexOf(r);}
+function canAccess(userRole, required){
+  if(required==='tous'||required==='all')return true;
+  if(!required||required==='none')return false;
+  const rArr = Array.isArray(required)?required:[required];
+  return rArr.some(r=>roleLevel(userRole)>=roleLevel(r));
 }
 
-function setData(key, value) {
-  localStorage.setItem(key, JSON.stringify(value));
-}
+function showErr(el,msg){el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',4000);}
+function openModal(id){document.getElementById(id).classList.add('active');}
+function closeModal(id){document.getElementById(id).classList.remove('active');}
+function showView(id){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById(id).classList.add('active');}
 
-// Init default data
-function initData() {
-  if (!getData('cwu_users', null)) {
-    setData('cwu_users', [{
-      email: ADMIN_EMAIL,
-      password: ADMIN_PASSWORD,
-      cid: 'Alexandre J., Directeur',
-      steam: 'alexandre_jacopin',
-      role: 'directeur',
-      status: 'approved',
-      joined: new Date().toISOString()
+// ============================================================
+// INIT DATA
+// ============================================================
+function initData(){
+  if(!gd('cwu_users',null)){
+    sd('cwu_users',[{
+      email:ADMIN_EMAIL,password:ADMIN_PASS,cid:'Alexandre J., Directeur',steam:'alexandre_jacopin',
+      role:'directeur',division:'Direction',status:'approved',matricule:'001',joined:new Date().toISOString()
     }]);
   }
-
-  if (!getData('cwu_pages', null)) {
-    setData('cwu_pages', [
-      {
-        id: 'accueil',
-        title: 'Accueil',
-        category: 'Général',
-        navOrder: 0,
-        inSidebar: false,
-        content: [
-          { cat: 'Bienvenue', title: 'Civil Worker\'s Union', body: 'Bienvenue dans le centre syndical de Last Signal. Le CWU est l\'organisation civile officielle sous l\'autorité de l\'Union. Nos travailleurs assurent les services essentiels à la vie du secteur.' },
-          { cat: 'Directives', title: 'Ordre du jour', body: 'Toute demande d\'adhésion doit être validée par un superviseur ou directeur. Les membres actifs doivent se conformer aux règles de conduite du syndicat. Le port de l\'uniforme est obligatoire durant le service.' }
-        ]
-      },
-      {
-        id: 'reglement',
-        title: 'Règlement',
-        category: 'Syndicat',
-        navOrder: 1,
-        inSidebar: true,
-        content: [
-          { cat: 'Code de conduite', title: 'Règles générales', body: 'I. Tout membre du CWU se doit d\'obéir aux ordres de sa hiérarchie.\nII. La propagande anti-Union est strictement interdite.\nIII. Tout comportement perturbateur sera sanctionné.' },
-          { cat: 'Sanctions', title: 'Procédures disciplinaires', body: 'Les manquements aux règles peuvent entraîner un avertissement, une suspension temporaire, ou l\'exclusion définitive du syndicat selon la gravité.' }
-        ]
-      },
-      {
-        id: 'annonces',
-        title: 'Annonces',
-        category: 'Général',
-        navOrder: 2,
-        inSidebar: false,
-        content: []
-      }
+  if(!gd('cwu_grades',null)){
+    sd('cwu_grades',{
+      roles:['membre','superviseur','directeur'],
+      divisions:['Logistique','Maintenance','Sécurité','Administration','Direction']
+    });
+  }
+  if(!gd('cwu_pages',null)){
+    sd('cwu_pages',[
+      {id:'accueil',title:'Accueil',category:'Général',navOrder:0,inSidebar:false,accessRoles:'tous',content:[
+        {cat:'Bienvenue',title:'Civil Worker\'s Union',body:'Bienvenue dans le centre syndical de Last Signal. Le CWU est l\'organisation civile officielle sous l\'autorité de l\'Union. Nos travailleurs assurent les services essentiels à la vie du secteur.'},
+        {cat:'Directives',title:'Ordre du jour',body:'Toute demande d\'adhésion doit être validée par un superviseur ou directeur. Les membres actifs doivent se conformer aux règles de conduite du syndicat.'}
+      ]},
+      {id:'reglement',title:'Règlement',category:'Syndicat',navOrder:1,inSidebar:true,accessRoles:'tous',content:[
+        {cat:'Code de conduite',title:'Règles générales',body:'I. Tout membre du CWU se doit d\'obéir aux ordres de sa hiérarchie.\nII. La propagande anti-Union est strictement interdite.\nIII. Tout comportement perturbateur sera sanctionné.'},
+        {cat:'Sanctions',title:'Procédures disciplinaires',body:'Les manquements aux règles peuvent entraîner un avertissement, une suspension temporaire, ou l\'exclusion définitive du syndicat.'}
+      ]},
+      {id:'annonces',title:'Annonces',category:'Général',navOrder:2,inSidebar:false,accessRoles:'tous',content:[]},
+      {id:'rapports',title:'Rapports',category:'Activité',navOrder:3,inSidebar:false,accessRoles:'membre',content:[]},
+      {id:'classifie',title:'Zone Classifiée',category:'Direction',navOrder:99,inSidebar:true,accessRoles:'superviseur',content:[
+        {cat:'CONFIDENTIEL',title:'Directives internes',body:'Ce salon est réservé aux superviseurs et directeurs. Toute fuite d\'information sera sanctionnée.'}
+      ]}
     ]);
   }
-
-  if (!getData('cwu_announcements', null)) {
-    setData('cwu_announcements', [
-      { id: Date.now(), author: 'Directeur', date: new Date().toLocaleDateString('fr-FR'), title: 'Ouverture du centre syndical', body: 'Le centre syndical de Last Signal est désormais opérationnel. Toutes les demandes d\'adhésion sont ouvertes.', type: 'info' }
-    ]);
+  if(!gd('cwu_announcements',null)){
+    sd('cwu_announcements',[{id:Date.now(),author:'Direction',date:new Date().toLocaleDateString('fr-FR'),title:'Ouverture du centre syndical',body:'Le centre syndical de Last Signal est désormais opérationnel. Toutes les demandes d\'adhésion sont ouvertes.',type:'info'}]);
+  }
+  if(!gd('cwu_reports',null)){
+    sd('cwu_reports',[]);
+  }
+  if(!gd('cwu_config',null)){
+    sd('cwu_config',{siteName:'Civil Worker\'s Union',siteSubtitle:'Centre Syndicale — Last Signal RP',adminEmail:ADMIN_EMAIL});
   }
 }
 
 // ============================================================
-// CURRENT SESSION
+// SESSION
 // ============================================================
+let CU=null;// current user
 
-let currentUser = null;
-
-function getCurrentUser() {
-  const email = sessionStorage.getItem('cwu_session');
-  if (!email) return null;
-  const users = getData('cwu_users', []);
-  return users.find(u => u.email === email) || null;
+function getSession(){
+  const e=sessionStorage.getItem('cwu_ses');
+  if(!e)return null;
+  return (gd('cwu_users',[])).find(u=>u.email===e)||null;
 }
-
-function setSession(email) {
-  sessionStorage.setItem('cwu_session', email);
-}
-
-function clearSession() {
-  sessionStorage.removeItem('cwu_session');
-}
-
-// ============================================================
-// VIEWS
-// ============================================================
-
-function showView(id) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
+function setSession(e){sessionStorage.setItem('cwu_ses',e);}
+function clearSession(){sessionStorage.removeItem('cwu_ses');}
 
 // ============================================================
 // LOGIN
 // ============================================================
-
-function switchTab(tab) {
-  document.getElementById('tab-login').classList.toggle('active', tab === 'login');
-  document.getElementById('tab-register').classList.toggle('active', tab === 'register');
-  document.getElementById('panel-login').classList.toggle('active', tab === 'login');
-  document.getElementById('panel-register').classList.toggle('active', tab === 'register');
+function switchTab(t){
+  document.getElementById('tab-login').classList.toggle('active',t==='login');
+  document.getElementById('tab-register').classList.toggle('active',t==='register');
+  document.getElementById('panel-login').classList.toggle('active',t==='login');
+  document.getElementById('panel-register').classList.toggle('active',t==='register');
 }
 
-function doLogin() {
-  const email = document.getElementById('login-email').value.trim();
-  const pass = document.getElementById('login-password').value;
-  const errEl = document.getElementById('login-error');
-
-  if (!email || !pass) { showErr(errEl, 'Remplissez tous les champs.'); return; }
-
-  const users = getData('cwu_users', []);
-  const user = users.find(u => u.email === email && u.password === pass);
-
-  if (!user) { showErr(errEl, 'Identifiants incorrects.'); return; }
-  if (user.status === 'pending') { showErr(errEl, 'Votre demande est en attente de validation.'); return; }
-  if (user.status === 'rejected') { showErr(errEl, 'Votre demande a été refusée.'); return; }
-
-  setSession(email);
-  currentUser = user;
-  enterSite();
+function doLogin(){
+  const e=document.getElementById('login-email').value.trim();
+  const p=document.getElementById('login-pass').value;
+  const err=document.getElementById('login-err');
+  if(!e||!p){showErr(err,'Remplissez tous les champs.');return;}
+  const u=(gd('cwu_users',[])).find(x=>x.email===e&&x.password===p);
+  if(!u){showErr(err,'Identifiants incorrects.');return;}
+  if(u.status==='pending'){showErr(err,'Votre demande est en attente de validation.');return;}
+  if(u.status==='rejected'){showErr(err,'Votre demande a été refusée.');return;}
+  setSession(e);CU=u;enterSite();
 }
 
-function doRegister() {
-  const cid = document.getElementById('reg-cid').value.trim();
-  const steam = document.getElementById('reg-steam').value.trim();
-  const email = document.getElementById('reg-email').value.trim();
-  const pass = document.getElementById('reg-password').value;
-  const errEl = document.getElementById('register-error');
-  const okEl = document.getElementById('register-success');
-
-  if (!cid || !steam || !email || !pass) { showErr(errEl, 'Remplissez tous les champs.'); return; }
-  if (pass.length < 6) { showErr(errEl, 'Mot de passe trop court (6 caractères min).'); return; }
-
-  const users = getData('cwu_users', []);
-  if (users.find(u => u.email === email)) { showErr(errEl, 'Cet email est déjà utilisé.'); return; }
-
-  users.push({ email, password: pass, cid, steam, role: 'membre', status: 'pending', joined: new Date().toISOString() });
-  setData('cwu_users', users);
-
-  errEl.style.display = 'none';
-  okEl.textContent = '✓ Demande envoyée. Un responsable examinera votre candidature.';
-  okEl.style.display = 'block';
-  ['reg-cid','reg-steam','reg-email','reg-password'].forEach(id => document.getElementById(id).value = '');
+function doRegister(){
+  const cid=document.getElementById('reg-cid').value.trim();
+  const steam=document.getElementById('reg-steam').value.trim();
+  const div=document.getElementById('reg-div').value.trim();
+  const email=document.getElementById('reg-email').value.trim();
+  const pass=document.getElementById('reg-pass').value;
+  const err=document.getElementById('reg-err');
+  const ok=document.getElementById('reg-ok');
+  if(!cid||!steam||!email||!pass){showErr(err,'Remplissez tous les champs obligatoires.');return;}
+  if(pass.length<6){showErr(err,'Mot de passe trop court.');return;}
+  const users=gd('cwu_users',[]);
+  if(users.find(u=>u.email===email)){showErr(err,'Cet email est déjà utilisé.');return;}
+  const mat=String(users.length+1).padStart(3,'0');
+  users.push({email,password:pass,cid,steam,division:div||'Non assigné',role:'membre',status:'pending',matricule:mat,joined:new Date().toISOString()});
+  sd('cwu_users',users);
+  err.style.display='none';
+  ok.textContent='✓ Demande envoyée. Un responsable examinera votre candidature.';
+  ok.style.display='block';
+  ['reg-cid','reg-steam','reg-div','reg-email','reg-pass'].forEach(i=>document.getElementById(i).value='');
 }
 
-function openSupervisor() {
-  document.getElementById('modal-supervisor').classList.add('active');
+function doSupLogin(){
+  const e=document.getElementById('sup-email').value.trim();
+  const p=document.getElementById('sup-pass').value;
+  const err=document.getElementById('sup-err');
+  const u=(gd('cwu_users',[])).find(x=>x.email===e&&x.password===p);
+  if(!u){showErr(err,'Identifiants incorrects.');return;}
+  if(!['directeur','superviseur'].includes(u.role)){showErr(err,'Accès refusé — droits insuffisants.');return;}
+  setSession(e);CU=u;closeModal('modal-sup');enterSite();
 }
 
-function doSupervisorLogin() {
-  const email = document.getElementById('sup-email').value.trim();
-  const pass = document.getElementById('sup-password').value;
-  const errEl = document.getElementById('sup-error');
-
-  const users = getData('cwu_users', []);
-  const user = users.find(u => u.email === email && u.password === pass);
-
-  if (!user) { showErr(errEl, 'Identifiants incorrects.'); return; }
-  if (!['directeur','superviseur'].includes(user.role)) { showErr(errEl, 'Accès refusé — droits insuffisants.'); return; }
-
-  setSession(email);
-  currentUser = user;
-  closeModal('modal-supervisor');
-  enterSite();
-}
+function doLogout(){clearSession();CU=null;showView('view-login');}
 
 // ============================================================
 // SITE
 // ============================================================
+function enterSite(){buildNav();updateBar();showView('view-site');showPage('accueil');}
 
-function enterSite() {
-  buildSiteNav();
-  updateUserBar();
-  showView('view-site');
-  showPage('accueil');
+function updateBar(){
+  if(!CU)return;
+  document.getElementById('disp-name').textContent=CU.cid;
+  const r=document.getElementById('disp-role');
+  const labels={directeur:'DIRECTEUR',superviseur:'SUPERVISEUR',membre:'MEMBRE'};
+  r.textContent=labels[CU.role]||CU.role;
+  r.className='role-tag '+CU.role;
+  const ab=document.getElementById('admin-btn');
+  ab.style.display=['directeur','superviseur'].includes(CU.role)?'':'none';
 }
 
-function updateUserBar() {
-  if (!currentUser) return;
-  document.getElementById('display-name').textContent = currentUser.cid;
-  const roleEl = document.getElementById('display-role');
-  const roles = { directeur: 'DIRECTEUR', superviseur: 'SUPERVISEUR', membre: 'MEMBRE', en_attente: 'EN ATTENTE' };
-  roleEl.textContent = roles[currentUser.role] || currentUser.role;
-  roleEl.className = 'role-tag ' + currentUser.role;
-
-  const adminBtn = document.getElementById('admin-access-btn');
-  adminBtn.style.display = ['directeur','superviseur'].includes(currentUser.role) ? '' : 'none';
-}
-
-function buildSiteNav() {
-  const pages = getData('cwu_pages', []);
-  const navPages = pages.filter(p => p.navOrder !== undefined).sort((a,b) => a.navOrder - b.navOrder);
-
-  const nav = document.getElementById('main-nav');
-  nav.innerHTML = '';
-  navPages.forEach(p => {
-    const btn = document.createElement('button');
-    btn.className = 'nav-btn';
-    btn.textContent = p.title;
-    btn.onclick = () => showPage(p.id);
-    btn.id = 'nav-' + p.id;
-    nav.appendChild(btn);
+function buildNav(){
+  const pages=gd('cwu_pages',[]);
+  const navPages=pages.filter(p=>p.navOrder!==undefined&&canAccess(CU.role,p.accessRoles)).sort((a,b)=>a.navOrder-b.navOrder);
+  const nav=document.getElementById('main-nav');
+  nav.innerHTML='';
+  navPages.forEach(p=>{
+    const b=document.createElement('button');
+    b.className='nav-btn';b.textContent=p.title;b.onclick=()=>showPage(p.id);b.id='nav-'+p.id;
+    nav.appendChild(b);
   });
 
-  const sidebar = document.getElementById('sidebar-nav');
-  sidebar.innerHTML = '';
-
-  // Group sidebar pages by category
-  const sidebarPages = pages.filter(p => p.inSidebar);
-  const cats = [...new Set(sidebarPages.map(p => p.category))];
-  cats.forEach(cat => {
-    const sec = document.createElement('div');
-    sec.className = 'sidebar-section';
-    sec.innerHTML = `<div class="sidebar-cat">${cat}</div>`;
-    sidebarPages.filter(p => p.category === cat).forEach(p => {
-      const link = document.createElement('div');
-      link.className = 'sidebar-link';
-      link.innerHTML = `<span class="icon">▸</span>${p.title}`;
-      link.id = 'slink-' + p.id;
-      link.onclick = () => showPage(p.id);
-      sec.appendChild(link);
+  const sb=document.getElementById('sidebar-nav');
+  sb.innerHTML='';
+  const sidebarPages=pages.filter(p=>p.inSidebar&&canAccess(CU.role,p.accessRoles));
+  const cats=[...new Set(sidebarPages.map(p=>p.category))];
+  cats.forEach(cat=>{
+    const sec=document.createElement('div');
+    sec.innerHTML=`<div class="sidebar-cat">${cat}</div>`;
+    sidebarPages.filter(p=>p.category===cat).forEach(p=>{
+      const link=document.createElement('div');
+      link.className='sidebar-link';
+      const locked=!canAccess(CU.role,p.accessRoles);
+      link.innerHTML=`<span class="sidebar-icon">▸</span>${p.title}${locked?'<span class="lock-icon">🔒</span>':''}`;
+      link.id='slink-'+p.id;
+      if(!locked)link.onclick=()=>showPage(p.id);
+      sb.appendChild(link);
     });
-    sidebar.appendChild(sec);
+    sb.appendChild(sec);
   });
+  // Always add a divider + reports link
+  const div2=document.createElement('hr');div2.className='sidebar-divider';sb.appendChild(div2);
+  if(canAccess(CU.role,'membre')){
+    const rl=document.createElement('div');rl.className='sidebar-link';
+    rl.innerHTML='<span class="sidebar-icon">📋</span>Mes rapports';
+    rl.onclick=()=>showPage('rapports');sb.appendChild(rl);
+    const wrl=document.createElement('div');wrl.className='sidebar-link';
+    wrl.innerHTML='<span class="sidebar-icon">✏️</span>Rédiger un rapport';
+    wrl.onclick=()=>showPage('write-report');sb.appendChild(wrl);
+  }
 }
 
-function showPage(id) {
-  // Update nav active state
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.sidebar-link').forEach(b => b.classList.remove('active'));
-  const nb = document.getElementById('nav-' + id);
-  if (nb) nb.classList.add('active');
-  const sl = document.getElementById('slink-' + id);
-  if (sl) sl.classList.add('active');
+function showPage(id){
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.sidebar-link').forEach(b=>b.classList.remove('active'));
+  const nb=document.getElementById('nav-'+id);if(nb)nb.classList.add('active');
+  const sl=document.getElementById('slink-'+id);if(sl)sl.classList.add('active');
 
-  if (id === 'annonces') { renderAnnouncementsPage(); return; }
+  if(id==='annonces'){renderAnnounces();return;}
+  if(id==='rapports'){renderReports();return;}
+  if(id==='write-report'){renderWriteReport();return;}
 
-  const pages = getData('cwu_pages', []);
-  const page = pages.find(p => p.id === id);
-  if (!page) { document.getElementById('page-content').innerHTML = '<div class="card"><div class="card-body">Page introuvable.</div></div>'; return; }
+  const pages=gd('cwu_pages',[]);
+  const page=pages.find(p=>p.id===id);
+  if(!page){document.getElementById('page-content').innerHTML='<div class="card"><div class="card-body">Page introuvable.</div></div>';return;}
 
-  let html = `<div class="page-header">
-    <div class="page-title"><span class="prefix">▸ ${page.category}</span>${page.title}</div>
-  </div>`;
-
-  if (page.content && page.content.length) {
-    page.content.forEach(sec => {
-      html += `<div class="card">
-        <div class="card-title">${sec.cat}</div>
-        <div class="card-body">
-          <h3>${sec.title}</h3>
-          <div style="white-space:pre-line;margin-top:8px">${sec.body}</div>
-        </div>
-      </div>`;
-    });
-  } else {
-    html += `<div class="card"><div class="card-body" style="color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:13px">Aucun contenu. Ajoutez du contenu depuis le panneau admin.</div></div>`;
+  // Access check
+  if(!canAccess(CU.role,page.accessRoles)){
+    document.getElementById('page-content').innerHTML=`<div class="access-denied">
+      <div class="access-denied-icon">🔒</div>
+      <div class="access-denied-title">ACCÈS REFUSÉ</div>
+      <div class="access-denied-sub">Ce salon est réservé aux grades supérieurs.</div>
+    </div>`;return;
   }
 
-  document.getElementById('page-content').innerHTML = html;
-}
-
-function renderAnnouncementsPage() {
-  const anns = getData('cwu_announcements', []);
-  let html = `<div class="page-header">
-    <div class="page-title"><span class="prefix">▸ Général</span>Annonces</div>
-  </div>`;
-
-  if (!anns.length) {
-    html += `<div class="card"><div class="card-body" style="color:var(--text-dim);font-family:'Share Tech Mono',monospace">Aucune annonce.</div></div>`;
-  } else {
-    [...anns].reverse().forEach(a => {
-      html += `<div class="announcement">
-        <div class="announcement-meta">${a.date} — par ${a.author}</div>
-        <div class="announcement-title">${a.title}</div>
-        <div class="announcement-body">${a.body}</div>
-      </div>`;
+  let html=`<div class="page-header"><div class="page-title"><span class="prefix">▸ ${page.category}</span>${page.title}</div></div>`;
+  if(page.content&&page.content.length){
+    page.content.forEach(s=>{
+      html+=`<div class="card"><div class="card-title">${s.cat}</div><div class="card-body"><h3 style="color:var(--text-primary);font-size:15px;margin-bottom:6px;font-weight:600">${s.title}</h3><div style="white-space:pre-line;margin-top:6px">${s.body}</div></div></div>`;
     });
+  } else {
+    html+=`<div class="card"><div class="card-body" style="color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:12px">Aucun contenu.</div></div>`;
   }
-
-  document.getElementById('page-content').innerHTML = html;
+  document.getElementById('page-content').innerHTML=html;
 }
 
-function doLogout() {
-  clearSession();
-  currentUser = null;
-  showView('view-login');
-}
-
-function goAdmin() {
-  showView('view-admin');
-  adminSection('members');
-}
-
-function goSite() {
-  showView('view-site');
+function renderAnnounces(){
+  const anns=gd('cwu_announcements',[]);
+  let html=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Général</span>Annonces</div></div>`;
+  if(!anns.length)html+=`<div class="alert info">Aucune annonce publiée.</div>`;
+  else[...anns].reverse().forEach(a=>{html+=`<div class="ann-item"><div class="ann-meta">${a.date} — par ${a.author}</div><div class="ann-title">${a.title}</div><div class="ann-body">${a.body}</div></div>`;});
+  document.getElementById('page-content').innerHTML=html;
 }
 
 // ============================================================
-// ADMIN PANEL
+// REPORTS
 // ============================================================
+function renderReports(){
+  const reports=gd('cwu_reports',[]);
+  // Filter by what user can see: directeurs/superviseurs see all, membres see their own
+  let visible=reports;
+  if(CU.role==='membre') visible=reports.filter(r=>r.authorEmail===CU.email);
 
-let editingPageId = null;
+  const myCount=reports.filter(r=>r.authorEmail===CU.email).length;
+  const weekAgo=Date.now()-7*24*60*60*1000;
+  const weekCount=visible.filter(r=>new Date(r.date).getTime()>weekAgo).length;
+  const alertCount=visible.filter(r=>r.type==='alert').length;
 
-function adminSection(section) {
-  document.querySelectorAll('.admin-nav-item').forEach(el => el.classList.remove('active'));
-  const nav = document.getElementById('anav-' + section);
-  if (nav) nav.classList.add('active');
-
-  const content = document.getElementById('admin-content');
-
-  if (section === 'members') {
-    const users = getData('cwu_users', []).filter(u => u.status === 'approved');
-    let html = `<div class="page-header"><div class="page-title"><span class="prefix">▸ Administration</span>Membres actifs</div></div>
-    <table class="data-table">
-      <thead><tr><th>CID</th><th>Steam</th><th>Email</th><th>Rôle</th><th>Depuis</th><th>Actions</th></tr></thead>
-      <tbody>`;
-    users.forEach(u => {
-      const roles = { directeur: '⬡ Directeur', superviseur: '◆ Superviseur', membre: '● Membre' };
-      const date = u.joined ? new Date(u.joined).toLocaleDateString('fr-FR') : '—';
-      html += `<tr>
-        <td>${u.cid}</td>
-        <td>${u.steam || '—'}</td>
-        <td>${u.email}</td>
-        <td><span class="role-tag ${u.role}">${roles[u.role] || u.role}</span></td>
-        <td>${date}</td>
-        <td>
-          ${u.email !== ADMIN_EMAIL ? `<button class="btn-sm promote" onclick="promoteUser('${u.email}')">Promouvoir</button>
-          <button class="btn-sm reject" onclick="kickUser('${u.email}')">Retirer</button>` : '<span style="font-family:monospace;font-size:11px;color:var(--orange)">DIRECTEUR</span>'}
-        </td>
-      </tr>`;
-    });
-    html += '</tbody></table>';
-    content.innerHTML = html;
-  }
-
-  else if (section === 'pending') {
-    const users = getData('cwu_users', []).filter(u => u.status === 'pending');
-    let html = `<div class="page-header"><div class="page-title"><span class="prefix">▸ Administration</span>Demandes en attente</div></div>`;
-    if (!users.length) {
-      html += `<div class="alert info">Aucune demande en attente.</div>`;
-    } else {
-      html += `<table class="data-table">
-        <thead><tr><th>CID</th><th>Steam</th><th>Email</th><th>Demandé le</th><th>Actions</th></tr></thead>
-        <tbody>`;
-      users.forEach(u => {
-        const date = u.joined ? new Date(u.joined).toLocaleDateString('fr-FR') : '—';
-        html += `<tr>
-          <td>${u.cid}</td>
-          <td>${u.steam || '—'}</td>
-          <td>${u.email}</td>
-          <td>${date}</td>
-          <td>
-            <button class="btn-sm approve" onclick="approveUser('${u.email}')">✓ Accepter</button>
-            <button class="btn-sm reject" onclick="rejectUser('${u.email}')">✕ Refuser</button>
-          </td>
-        </tr>`;
-      });
-      html += '</tbody></table>';
-    }
-    content.innerHTML = html;
-  }
-
-  else if (section === 'pages') {
-    const pages = getData('cwu_pages', []);
-    let html = `<div class="page-header"><div class="page-title"><span class="prefix">▸ Administration</span>Pages du site</div></div>
-    <div class="pages-list">`;
-    pages.forEach(p => {
-      html += `<div class="page-item">
-        <div class="page-item-info">
-          <div class="page-item-title">${p.title}</div>
-          <div class="page-item-cat">Catégorie: ${p.category} | Dans nav: ${p.navOrder !== undefined ? 'oui' : 'non'} | Dans sidebar: ${p.inSidebar ? 'oui' : 'non'}</div>
-        </div>
-        <div class="page-item-actions">
-          <button class="btn-sm edit" onclick="openEditPage('${p.id}')">✏️ Modifier</button>
-          ${p.id !== 'accueil' && p.id !== 'annonces' ? `<button class="btn-sm delete" onclick="deletePage('${p.id}')">🗑 Supprimer</button>` : ''}
-        </div>
-      </div>`;
-    });
-    html += '</div>';
-    content.innerHTML = html;
-  }
-
-  else if (section === 'announcements') {
-    const anns = getData('cwu_announcements', []);
-    let html = `<div class="page-header">
-      <div class="page-title"><span class="prefix">▸ Administration</span>Annonces</div>
-      <button class="btn-orange" onclick="adminSection('new-announcement')">+ Nouvelle annonce</button>
+  let statsHtml='';
+  if(['superviseur','directeur'].includes(CU.role)){
+    statsHtml=`<div class="stats-grid">
+      <div class="stat-card blue"><div class="stat-number">${visible.length}</div><div class="stat-label">Total</div></div>
+      <div class="stat-card green"><div class="stat-number">${weekCount}</div><div class="stat-label">Semaine</div></div>
+      <div class="stat-card red"><div class="stat-number">${alertCount}</div><div class="stat-label">Alertes</div></div>
+      <div class="stat-card orange"><div class="stat-number">${visible.filter(r=>r.type==='prioritaire').length}</div><div class="stat-label">Prioritaires</div></div>
     </div>`;
-    if (!anns.length) {
-      html += `<div class="alert info">Aucune annonce publiée.</div>`;
-    } else {
-      [...anns].reverse().forEach(a => {
-        html += `<div class="announcement" style="display:flex;justify-content:space-between;align-items:flex-start">
-          <div>
-            <div class="announcement-meta">${a.date} — par ${a.author}</div>
-            <div class="announcement-title">${a.title}</div>
-            <div class="announcement-body">${a.body}</div>
-          </div>
-          <button class="btn-sm delete" onclick="deleteAnnouncement(${a.id})" style="flex-shrink:0;margin-left:16px">🗑</button>
-        </div>`;
-      });
-    }
-    content.innerHTML = html;
   }
 
-  else if (section === 'new-announcement') {
-    content.innerHTML = `<div class="page-header"><div class="page-title"><span class="prefix">▸ Administration</span>Nouvelle annonce</div></div>
+  let html=`<div class="page-header">
+    <div class="page-title"><span class="prefix">▸ Activité</span>Registre des rapports</div>
+    <button class="btn-submit" onclick="showPage('write-report')">✏️ Rédiger un rapport</button>
+  </div>
+  ${statsHtml}
+  <div class="report-filters">
+    <input type="text" id="rf-search" placeholder="Rechercher (matricule, nom, résumé...)" oninput="filterReports()">
+    <select id="rf-type" onchange="filterReports()">
+      <option value="">Tous les types</option>
+      <option value="unite">Rapport unité</option>
+      <option value="division">Rapport division</option>
+      <option value="alert">Alerte</option>
+      <option value="prioritaire">Prioritaire</option>
+    </select>
+    ${['superviseur','directeur'].includes(CU.role)?`<select id="rf-author" onchange="filterReports()"><option value="">Tous les auteurs</option>${[...new Set(visible.map(r=>r.author))].map(a=>`<option value="${a}">${a}</option>`).join('')}</select>`:``}
+  </div>
+  <div class="report-row">
+    <div class="report-cell header">DATE</div>
+    <div class="report-cell header">MATRICULE</div>
+    <div class="report-cell header">AUTEUR</div>
+    <div class="report-cell header">TYPE</div>
+    <div class="report-cell header">SECTEUR</div>
+    <div class="report-cell header">PJ</div>
+  </div>
+  <div id="report-list"></div>`;
+  document.getElementById('page-content').innerHTML=html;
+  window._rVisible=visible;
+  filterReports();
+}
+
+function filterReports(){
+  const search=(document.getElementById('rf-search')||{}).value?.toLowerCase()||'';
+  const type=(document.getElementById('rf-type')||{}).value||'';
+  const author=(document.getElementById('rf-author')||{}).value||'';
+  let list=window._rVisible||[];
+  if(search)list=list.filter(r=>r.author?.toLowerCase().includes(search)||r.matricule?.toLowerCase().includes(search)||r.resume?.toLowerCase().includes(search)||r.secteur?.toLowerCase().includes(search));
+  if(type)list=list.filter(r=>r.type===type);
+  if(author)list=list.filter(r=>r.author===author);
+  const container=document.getElementById('report-list');
+  if(!container)return;
+  if(!list.length){container.innerHTML=`<div class="alert info" style="margin-top:8px">Aucun rapport trouvé.</div>`;return;}
+  container.innerHTML=[...list].reverse().map(r=>`<div class="report-row" onclick="openReport('${r.id}')">
+    <div class="report-cell">${new Date(r.date).toLocaleDateString('fr-FR')}</div>
+    <div class="report-cell">${r.matricule||'—'}</div>
+    <div class="report-cell">${r.author||'—'}</div>
+    <div class="report-cell"><span class="report-type-badge ${r.type}">${typeLabel(r.type)}</span></div>
+    <div class="report-cell">${r.secteur||'—'}</div>
+    <div class="report-cell">${r.files&&r.files.length?'📎 '+r.files.length:'—'}</div>
+  </div>`).join('');
+}
+
+function typeLabel(t){const m={unite:'Unité',division:'Division',alert:'ALERTE',prioritaire:'Prioritaire'};return m[t]||t;}
+
+function openReport(id){
+  const reports=gd('cwu_reports',[]);
+  const r=reports.find(x=>x.id===id);
+  if(!r)return;
+  // Permission: membres can only see their own
+  if(CU.role==='membre'&&r.authorEmail!==CU.email)return;
+  const body=document.getElementById('modal-report-body');
+  body.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--border)">
+    <div><span class="report-type-badge ${r.type}" style="font-size:11px">${typeLabel(r.type)}</span></div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim)">${new Date(r.date).toLocaleString('fr-FR')}</div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+    <div class="report-detail-field"><div class="report-detail-label">AUTEUR</div><div class="report-detail-value">${r.author}</div></div>
+    <div class="report-detail-field"><div class="report-detail-label">MATRICULE</div><div class="report-detail-value">${r.matricule||'—'}</div></div>
+    <div class="report-detail-field"><div class="report-detail-label">SECTEUR / ZONE</div><div class="report-detail-value">${r.secteur||'—'}</div></div>
+    <div class="report-detail-field"><div class="report-detail-label">UNITÉS IMPLIQUÉES</div><div class="report-detail-value">${r.unites||'—'}</div></div>
+  </div>
+  <div class="report-detail-field" style="margin-bottom:14px"><div class="report-detail-label">RÉSUMÉ</div><div class="report-detail-value" style="white-space:pre-wrap;background:var(--bg-card);border:1px solid var(--border);padding:12px;margin-top:6px">${r.resume||'—'}</div></div>
+  ${r.notes?`<div class="report-detail-field" style="margin-bottom:14px"><div class="report-detail-label">NOTES SUPPLÉMENTAIRES</div><div class="report-detail-value" style="white-space:pre-wrap;background:var(--bg-card);border:1px solid var(--border);padding:12px;margin-top:6px">${r.notes}</div></div>`:''}
+  ${r.files&&r.files.length?`<div class="report-detail-field"><div class="report-detail-label">PIÈCES JOINTES</div><div style="margin-top:6px">${r.files.map(f=>`<div class="file-item"><span>${f.name}</span></div>`).join('')}</div></div>`:''}
+  ${['superviseur','directeur'].includes(CU.role)?`<div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border);display:flex;gap:8px"><button class="btn-sm del" onclick="deleteReport('${r.id}')">🗑 Supprimer</button></div>`:''}`;
+  openModal('modal-report');
+}
+
+function deleteReport(id){
+  if(!confirm('Supprimer ce rapport ?'))return;
+  const reports=gd('cwu_reports',[]).filter(r=>r.id!==id);
+  sd('cwu_reports',reports);
+  closeModal('modal-report');
+  renderReports();
+}
+
+function renderWriteReport(){
+  const canDiv=['superviseur','directeur'].includes(CU.role);
+  const canAlert=['superviseur','directeur'].includes(CU.role);
+  const html=`<div class="page-header">
+    <div class="page-title"><span class="prefix">▸ Activité</span>Rédiger un rapport</div>
+  </div>
+  <div class="report-form-tabs">
+    <div class="rtab active" id="rtab-unite" onclick="switchReportTab('unite')">📋 RAPPORT UNITÉ</div>
+    <div class="rtab ${canDiv?'':'locked'}" id="rtab-division" onclick="${canDiv?"switchReportTab('division')":''}">🔒 RAPPORT DIVISIONNAIRE</div>
+    <div class="rtab ${canAlert?'':'locked'}" id="rtab-alert" onclick="${canAlert?"switchReportTab('alert')":''}">⚠️ ALERTE</div>
+    <div class="rtab ${canDiv?'':'locked'}" id="rtab-prioritaire" onclick="${canDiv?"switchReportTab('prioritaire')":''}">🔴 PRIORITAIRE</div>
+  </div>
+  <div id="report-form-content"></div>`;
+  document.getElementById('page-content').innerHTML=html;
+  switchReportTab('unite');
+}
+
+function switchReportTab(type){
+  document.querySelectorAll('.rtab').forEach(t=>{t.classList.remove('active');});
+  const tab=document.getElementById('rtab-'+type);
+  if(tab&&!tab.classList.contains('locked'))tab.classList.add('active');
+  window._reportType=type;
+  const typeDescriptions={unite:'Rapport standard — visible par tous les membres.',division:'Rapport division — visible par superviseurs et directeurs.',alert:'Alerte — visible par superviseurs et directeurs.',prioritaire:'Rapport prioritaire — visible par la direction uniquement.'};
+  const visNote=typeDescriptions[type]||'';
+  const cfg=gd('cwu_grades',{});
+  const divOptions=(cfg.divisions||[]).map(d=>`<option>${d}</option>`).join('');
+  document.getElementById('report-form-content').innerHTML=`
+  <div class="alert info" style="margin-bottom:18px">${visNote}</div>
+  <div class="form-section">
+    <div class="form-section-title">// RAPPORT D'ACTIVITÉ — FORM-${String(['unite','division','alert','prioritaire'].indexOf(type)+1).padStart(2,'0')}</div>
+    <div class="form-grid">
+      <div class="field">
+        <label>Type d'activité *</label>
+        <select id="fr-acttype">
+          <option value="">— Sélectionner —</option>
+          <option>Patrouille</option><option>Arrestation</option><option>Fouille de secteur</option>
+          <option>Maintenance / Réparation</option><option>Transport de ressources</option>
+          <option>Mission spéciale</option><option>Formation / Cours</option><option>Réunion</option><option>Autre</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Secteur / Zone</label>
+        <input type="text" id="fr-secteur" placeholder="Ex: Secteur 3, Nexus, Slums...">
+      </div>
+      <div class="field">
+        <label>Division concernée</label>
+        <select id="fr-division"><option value="">— Aucune —</option>${divOptions}</select>
+      </div>
+      <div class="field">
+        <label>Unités impliquées (matricules)</label>
+        <input type="text" id="fr-unites" placeholder="Ex: 001, 023, 047">
+      </div>
+      <div class="field form-grid-1">
+        <label>Résumé de l'activité *</label>
+        <textarea id="fr-resume" style="min-height:110px" placeholder="Décrivez le déroulement de l'activité..."></textarea>
+      </div>
+      <div class="field form-grid-1">
+        <label>Notes supplémentaires</label>
+        <textarea id="fr-notes" style="min-height:70px" placeholder="Informations complémentaires (optionnel)"></textarea>
+      </div>
+    </div>
+    <div class="field">
+      <label>Pièces jointes (max 2, images uniquement)</label>
+      <div class="dropzone" id="drop-zone" onclick="document.getElementById('file-input').click()" ondragover="doDragOver(event)" ondrop="doDrop(event)">
+        <div class="dropzone-text">📎 Glissez vos images ici ou <span class="dropzone-link">parcourir</span></div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);margin-top:4px">Images (jpg, png, webp). Maximum 2 fichiers.</div>
+      </div>
+      <input type="file" id="file-input" multiple accept="image/*" style="display:none" onchange="handleFiles(this.files)">
+      <div class="file-list" id="file-list"></div>
+    </div>
+    <div class="form-actions">
+      <span class="form-id">FORM-${String(['unite','division','alert','prioritaire'].indexOf(type)+1).padStart(2,'0')} // ${CU.matricule||'—'}</span>
+      <button class="btn-reset" onclick="resetReportForm()">RÉINITIALISER</button>
+      <button class="btn-submit" onclick="submitReport()">▶ SOUMETTRE LE RAPPORT</button>
+    </div>
+  </div>`;
+  window._reportFiles=[];
+}
+
+let _rfFiles=[];
+function doDragOver(e){e.preventDefault();document.getElementById('drop-zone').classList.add('dragover');}
+function doDrop(e){e.preventDefault();document.getElementById('drop-zone').classList.remove('dragover');handleFiles(e.dataTransfer.files);}
+function handleFiles(files){
+  const arr=Array.from(files).slice(0,2);
+  _rfFiles=arr;
+  const fl=document.getElementById('file-list');
+  fl.innerHTML=arr.map((f,i)=>`<div class="file-item"><span>📎 ${f.name}</span><button onclick="removeFile(${i})">✕</button></div>`).join('');
+}
+function removeFile(i){_rfFiles.splice(i,1);const fl=document.getElementById('file-list');fl.innerHTML=_rfFiles.map((f,j)=>`<div class="file-item"><span>📎 ${f.name}</span><button onclick="removeFile(${j})">✕</button></div>`).join('');}
+function resetReportForm(){switchReportTab(window._reportType||'unite');}
+
+function submitReport(){
+  const acttype=document.getElementById('fr-acttype')?.value||'';
+  const secteur=document.getElementById('fr-secteur')?.value.trim()||'';
+  const resume=document.getElementById('fr-resume')?.value.trim()||'';
+  if(!acttype||!resume){alert('Remplissez au moins le type d\'activité et le résumé.');return;}
+  const reports=gd('cwu_reports',[]);
+  const id='rpt-'+Date.now();
+  reports.push({
+    id,type:window._reportType||'unite',author:CU.cid,authorEmail:CU.email,
+    matricule:CU.matricule||'—',date:new Date().toISOString(),
+    acttype,secteur,
+    division:document.getElementById('fr-division')?.value||'',
+    unites:document.getElementById('fr-unites')?.value.trim()||'',
+    resume,notes:document.getElementById('fr-notes')?.value.trim()||'',
+    files:_rfFiles.map(f=>({name:f.name}))
+  });
+  sd('cwu_reports',reports);
+  _rfFiles=[];
+  // Show success
+  document.getElementById('page-content').innerHTML=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Activité</span>Rapport soumis</div></div>
+  <div class="alert success">✓ Rapport soumis avec succès et enregistré dans le registre.</div>
+  <div style="margin-top:16px;display:flex;gap:10px">
+    <button class="btn-submit" onclick="showPage('write-report')">✏️ Nouveau rapport</button>
+    <button class="btn-reset" onclick="showPage('rapports')">📋 Voir les rapports</button>
+  </div>`;
+}
+
+// ============================================================
+// ADMIN
+// ============================================================
+function goAdmin(){showView('view-admin');adminSec('members');}
+function goSite(){showView('view-site');}
+
+function adminSec(sec){
+  document.querySelectorAll('.admin-nav').forEach(e=>e.classList.remove('active'));
+  const nav=document.getElementById('anav-'+sec.replace('-admin',''));
+  if(nav)nav.classList.add('active');
+  const c=document.getElementById('admin-content');
+  updatePendingCount();
+
+  if(sec==='members'){
+    const users=gd('cwu_users',[]).filter(u=>u.status==='approved');
+    let h=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Administration</span>Membres actifs</div></div>
+    <table class="data-table"><thead><tr><th>Matricule</th><th>CID</th><th>Steam</th><th>Division</th><th>Grade</th><th>Depuis</th><th>Actions</th></tr></thead><tbody>`;
+    users.forEach(u=>{
+      const d=u.joined?new Date(u.joined).toLocaleDateString('fr-FR'):'—';
+      h+=`<tr><td>${u.matricule||'—'}</td><td>${u.cid}</td><td>${u.steam||'—'}</td><td>${u.division||'—'}</td>
+      <td><span class="grade-tag grade-${u.role}">${u.role}</span></td><td>${d}</td>
+      <td>${u.email!==ADMIN_EMAIL?`<button class="btn-sm promote" onclick="promoteUser('${u.email}')">↑ Promouvoir</button><button class="btn-sm reject" onclick="demoteUser('${u.email}')">↓ Rétrograder</button><button class="btn-sm del" onclick="kickUser('${u.email}')">Retirer</button>`:'<span style="font-family:monospace;font-size:10px;color:var(--orange)">DIRECTEUR</span>'}</td></tr>`;
+    });
+    h+='</tbody></table>';c.innerHTML=h;
+  }
+  else if(sec==='pending'){
+    const users=gd('cwu_users',[]).filter(u=>u.status==='pending');
+    let h=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Administration</span>Demandes en attente</div></div>`;
+    if(!users.length)h+=`<div class="alert info">Aucune demande.</div>`;
+    else{h+=`<table class="data-table"><thead><tr><th>CID</th><th>Steam</th><th>Division</th><th>Email</th><th>Date</th><th>Actions</th></tr></thead><tbody>`;
+    users.forEach(u=>{const d=u.joined?new Date(u.joined).toLocaleDateString('fr-FR'):'—';
+    h+=`<tr><td>${u.cid}</td><td>${u.steam||'—'}</td><td>${u.division||'—'}</td><td>${u.email}</td><td>${d}</td>
+    <td><button class="btn-sm approve" onclick="approveUser('${u.email}')">✓ Accepter</button><button class="btn-sm reject" onclick="rejectUser('${u.email}')">✕ Refuser</button></td></tr>`});
+    h+='</tbody></table>';}c.innerHTML=h;
+  }
+  else if(sec==='grades'){
+    const cfg=gd('cwu_grades',{roles:['membre','superviseur','directeur'],divisions:[]});
+    c.innerHTML=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Administration</span>Grades & Divisions</div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <div class="card">
+        <div class="card-title">Grades (hiérarchie fixe)</div>
+        <div class="card-body">
+          ${cfg.roles.map((r,i)=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+            <span class="grade-tag grade-${r}">${r}</span>
+            <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim)">Niveau ${i+1}</span>
+          </div>`).join('')}
+          <div style="margin-top:14px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim)">Les grades sont fixes et non modifiables.</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Divisions</div>
+        <div class="card-body">
+          <div id="div-list">${cfg.divisions.map((d,i)=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span>${d}</span><button class="btn-sm del" onclick="removeDiv(${i})">✕</button></div>`).join('')}</div>
+          <div style="display:flex;gap:8px;margin-top:14px">
+            <input type="text" id="new-div" placeholder="Nouvelle division..." style="background:var(--bg-input);border:1px solid var(--border);color:var(--text-primary);padding:8px 12px;font-family:'Share Tech Mono',monospace;font-size:12px;outline:none;flex:1">
+            <button class="btn-orange" onclick="addDiv()">+ Ajouter</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }
+  else if(sec==='reports-admin'){
+    const reports=gd('cwu_reports',[]);
+    const weekAgo=Date.now()-7*24*60*60*1000;
+    let h=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Administration</span>Tous les rapports</div><button class="btn-orange" onclick="exportReports()">📥 Exporter CSV</button></div>
+    <div class="stats-grid">
+      <div class="stat-card blue"><div class="stat-number">${reports.length}</div><div class="stat-label">Total</div></div>
+      <div class="stat-card green"><div class="stat-number">${reports.filter(r=>new Date(r.date).getTime()>weekAgo).length}</div><div class="stat-label">Cette semaine</div></div>
+      <div class="stat-card red"><div class="stat-number">${reports.filter(r=>r.type==='alert').length}</div><div class="stat-label">Alertes</div></div>
+      <div class="stat-card orange"><div class="stat-number">${reports.filter(r=>r.type==='prioritaire').length}</div><div class="stat-label">Prioritaires</div></div>
+    </div>
+    <table class="data-table"><thead><tr><th>Date</th><th>Auteur</th><th>Mat.</th><th>Type</th><th>Secteur</th><th>Actions</th></tr></thead><tbody>`;
+    [...reports].reverse().forEach(r=>{
+      h+=`<tr><td>${new Date(r.date).toLocaleDateString('fr-FR')}</td><td>${r.author}</td><td>${r.matricule||'—'}</td>
+      <td><span class="report-type-badge ${r.type}">${typeLabel(r.type)}</span></td>
+      <td>${r.secteur||'—'}</td>
+      <td><button class="btn-sm edit" onclick="adminOpenReport('${r.id}')">👁 Voir</button><button class="btn-sm del" onclick="adminDeleteReport('${r.id}')">🗑</button></td></tr>`;
+    });
+    h+='</tbody></table>';c.innerHTML=h;
+  }
+  else if(sec==='pages'){
+    const pages=gd('cwu_pages',[]);
+    const grades=gd('cwu_grades',{roles:['membre','superviseur','directeur']});
+    const roleOpts=grades.roles.map(r=>`<option>${r}</option>`).join('');
+    let h=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Administration</span>Pages du site</div></div><div class="pages-list">`;
+    pages.forEach(p=>{
+      h+=`<div class="page-item">
+        <div><div class="page-item-title">${p.title}</div>
+        <div class="page-item-meta">Catégorie: ${p.category} | Visible: ${formatAccess(p.accessRoles)} | Nav: ${p.navOrder!==undefined?'oui':'non'} | Sidebar: ${p.inSidebar?'oui':'non'}</div></div>
+        <div style="display:flex;gap:6px">
+          <button class="btn-sm edit" onclick="openEditPage('${p.id}')">✏️ Modifier</button>
+          ${p.id!=='accueil'&&p.id!=='annonces'?`<button class="btn-sm del" onclick="deletePage('${p.id}')">🗑</button>`:''}
+        </div>
+      </div>`;
+    });
+    h+='</div>';c.innerHTML=h;
+  }
+  else if(sec==='announcements'){
+    const anns=gd('cwu_announcements',[]);
+    let h=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Administration</span>Annonces</div><button class="btn-orange" onclick="adminSec('new-ann')">+ Nouvelle</button></div>`;
+    if(!anns.length)h+=`<div class="alert info">Aucune annonce.</div>`;
+    else[...anns].reverse().forEach(a=>{h+=`<div class="ann-item" style="display:flex;justify-content:space-between;align-items:flex-start"><div><div class="ann-meta">${a.date} — par ${a.author}</div><div class="ann-title">${a.title}</div><div class="ann-body">${a.body}</div></div><button class="btn-sm del" onclick="deleteAnn(${a.id})" style="flex-shrink:0;margin-left:14px">🗑</button></div>`;});
+    c.innerHTML=h;
+  }
+  else if(sec==='new-ann'){
+    c.innerHTML=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Administration</span>Nouvelle annonce</div></div>
     <div class="card">
       <div class="card-title">Rédiger une annonce</div>
       <div class="field"><label>Titre</label><input type="text" id="ann-title" placeholder="Titre de l'annonce"></div>
-      <div class="field"><label>Contenu</label><textarea id="ann-body" placeholder="Contenu de l'annonce..."></textarea></div>
-      <div class="field"><label>Type</label><select id="ann-type"><option value="info">Info</option><option value="warning">Avertissement</option><option value="danger">Alerte</option><option value="success">Succès</option></select></div>
-      <div style="margin-top:16px">
-        <button class="btn-orange" onclick="publishAnnouncement()">PUBLIER</button>
-        <button class="btn-ghost" onclick="adminSection('announcements')">Annuler</button>
+      <div class="field"><label>Contenu</label><textarea id="ann-body" style="min-height:100px" placeholder="Contenu..."></textarea></div>
+      <div style="margin-top:14px;display:flex;gap:8px">
+        <button class="btn-orange" onclick="publishAnn()">PUBLIER</button>
+        <button class="btn-ghost" onclick="adminSec('announcements')">Annuler</button>
       </div>
     </div>`;
   }
-
-  else if (section === 'new-page') {
-    content.innerHTML = `<div class="page-header"><div class="page-title"><span class="prefix">▸ Administration</span>Créer une nouvelle page</div></div>
-    <div class="editor-grid">
-      <div class="editor-panel">
-        <div class="editor-panel-title">PARAMÈTRES DE LA PAGE</div>
-        <div class="field"><label>Titre de la page</label><input type="text" id="np-title" placeholder="Ex: Procédures internes"></div>
-        <div class="field"><label>Catégorie (dans la sidebar)</label><input type="text" id="np-cat" placeholder="Ex: Syndicat"></div>
+  else if(sec==='new-page'){
+    const grades=gd('cwu_grades',{roles:['membre','superviseur','directeur']});
+    const roleChecks=grades.roles.map(r=>`<label><input type="checkbox" name="np-access" value="${r}"> ${r}</label>`).join('');
+    c.innerHTML=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Administration</span>Créer une page</div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <div class="card">
+        <div class="card-title">Paramètres</div>
+        <div class="field"><label>Titre</label><input type="text" id="np-title" placeholder="Ex: Procédures internes"></div>
+        <div class="field"><label>Catégorie</label><input type="text" id="np-cat" placeholder="Ex: Syndicat"></div>
         <div class="field"><label>ID unique (sans espaces)</label><input type="text" id="np-id" placeholder="Ex: procedures"></div>
-        <div class="field"><label>Position dans la navigation (laisser vide = pas dans nav)</label><input type="number" id="np-nav" placeholder="Ex: 3"></div>
-        <div class="field"><label>Afficher dans la sidebar ?</label>
-          <select id="np-sidebar"><option value="yes">Oui</option><option value="no">Non</option></select>
+        <div class="field"><label>Position nav (vide = hors nav)</label><input type="number" id="np-nav" placeholder="Ex: 4"></div>
+        <div class="field"><label>Afficher dans sidebar</label><select id="np-sidebar"><option value="yes">Oui</option><option value="no">Non</option></select></div>
+        <div class="field">
+          <label>Visible par (grades)</label>
+          <div class="pill-check">
+            <label><input type="checkbox" name="np-access" value="tous" checked> Tous</label>
+            ${roleChecks}
+          </div>
         </div>
       </div>
-      <div class="editor-panel">
-        <div class="editor-panel-title">PREMIER BLOC DE CONTENU</div>
-        <div class="field"><label>Label de catégorie</label><input type="text" id="np-block-cat" placeholder="Ex: Introduction"></div>
-        <div class="field"><label>Titre du bloc</label><input type="text" id="np-block-title" placeholder="Ex: À propos"></div>
-        <div class="field"><label>Texte du bloc</label><textarea id="np-block-body" placeholder="Contenu..."></textarea></div>
+      <div class="card">
+        <div class="card-title">Premier bloc de contenu</div>
+        <div class="field"><label>Label</label><input type="text" id="np-bl-cat" placeholder="Ex: Introduction"></div>
+        <div class="field"><label>Titre du bloc</label><input type="text" id="np-bl-title" placeholder="Ex: À propos"></div>
+        <div class="field"><label>Texte</label><textarea id="np-bl-body" placeholder="Contenu..." style="min-height:120px"></textarea></div>
       </div>
     </div>
-    <div style="margin-top:16px">
+    <div style="margin-top:16px;display:flex;gap:8px">
       <button class="btn-orange" onclick="createPage()">CRÉER LA PAGE</button>
-      <button class="btn-ghost" onclick="adminSection('pages')">Annuler</button>
+      <button class="btn-ghost" onclick="adminSec('pages')">Annuler</button>
     </div>`;
   }
-
-  updatePendingCount();
-}
-
-// ============================================================
-// ADMIN ACTIONS
-// ============================================================
-
-function updatePendingCount() {
-  const users = getData('cwu_users', []);
-  const count = users.filter(u => u.status === 'pending').length;
-  const el = document.getElementById('pending-count');
-  if (el) el.textContent = count;
-}
-
-function approveUser(email) {
-  const users = getData('cwu_users', []);
-  const u = users.find(u => u.email === email);
-  if (u) { u.status = 'approved'; setData('cwu_users', users); adminSection('pending'); }
-}
-
-function rejectUser(email) {
-  const users = getData('cwu_users', []);
-  const u = users.find(u => u.email === email);
-  if (u) { u.status = 'rejected'; setData('cwu_users', users); adminSection('pending'); }
-}
-
-function kickUser(email) {
-  if (!confirm('Retirer ce membre ?')) return;
-  const users = getData('cwu_users', []).filter(u => u.email !== email);
-  setData('cwu_users', users);
-  adminSection('members');
-}
-
-function promoteUser(email) {
-  const users = getData('cwu_users', []);
-  const u = users.find(u => u.email === email);
-  if (!u) return;
-  const roles = ['membre', 'superviseur', 'directeur'];
-  const idx = roles.indexOf(u.role);
-  if (idx < roles.length - 1) { u.role = roles[idx + 1]; setData('cwu_users', users); adminSection('members'); }
-  else alert('Ce membre a déjà le rang maximum.');
-}
-
-function publishAnnouncement() {
-  const title = document.getElementById('ann-title').value.trim();
-  const body = document.getElementById('ann-body').value.trim();
-  if (!title || !body) { alert('Remplissez tous les champs.'); return; }
-
-  const anns = getData('cwu_announcements', []);
-  anns.push({
-    id: Date.now(),
-    author: currentUser ? currentUser.cid : 'Directeur',
-    date: new Date().toLocaleDateString('fr-FR'),
-    title, body
-  });
-  setData('cwu_announcements', anns);
-  adminSection('announcements');
-}
-
-function deleteAnnouncement(id) {
-  if (!confirm('Supprimer cette annonce ?')) return;
-  const anns = getData('cwu_announcements', []).filter(a => a.id !== id);
-  setData('cwu_announcements', anns);
-  adminSection('announcements');
-}
-
-function createPage() {
-  const title = document.getElementById('np-title').value.trim();
-  const cat = document.getElementById('np-cat').value.trim();
-  let id = document.getElementById('np-id').value.trim().replace(/\s+/g, '-').toLowerCase();
-  const navVal = document.getElementById('np-nav').value.trim();
-  const sidebar = document.getElementById('np-sidebar').value === 'yes';
-
-  if (!title || !cat || !id) { alert('Remplissez au moins le titre, la catégorie et l\'ID.'); return; }
-
-  const pages = getData('cwu_pages', []);
-  if (pages.find(p => p.id === id)) { alert('Cet ID existe déjà. Choisissez-en un autre.'); return; }
-
-  const blockCat = document.getElementById('np-block-cat').value.trim();
-  const blockTitle = document.getElementById('np-block-title').value.trim();
-  const blockBody = document.getElementById('np-block-body').value.trim();
-
-  const content = [];
-  if (blockCat || blockTitle || blockBody) {
-    content.push({ cat: blockCat || 'Section', title: blockTitle || 'Titre', body: blockBody || '' });
-  }
-
-  const newPage = {
-    id, title, category: cat,
-    navOrder: navVal !== '' ? parseInt(navVal) : undefined,
-    inSidebar: sidebar,
-    content
-  };
-
-  pages.push(newPage);
-  setData('cwu_pages', pages);
-  buildSiteNav();
-  alert('Page "' + title + '" créée avec succès !');
-  adminSection('pages');
-}
-
-function deletePage(id) {
-  if (!confirm('Supprimer cette page ?')) return;
-  const pages = getData('cwu_pages', []).filter(p => p.id !== id);
-  setData('cwu_pages', pages);
-  buildSiteNav();
-  adminSection('pages');
-}
-
-// ============================================================
-// EDIT PAGE MODAL
-// ============================================================
-
-function openEditPage(id) {
-  editingPageId = id;
-  const pages = getData('cwu_pages', []);
-  const page = pages.find(p => p.id === id);
-  if (!page) return;
-
-  let sectionsHtml = '';
-  (page.content || []).forEach((sec, i) => {
-    sectionsHtml += `
-    <div class="card" id="sec-block-${i}" style="margin-bottom:12px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <span style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--accent)">BLOC ${i+1}</span>
-        <button class="btn-sm delete" onclick="removeBlock(${i})">🗑 Suppr.</button>
+  else if(sec==='config'){
+    const cfg=gd('cwu_config',{});
+    c.innerHTML=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Administration</span>Configuration</div></div>
+    <div class="card">
+      <div class="card-title">Paramètres du site</div>
+      <div class="field"><label>Nom du site</label><input type="text" id="cfg-name" value="${cfg.siteName||'Civil Worker\'s Union'}"></div>
+      <div class="field"><label>Sous-titre</label><input type="text" id="cfg-sub" value="${cfg.siteSubtitle||''}"></div>
+      <div style="margin-top:14px"><button class="btn-orange" onclick="saveConfig()">SAUVEGARDER</button></div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <div class="card-title">Données</div>
+      <div class="card-body">
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn-ghost" onclick="exportAllData()">📥 Exporter tout (JSON)</button>
+          <button class="btn-ghost" onclick="importData()">📤 Importer depuis JSON</button>
+          <button class="btn-sm del" onclick="resetSite()" style="padding:9px 16px;font-size:12px">⚠️ Réinitialiser le site</button>
+        </div>
       </div>
-      <div class="field"><label>Label catégorie</label><input type="text" class="sec-cat-${i}" value="${sec.cat}"></div>
-      <div class="field"><label>Titre</label><input type="text" class="sec-title-${i}" value="${sec.title}"></div>
-      <div class="field"><label>Texte</label><textarea class="sec-body-${i}" style="min-height:80px">${sec.body}</textarea></div>
     </div>`;
-  });
+  }
+}
 
-  document.getElementById('edit-page-body').innerHTML = `
-    <div class="field"><label>Titre de la page</label><input type="text" id="ep-title" value="${page.title}"></div>
+function formatAccess(a){
+  if(a==='tous'||a==='all')return 'Tous';
+  if(Array.isArray(a))return a.join(', ');
+  return a||'Tous';
+}
+
+function updatePendingCount(){
+  const n=(gd('cwu_users',[])).filter(u=>u.status==='pending').length;
+  const el=document.getElementById('pending-count');if(el)el.textContent=n;
+}
+
+function approveUser(email){const users=gd('cwu_users',[]);const u=users.find(x=>x.email===email);if(u){u.status='approved';sd('cwu_users',users);adminSec('pending');}}
+function rejectUser(email){const users=gd('cwu_users',[]);const u=users.find(x=>x.email===email);if(u){u.status='rejected';sd('cwu_users',users);adminSec('pending');}}
+function kickUser(email){if(!confirm('Retirer ce membre ?'))return;sd('cwu_users',gd('cwu_users',[]).filter(u=>u.email!==email));adminSec('members');}
+function promoteUser(email){
+  const users=gd('cwu_users',[]);const u=users.find(x=>x.email===email);if(!u)return;
+  const i=ROLES.indexOf(u.role);if(i<ROLES.length-1){u.role=ROLES[i+1];sd('cwu_users',users);adminSec('members');}else alert('Grade maximum atteint.');
+}
+function demoteUser(email){
+  const users=gd('cwu_users',[]);const u=users.find(x=>x.email===email);if(!u)return;
+  const i=ROLES.indexOf(u.role);if(i>0){u.role=ROLES[i-1];sd('cwu_users',users);adminSec('members');}else alert('Grade minimum atteint.');
+}
+function addDiv(){
+  const val=document.getElementById('new-div').value.trim();if(!val)return;
+  const cfg=gd('cwu_grades',{roles:ROLES,divisions:[]});
+  cfg.divisions.push(val);sd('cwu_grades',cfg);adminSec('grades');
+}
+function removeDiv(i){
+  const cfg=gd('cwu_grades',{roles:ROLES,divisions:[]});
+  cfg.divisions.splice(i,1);sd('cwu_grades',cfg);adminSec('grades');
+}
+function publishAnn(){
+  const title=document.getElementById('ann-title').value.trim();
+  const body=document.getElementById('ann-body').value.trim();
+  if(!title||!body){alert('Remplissez tous les champs.');return;}
+  const anns=gd('cwu_announcements',[]);
+  anns.push({id:Date.now(),author:CU?CU.cid:'Directeur',date:new Date().toLocaleDateString('fr-FR'),title,body});
+  sd('cwu_announcements',anns);adminSec('announcements');
+}
+function deleteAnn(id){if(!confirm('Supprimer ?'))return;sd('cwu_announcements',gd('cwu_announcements',[]).filter(a=>a.id!==id));adminSec('announcements');}
+function adminOpenReport(id){
+  // Temporarily set CU to directeur if in admin
+  openReport(id);
+}
+function adminDeleteReport(id){if(!confirm('Supprimer ce rapport ?'))return;sd('cwu_reports',gd('cwu_reports',[]).filter(r=>r.id!==id));adminSec('reports-admin');}
+function exportReports(){
+  const r=gd('cwu_reports',[]);
+  const csv=['Date,Auteur,Matricule,Type,Secteur,Division,Résumé'].concat(r.map(x=>[new Date(x.date).toLocaleDateString('fr-FR'),x.author,x.matricule,x.type,x.secteur,x.division,(x.resume||'').replace(/\n/g,' ')].map(v=>`"${v||''}"`).join(','))).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='rapports-cwu.csv';a.click();
+}
+function saveConfig(){
+  const cfg={siteName:document.getElementById('cfg-name').value,siteSubtitle:document.getElementById('cfg-sub').value};
+  sd('cwu_config',cfg);alert('Configuration sauvegardée !');
+}
+function exportAllData(){
+  const data={users:gd('cwu_users',[]),pages:gd('cwu_pages',[]),reports:gd('cwu_reports',[]),announcements:gd('cwu_announcements',[]),grades:gd('cwu_grades',{}),config:gd('cwu_config',{})};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='cwu-backup.json';a.click();
+}
+function importData(){alert('Pour importer, utilisez la console du navigateur (F12) et collez vos données via localStorage.');}
+function resetSite(){if(!confirm('⚠️ Cela supprimera TOUTES les données. Continuer ?')||!confirm('Dernière confirmation : réinitialiser ?'))return;['cwu_users','cwu_pages','cwu_reports','cwu_announcements','cwu_grades','cwu_config'].forEach(k=>localStorage.removeItem(k));location.reload();}
+
+// ========= EDIT PAGE MODAL =========
+let _editPageId=null;
+function openEditPage(id){
+  _editPageId=id;
+  const pages=gd('cwu_pages',[]);
+  const page=pages.find(p=>p.id===id);
+  if(!page)return;
+  const grades=gd('cwu_grades',{roles:ROLES});
+  const curAccess=Array.isArray(page.accessRoles)?page.accessRoles:[page.accessRoles];
+  const roleChecks=['tous',...grades.roles].map(r=>`<label><input type="checkbox" name="ep-access" value="${r}" ${curAccess.includes(r)||page.accessRoles==='tous'&&r==='tous'?'checked':''}> ${r}</label>`).join('');
+
+  let blks=(page.content||[]).map((s,i)=>`<div class="card" style="margin-bottom:10px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--accent)">BLOC ${i+1}</span>
+      <button class="btn-sm del" onclick="rmBlock(${i})">🗑</button>
+    </div>
+    <div class="field"><label>Label</label><input type="text" class="ep-cat-${i}" value="${s.cat}"></div>
+    <div class="field"><label>Titre</label><input type="text" class="ep-title-${i}" value="${s.title}"></div>
+    <div class="field"><label>Texte</label><textarea class="ep-body-${i}" style="min-height:70px">${s.body}</textarea></div>
+  </div>`).join('');
+
+  document.getElementById('edit-page-body').innerHTML=`
+    <div class="field"><label>Titre</label><input type="text" id="ep-title" value="${page.title}"></div>
     <div class="field"><label>Catégorie</label><input type="text" id="ep-cat" value="${page.category}"></div>
-    <div class="field"><label>Dans la sidebar</label><select id="ep-sidebar"><option value="yes" ${page.inSidebar?'selected':''}>Oui</option><option value="no" ${!page.inSidebar?'selected':''}>Non</option></select></div>
+    <div class="field"><label>Dans sidebar</label><select id="ep-sidebar"><option value="yes" ${page.inSidebar?'selected':''}>Oui</option><option value="no" ${!page.inSidebar?'selected':''}>Non</option></select></div>
+    <div class="field">
+      <label>Visible par (grades)</label>
+      <div class="pill-check">${roleChecks}</div>
+    </div>
     <hr style="border-color:var(--border);margin:16px 0">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-      <span style="font-family:'Orbitron',monospace;font-size:13px;color:var(--orange)">BLOCS DE CONTENU</span>
-      <button class="btn-sm approve" onclick="addBlock()">+ Ajouter un bloc</button>
+      <span style="font-family:'Orbitron',monospace;font-size:12px;color:var(--orange)">BLOCS DE CONTENU</span>
+      <button class="btn-sm approve" onclick="addBlock()">+ Bloc</button>
     </div>
-    <div id="edit-blocks">${sectionsHtml}</div>`;
-
-  document.getElementById('modal-edit-page').classList.add('active');
+    <div id="edit-blocks">${blks}</div>`;
+  openModal('modal-edit-page');
 }
 
-function addBlock() {
-  const pages = getData('cwu_pages', []);
-  const page = pages.find(p => p.id === editingPageId);
-  if (!page) return;
-  page.content = page.content || [];
-  const i = page.content.length;
-  page.content.push({ cat: 'Nouvelle section', title: 'Nouveau titre', body: '' });
-  setData('cwu_pages', pages);
-  openEditPage(editingPageId);
+function addBlock(){
+  const pages=gd('cwu_pages',[]);const page=pages.find(p=>p.id===_editPageId);if(!page)return;
+  page.content=page.content||[];page.content.push({cat:'Nouvelle section',title:'Nouveau titre',body:''});
+  sd('cwu_pages',pages);openEditPage(_editPageId);
 }
-
-function removeBlock(i) {
-  const pages = getData('cwu_pages', []);
-  const page = pages.find(p => p.id === editingPageId);
-  if (!page) return;
-  page.content.splice(i, 1);
-  setData('cwu_pages', pages);
-  openEditPage(editingPageId);
+function rmBlock(i){
+  const pages=gd('cwu_pages',[]);const page=pages.find(p=>p.id===_editPageId);if(!page)return;
+  page.content.splice(i,1);sd('cwu_pages',pages);openEditPage(_editPageId);
 }
-
-function saveEditedPage() {
-  const pages = getData('cwu_pages', []);
-  const page = pages.find(p => p.id === editingPageId);
-  if (!page) return;
-
-  page.title = document.getElementById('ep-title').value.trim() || page.title;
-  page.category = document.getElementById('ep-cat').value.trim() || page.category;
-  page.inSidebar = document.getElementById('ep-sidebar').value === 'yes';
-
-  const newContent = [];
-  (page.content || []).forEach((_, i) => {
-    const cat = document.querySelector(`.sec-cat-${i}`)?.value || '';
-    const title = document.querySelector(`.sec-title-${i}`)?.value || '';
-    const body = document.querySelector(`.sec-body-${i}`)?.value || '';
-    newContent.push({ cat, title, body });
-  });
-  page.content = newContent;
-
-  setData('cwu_pages', pages);
-  buildSiteNav();
-  closeModal('modal-edit-page');
-  adminSection('pages');
-  alert('Page "' + page.title + '" mise à jour !');
+function saveEditedPage(){
+  const pages=gd('cwu_pages',[]);const page=pages.find(p=>p.id===_editPageId);if(!page)return;
+  page.title=document.getElementById('ep-title').value.trim()||page.title;
+  page.category=document.getElementById('ep-cat').value.trim()||page.category;
+  page.inSidebar=document.getElementById('ep-sidebar').value==='yes';
+  const checked=[...document.querySelectorAll('input[name="ep-access"]:checked')].map(x=>x.value);
+  page.accessRoles=checked.includes('tous')?'tous':checked;
+  const nc=[];(page.content||[]).forEach((_,i)=>{const cat=document.querySelector(`.ep-cat-${i}`)?.value||'';const title=document.querySelector(`.ep-title-${i}`)?.value||'';const body=document.querySelector(`.ep-body-${i}`)?.value||'';nc.push({cat,title,body});});
+  page.content=nc;sd('cwu_pages',pages);buildNav();closeModal('modal-edit-page');adminSec('pages');
+}
+function deletePage(id){if(!confirm('Supprimer ?'))return;sd('cwu_pages',gd('cwu_pages',[]).filter(p=>p.id!==id));buildNav();adminSec('pages');}
+function createPage(){
+  const title=document.getElementById('np-title').value.trim();
+  const cat=document.getElementById('np-cat').value.trim();
+  const id=document.getElementById('np-id').value.trim().replace(/\s+/g,'-').toLowerCase();
+  const navVal=document.getElementById('np-nav').value.trim();
+  const sidebar=document.getElementById('np-sidebar').value==='yes';
+  if(!title||!cat||!id){alert('Titre, catégorie et ID requis.');return;}
+  const pages=gd('cwu_pages',[]);
+  if(pages.find(p=>p.id===id)){alert('Cet ID existe déjà.');return;}
+  const checked=[...document.querySelectorAll('input[name="np-access"]:checked')].map(x=>x.value);
+  const accessRoles=checked.includes('tous')?'tous':(checked.length?checked:'tous');
+  const blCat=document.getElementById('np-bl-cat').value.trim();
+  const blTitle=document.getElementById('np-bl-title').value.trim();
+  const blBody=document.getElementById('np-bl-body').value.trim();
+  const content=[];if(blCat||blTitle||blBody)content.push({cat:blCat||'Section',title:blTitle||'Titre',body:blBody||''});
+  pages.push({id,title,category:cat,navOrder:navVal!==''?parseInt(navVal):undefined,inSidebar:sidebar,accessRoles,content});
+  sd('cwu_pages',pages);buildNav();adminSec('pages');
 }
 
 // ============================================================
-// UTILS
+// FOOTER TIME
 // ============================================================
-
-function showErr(el, msg) {
-  el.textContent = msg;
-  el.style.display = 'block';
-  setTimeout(() => { el.style.display = 'none'; }, 4000);
-}
-
-function closeModal(id) {
-  document.getElementById(id).classList.remove('active');
-}
-
-function updateFooterTime() {
-  const el = document.getElementById('footer-time');
-  if (el) el.textContent = new Date().toLocaleTimeString('fr-FR');
-}
+function updateTime(){const el=document.getElementById('footer-time');if(el)el.textContent=new Date().toLocaleTimeString('fr-FR');}
 
 // ============================================================
 // INIT
 // ============================================================
-
 initData();
 
-// Auto-login if session exists
-window.addEventListener('load', () => {
-  setTimeout(() => {
-    currentUser = getCurrentUser();
-    if (currentUser && currentUser.status === 'approved') {
-      enterSite();
-    }
-    setInterval(updateFooterTime, 1000);
-    updateFooterTime();
-    updatePendingCount();
-  }, 1600);
+window.addEventListener('load',()=>{
+  setTimeout(()=>{
+    document.getElementById('loading-screen').classList.add('fade-out');
+    setTimeout(()=>document.getElementById('loading-screen').remove(),700);
+    CU=getSession();
+    if(CU&&CU.status==='approved')enterSite();
+    setInterval(updateTime,1000);updateTime();
+  },1800);
 });
 
-// Enter on inputs
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    const active = document.getElementById('panel-login');
-    if (active && active.classList.contains('active')) doLogin();
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){
+    const lp=document.getElementById('panel-login');
+    if(lp&&lp.classList.contains('active'))doLogin();
   }
 });
 </script>
