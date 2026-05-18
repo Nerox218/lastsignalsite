@@ -426,10 +426,10 @@ let _editPageId = null;
 const fbStatus = document.getElementById('fb-status');
 onValue(ref(db, '.info/connected'), snap => {
   if (snap.val()) {
-    fbStatus.textContent = '● FIREBASE CONNECTÉ';
+    fbStatus.textContent = '● HEBERGEMENT CONNECTÉ';
     fbStatus.className = 'firebase-status connected';
   } else {
-    fbStatus.textContent = '● FIREBASE HORS LIGNE';
+    fbStatus.textContent = '● HEBERGEMENT HORS LIGNE';
     fbStatus.className = 'firebase-status disconnected';
   }
 });
