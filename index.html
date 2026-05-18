@@ -38,8 +38,6 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 #app{position:relative;z-index:10;min-height:100vh;}
 .view{display:none;min-height:100vh;}
 .view.active{display:flex;}
-
-/* ========= LOADING ========= */
 #loading-screen{position:fixed;inset:0;background:var(--bg-deep);z-index:9000;display:flex;flex-direction:column;align-items:center;justify-content:center;}
 #loading-screen.fade-out{animation:fadeOut 0.6s ease forwards;}
 @keyframes fadeOut{to{opacity:0;pointer-events:none;}}
@@ -47,10 +45,8 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.6;}}
 .loading-text{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--accent);letter-spacing:3px;text-transform:uppercase;}
 .loading-bar{width:240px;height:2px;background:var(--border);margin-top:16px;overflow:hidden;}
-.loading-bar-fill{height:100%;background:var(--accent);animation:loadBar 1.8s ease forwards;}
+.loading-bar-fill{height:100%;background:var(--accent);animation:loadBar 2.2s ease forwards;}
 @keyframes loadBar{from{width:0;}to{width:100%;}}
-
-/* ========= LOGIN ========= */
 #view-login{align-items:center;justify-content:center;flex-direction:column;padding:20px;}
 .login-wrap{width:100%;max-width:560px;background:var(--bg-panel);border:1px solid var(--border);position:relative;animation:slideUp 0.5s ease;}
 @keyframes slideUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
@@ -72,6 +68,7 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .field input::placeholder,.field textarea::placeholder{color:var(--text-dim);}
 .btn-primary{width:100%;padding:14px;background:var(--accent);border:none;color:#000;font-family:'Orbitron',monospace;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;margin-top:6px;}
 .btn-primary:hover{background:#00c8f0;transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,180,216,0.3);}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
 .login-note{text-align:center;margin-top:14px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);}
 .sup-btn{position:fixed;bottom:22px;left:22px;background:rgba(11,14,18,0.95);border:1px solid var(--border);color:var(--text-secondary);padding:9px 14px;font-family:'Share Tech Mono',monospace;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:7px;transition:all 0.2s;z-index:100;}
 .sup-btn:hover{border-color:var(--orange);color:var(--orange);}
@@ -79,8 +76,6 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .ok-msg{background:rgba(56,161,105,0.1);border:1px solid rgba(56,161,105,0.4);color:#68d391;padding:9px 13px;font-family:'Share Tech Mono',monospace;font-size:11px;margin-bottom:14px;display:none;}
 .tab-panel{display:none;}
 .tab-panel.active{display:block;}
-
-/* ========= MAIN SITE ========= */
 #view-site{flex-direction:column;}
 .topbar{background:var(--bg-panel);border-bottom:1px solid var(--border);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:58px;position:sticky;top:0;z-index:500;}
 .topbar-logo{display:flex;align-items:center;gap:11px;cursor:pointer;}
@@ -101,7 +96,6 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .role-tag.directeur{background:rgba(244,162,28,0.12);border:1px solid var(--orange);color:var(--orange);}
 .role-tag.superviseur{background:rgba(0,180,216,0.08);border:1px solid var(--accent-dim);color:var(--accent);}
 .role-tag.membre{background:rgba(56,161,105,0.08);border:1px solid #38a169;color:#68d391;}
-.role-tag.admin{background:rgba(159,122,234,0.12);border:1px solid var(--purple);color:var(--purple);}
 .logout-btn{background:none;border:1px solid var(--border);color:var(--text-secondary);padding:5px 11px;font-family:'Share Tech Mono',monospace;font-size:10px;cursor:pointer;transition:all 0.2s;}
 .logout-btn:hover{border-color:var(--red);color:#fc8181;}
 .site-layout{display:flex;flex:1;min-height:calc(100vh - 58px);}
@@ -121,19 +115,14 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--accent-dim),transparent);opacity:0.35;}
 .card-title{font-family:'Orbitron',monospace;font-size:13px;font-weight:600;color:var(--accent);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
 .card-body{font-size:14px;line-height:1.7;color:var(--text-secondary);}
-
-/* Stats */
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:20px;}
-.stat-card{background:var(--bg-card);border:1px solid var(--border);padding:16px;text-align:center;position:relative;}
+.stat-card{background:var(--bg-card);border:1px solid var(--border);padding:16px;text-align:center;}
 .stat-number{font-family:'Orbitron',monospace;font-size:26px;font-weight:700;}
 .stat-label{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-secondary);margin-top:3px;text-transform:uppercase;letter-spacing:1px;}
 .stat-card.blue .stat-number{color:var(--accent);}
 .stat-card.orange .stat-number{color:var(--orange);}
 .stat-card.red .stat-number{color:var(--red);}
 .stat-card.green .stat-number{color:var(--green);}
-.stat-card.purple .stat-number{color:var(--purple);}
-
-/* Tables */
 .data-table{width:100%;border-collapse:collapse;font-size:12px;}
 .data-table th{background:var(--bg-deep);border:1px solid var(--border);padding:9px 13px;text-align:left;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:1px;text-transform:uppercase;}
 .data-table td{border:1px solid var(--border);padding:9px 13px;color:var(--text-secondary);font-family:'Share Tech Mono',monospace;font-size:11px;}
@@ -149,21 +138,15 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .btn-sm.del:hover{background:rgba(229,62,62,0.2);}
 .btn-sm.promote{border-color:var(--orange);color:var(--orange);}
 .btn-sm.promote:hover{background:rgba(244,162,28,0.1);}
-
-/* Alerts */
 .alert{padding:11px 15px;border-left:3px solid;margin-bottom:10px;font-family:'Share Tech Mono',monospace;font-size:11px;}
 .alert.warning{border-color:var(--orange);background:rgba(244,162,28,0.07);color:var(--orange);}
 .alert.info{border-color:var(--accent);background:rgba(0,180,216,0.07);color:var(--accent);}
 .alert.danger{border-color:var(--red);background:rgba(229,62,62,0.07);color:#fc8181;}
 .alert.success{border-color:var(--green);background:rgba(56,161,105,0.07);color:#68d391;}
-
-/* Announcements */
 .ann-item{background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--accent);padding:14px 18px;margin-bottom:10px;}
 .ann-meta{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);margin-bottom:5px;}
 .ann-title{font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:600;color:var(--text-primary);margin-bottom:7px;}
 .ann-body{font-size:13px;color:var(--text-secondary);line-height:1.6;}
-
-/* Reports */
 .report-filters{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;}
 .report-filters select,.report-filters input{background:var(--bg-input);border:1px solid var(--border);color:var(--text-primary);padding:8px 12px;font-family:'Share Tech Mono',monospace;font-size:12px;outline:none;flex:1;min-width:140px;}
 .report-filters select:focus,.report-filters input:focus{border-color:var(--border-active);}
@@ -174,11 +157,9 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .report-cell.header{color:var(--accent);font-size:10px;letter-spacing:1px;background:var(--bg-deep);}
 .report-type-badge{display:inline-block;padding:2px 7px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;font-family:'Share Tech Mono',monospace;}
 .report-type-badge.unite{background:rgba(0,180,216,0.12);border:1px solid var(--accent-dim);color:var(--accent);}
-.report-type-badge.division{background:rgba(159,122,234,0.12);border:1px solid var(--purple);color:var(--purple);}
+.report-type-badge.division{background:rgba(159,122,234,0.12);border:1px solid #9f7aea;color:#9f7aea;}
 .report-type-badge.alert{background:rgba(229,62,62,0.12);border:1px solid var(--red);color:#fc8181;}
 .report-type-badge.prioritaire{background:rgba(244,162,28,0.12);border:1px solid var(--orange);color:var(--orange);}
-
-/* Report form */
 .report-form-tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:22px;}
 .rtab{padding:10px 18px;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;color:var(--text-secondary);border-bottom:2px solid transparent;transition:all 0.2s;}
 .rtab:hover{color:var(--text-primary);}
@@ -190,19 +171,14 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .form-section-title{font-family:'Orbitron',monospace;font-size:11px;color:var(--accent);margin-bottom:16px;letter-spacing:1px;padding-bottom:10px;border-bottom:1px solid var(--border);}
 .btn-submit{background:var(--accent);border:none;color:#000;padding:12px 28px;font-family:'Orbitron',monospace;font-size:12px;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all 0.2s;text-transform:uppercase;}
 .btn-submit:hover{background:#00c8f0;box-shadow:0 0 20px rgba(0,180,216,0.4);}
+.btn-submit:disabled{opacity:0.5;cursor:not-allowed;}
 .btn-reset{background:none;border:1px solid var(--border);color:var(--text-secondary);padding:12px 20px;font-family:'Share Tech Mono',monospace;font-size:12px;cursor:pointer;transition:all 0.2s;margin-right:10px;}
 .btn-reset:hover{border-color:var(--text-secondary);color:var(--text-primary);}
 .form-actions{display:flex;align-items:center;justify-content:flex-end;padding-top:16px;border-top:1px solid var(--border);}
 .form-id{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;margin-right:auto;}
-
-/* Report detail modal */
-.report-detail{background:var(--bg-panel);border:1px solid var(--border);padding:24px;max-width:700px;margin:0 auto;}
-.report-detail-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border);}
 .report-detail-field{margin-bottom:14px;}
 .report-detail-label{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:1px;margin-bottom:5px;}
 .report-detail-value{font-size:13px;color:var(--text-primary);line-height:1.6;}
-
-/* Dropzone */
 .dropzone{border:1px dashed var(--border);padding:24px;text-align:center;cursor:pointer;transition:border-color 0.2s;background:var(--bg-input);}
 .dropzone:hover,.dropzone.dragover{border-color:var(--accent);}
 .dropzone-text{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-secondary);}
@@ -210,18 +186,12 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .file-list{margin-top:10px;}
 .file-item{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:var(--bg-card);border:1px solid var(--border);margin-bottom:4px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-secondary);}
 .file-item button{background:none;border:none;color:var(--red);cursor:pointer;font-size:13px;}
-
-/* Access denied */
 .access-denied{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:300px;text-align:center;}
 .access-denied-icon{font-size:48px;margin-bottom:16px;opacity:0.3;}
 .access-denied-title{font-family:'Orbitron',monospace;font-size:16px;color:var(--red);margin-bottom:8px;}
 .access-denied-sub{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--text-dim);}
-
-/* Footer */
 .site-footer{background:var(--bg-panel);border-top:1px solid var(--border);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;}
 .footer-text{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);}
-
-/* ========= ADMIN PANEL ========= */
 #view-admin{flex-direction:column;}
 .admin-bar{background:var(--bg-panel);border-bottom:2px solid var(--orange);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:500;}
 .admin-bar-title{font-family:'Orbitron',monospace;font-size:13px;font-weight:700;color:var(--orange);letter-spacing:2px;display:flex;align-items:center;gap:10px;}
@@ -241,12 +211,6 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .page-item:hover{border-color:var(--accent-dim);}
 .page-item-title{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;color:var(--text-primary);}
 .page-item-meta{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);margin-top:2px;}
-.section-selector{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
-.section-selector label{display:flex;align-items:center;gap:5px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-secondary);cursor:pointer;padding:4px 10px;border:1px solid var(--border);transition:all 0.15s;}
-.section-selector input[type=checkbox]{accent-color:var(--accent);}
-.section-selector label:hover{border-color:var(--accent-dim);color:var(--text-primary);}
-
-/* Modal */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;}
 .modal-overlay.active{display:flex;}
 .modal{background:var(--bg-panel);border:1px solid var(--border);width:100%;max-width:500px;position:relative;animation:slideUp 0.3s ease;}
@@ -260,21 +224,18 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;}
 .back-link{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;gap:5px;transition:color 0.15s;}
 .back-link:hover{color:var(--text-primary);}
-
-/* Inline report detail */
-.report-back{margin-bottom:16px;}
-
-/* Grade tag colors */
 .grade-tag{padding:2px 7px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;font-family:'Share Tech Mono',monospace;border:1px solid;display:inline-block;}
 .grade-directeur{background:rgba(244,162,28,0.12);border-color:var(--orange);color:var(--orange);}
 .grade-superviseur{background:rgba(0,180,216,0.08);border-color:var(--accent-dim);color:var(--accent);}
 .grade-membre{background:rgba(56,161,105,0.08);border-color:#38a169;color:#68d391;}
-
-/* Checkbox pill selection */
 .pill-check{display:flex;flex-wrap:wrap;gap:6px;}
 .pill-check label{display:flex;align-items:center;gap:5px;padding:4px 10px;border:1px solid var(--border);font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-secondary);cursor:pointer;transition:all 0.15s;}
 .pill-check label:hover{border-color:var(--accent-dim);color:var(--text-primary);}
 .pill-check input[type=checkbox]{accent-color:var(--accent);}
+.firebase-status{position:fixed;bottom:22px;right:22px;font-family:'Share Tech Mono',monospace;font-size:10px;padding:5px 10px;border:1px solid var(--border);background:var(--bg-panel);z-index:200;display:flex;align-items:center;gap:6px;}
+.firebase-status.connected{border-color:var(--green);color:var(--green);}
+.firebase-status.disconnected{border-color:var(--red);color:#fc8181;}
+.firebase-status.loading{border-color:var(--orange);color:var(--orange);}
 </style>
 </head>
 <body>
@@ -283,13 +244,13 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 
 <div id="loading-screen">
   <div class="loading-logo">CWU</div>
-  <div class="loading-text">Connexion au réseau syndical...</div>
+  <div class="loading-text" id="loading-msg">Connexion à Firebase...</div>
   <div class="loading-bar"><div class="loading-bar-fill"></div></div>
 </div>
 
 <div id="app">
 
-<!-- ======== LOGIN ======== -->
+<!-- LOGIN -->
 <div id="view-login" class="view active">
   <div class="login-wrap">
     <div class="login-head">
@@ -310,7 +271,7 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
         <div class="err-msg" id="login-err"></div>
         <div class="field"><label>Email</label><input type="email" id="login-email" placeholder="exemple@email.com"></div>
         <div class="field"><label>Mot de passe</label><input type="password" id="login-pass" placeholder="••••••••"></div>
-        <button class="btn-primary" onclick="doLogin()">SE CONNECTER</button>
+        <button class="btn-primary" id="btn-login" onclick="doLogin()">SE CONNECTER</button>
       </div>
       <div class="tab-panel active" id="panel-register">
         <div class="ok-msg" id="reg-ok"></div>
@@ -320,7 +281,7 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
         <div class="field"><label>Division (optionnel)</label><input type="text" id="reg-div" placeholder="Ex: Logistique, Maintenance..."></div>
         <div class="field"><label>Email</label><input type="email" id="reg-email" placeholder="exemple@email.com"></div>
         <div class="field"><label>Mot de passe (6+ caractères)</label><input type="password" id="reg-pass" placeholder="••••••••"></div>
-        <button class="btn-primary" onclick="doRegister()">ENVOYER LA DEMANDE</button>
+        <button class="btn-primary" id="btn-register" onclick="doRegister()">ENVOYER LA DEMANDE</button>
       </div>
       <div class="login-note">Votre entrée doit être validée par un responsable.</div>
     </div>
@@ -328,7 +289,7 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
   <button class="sup-btn" onclick="openModal('modal-sup')">⬡ Accès superviseur</button>
 </div>
 
-<!-- ======== MAIN SITE ======== -->
+<!-- MAIN SITE -->
 <div id="view-site" class="view">
   <div class="topbar">
     <div class="topbar-logo" onclick="showPage('accueil')">
@@ -356,7 +317,7 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
   </footer>
 </div>
 
-<!-- ======== ADMIN ======== -->
+<!-- ADMIN -->
 <div id="view-admin" class="view">
   <div class="admin-bar">
     <div class="admin-bar-title">⬡ PANNEAU DE CONTRÔLE <span class="admin-badge">DIRECTION</span></div>
@@ -380,10 +341,9 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
   </div>
 </div>
 
-</div><!-- #app -->
+</div>
 
-<!-- ======== MODALS ======== -->
-<!-- Supervisor login -->
+<!-- MODALS -->
 <div class="modal-overlay" id="modal-sup">
   <div class="modal">
     <div class="modal-head"><div class="modal-title">⬡ ACCÈS SUPERVISEUR</div><button class="modal-close" onclick="closeModal('modal-sup')">✕</button></div>
@@ -396,7 +356,6 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
   </div>
 </div>
 
-<!-- Edit page modal -->
 <div class="modal-overlay" id="modal-edit-page">
   <div class="modal wide">
     <div class="modal-head"><div class="modal-title">✏️ MODIFIER LA PAGE</div><button class="modal-close" onclick="closeModal('modal-edit-page')">✕</button></div>
@@ -405,7 +364,6 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
   </div>
 </div>
 
-<!-- Report detail modal -->
 <div class="modal-overlay" id="modal-report">
   <div class="modal wide">
     <div class="modal-head"><div class="modal-title">📋 RAPPORT D'ACTIVITÉ</div><button class="modal-close" onclick="closeModal('modal-report')">✕</button></div>
@@ -414,226 +372,390 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
   </div>
 </div>
 
-<script>
-// ============================================================
-// CONSTANTS & HELPERS
-// ============================================================
+<!-- Indicateur connexion Firebase -->
+<div class="firebase-status loading" id="fb-status">● FIREBASE...</div>
+
+<!-- ===================== FIREBASE SDK ===================== -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, get, push, remove, update, onValue, child }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+  signOut, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+// ─── CONFIG FIREBASE ───────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyA7aaQo9lUvoPjqv93vH_xnAqWsuac5vrE",
+  authDomain: "lastsignal-7f6e7.firebaseapp.com",
+  databaseURL: "https://lastsignal-7f6e7-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "lastsignal-7f6e7",
+  storageBucket: "lastsignal-7f6e7.firebasestorage.app",
+  messagingSenderId: "523051023821",
+  appId: "1:523051023821:web:50da417109bb0b9bed9884",
+  measurementId: "G-4T3M2L5E6C"
+};
+
+const app  = initializeApp(firebaseConfig);
+const db   = getDatabase(app);
+const auth = getAuth(app);
+
+// ─── CONSTANTES ────────────────────────────────────────────
 const ADMIN_EMAIL = 'alexandre.jacopin76@gmail.com';
-const ADMIN_PASS  = 'cwu-admin-2024';
-
-function gd(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch{return d;}}
-function sd(k,v){localStorage.setItem(k,JSON.stringify(v));}
-
-// Roles hierarchy: higher index = more power
 const ROLES = ['membre','superviseur','directeur'];
-function roleLevel(r){return ROLES.indexOf(r);}
+
+// ─── ÉTAT GLOBAL ────────────────────────────────────────────
+let CU = null; // current user (données profil depuis DB)
+let _DB = {    // cache local des données Firebase
+  users: {},
+  pages: {},
+  reports: {},
+  announcements: {},
+  grades: { roles: ROLES, divisions: [] },
+  config: {}
+};
+let _rfFiles = [];
+let _editPageId = null;
+
+// ─── INDICATEUR CONNEXION ───────────────────────────────────
+const fbStatus = document.getElementById('fb-status');
+onValue(ref(db, '.info/connected'), snap => {
+  if (snap.val()) {
+    fbStatus.textContent = '● FIREBASE CONNECTÉ';
+    fbStatus.className = 'firebase-status connected';
+  } else {
+    fbStatus.textContent = '● FIREBASE HORS LIGNE';
+    fbStatus.className = 'firebase-status disconnected';
+  }
+});
+
+// ─── HELPERS ────────────────────────────────────────────────
+function roleLevel(r){ return ROLES.indexOf(r); }
 function canAccess(userRole, required){
-  if(required==='tous'||required==='all')return true;
-  if(!required||required==='none')return false;
+  if(required==='tous'||required==='all') return true;
+  if(!required||required==='none') return false;
   const rArr = Array.isArray(required)?required:[required];
-  return rArr.some(r=>roleLevel(userRole)>=roleLevel(r));
+  return rArr.some(r => roleLevel(userRole) >= roleLevel(r));
+}
+function showErr(el, msg){ el.textContent=msg; el.style.display='block'; setTimeout(()=>el.style.display='none',4000); }
+function openModal(id){ document.getElementById(id).classList.add('active'); }
+function closeModal(id){ document.getElementById(id).classList.remove('active'); }
+function showView(id){ document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+function formatAccess(a){ if(a==='tous'||a==='all')return 'Tous'; if(Array.isArray(a))return a.join(', '); return a||'Tous'; }
+function typeLabel(t){ const m={unite:'Unité',division:'Division',alert:'ALERTE',prioritaire:'Prioritaire'}; return m[t]||t; }
+function setLoading(msg){ document.getElementById('loading-msg').textContent = msg||'Chargement...'; }
+
+// Encode email pour clé Firebase (remplace . et @)
+function emailToKey(email){ return email.replace(/\./g,'_dot_').replace(/@/g,'_at_'); }
+function keyToEmail(key){ return key.replace(/_dot_/g,'.').replace(/_at_/g,'@'); }
+
+// ─── INIT DONNÉES PAR DÉFAUT ────────────────────────────────
+async function initDefaultData(){
+  // Vérifie si les données existent déjà
+  const snap = await get(ref(db, 'config/siteName'));
+  if(snap.exists()) return; // déjà initialisé
+
+  const adminKey = emailToKey(ADMIN_EMAIL);
+
+  // Admin user
+  await set(ref(db, `users/${adminKey}`), {
+    email: ADMIN_EMAIL, cid: 'Alexandre J., Directeur', steam: 'alexandre_jacopin',
+    role: 'directeur', division: 'Direction', status: 'approved',
+    matricule: '001', joined: new Date().toISOString()
+  });
+
+  // Grades
+  await set(ref(db, 'grades'), {
+    roles: { 0:'membre', 1:'superviseur', 2:'directeur' },
+    divisions: { 0:'Logistique', 1:'Maintenance', 2:'Sécurité', 3:'Administration', 4:'Direction' }
+  });
+
+  // Config
+  await set(ref(db, 'config'), {
+    siteName: "Civil Worker's Union",
+    siteSubtitle: 'Centre Syndicale — Last Signal RP',
+    adminEmail: ADMIN_EMAIL
+  });
+
+  // Pages par défaut
+  const pages = [
+    {id:'accueil',title:'Accueil',category:'Général',navOrder:0,inSidebar:false,accessRoles:'tous',
+     content:[
+       {cat:'Bienvenue',title:"Civil Worker's Union",body:"Bienvenue dans le centre syndical de Last Signal. Le CWU est l'organisation civile officielle sous l'autorité de l'Union."},
+       {cat:'Directives',title:'Ordre du jour',body:"Toute demande d'adhésion doit être validée par un superviseur ou directeur."}
+     ]},
+    {id:'reglement',title:'Règlement',category:'Syndicat',navOrder:1,inSidebar:true,accessRoles:'tous',
+     content:[
+       {cat:'Code de conduite',title:'Règles générales',body:"I. Tout membre du CWU se doit d'obéir aux ordres de sa hiérarchie.\nII. La propagande anti-Union est strictement interdite.\nIII. Tout comportement perturbateur sera sanctionné."},
+       {cat:'Sanctions',title:'Procédures disciplinaires',body:'Les manquements aux règles peuvent entraîner un avertissement, une suspension temporaire, ou l\'exclusion définitive.'}
+     ]},
+    {id:'annonces',title:'Annonces',category:'Général',navOrder:2,inSidebar:false,accessRoles:'tous',content:[]},
+    {id:'rapports',title:'Rapports',category:'Activité',navOrder:3,inSidebar:false,accessRoles:'membre',content:[]},
+    {id:'classifie',title:'Zone Classifiée',category:'Direction',navOrder:99,inSidebar:true,accessRoles:'superviseur',
+     content:[{cat:'CONFIDENTIEL',title:'Directives internes',body:'Ce salon est réservé aux superviseurs et directeurs.'}]}
+  ];
+  for(const p of pages){
+    await set(ref(db, `pages/${p.id}`), p);
+  }
+
+  // Annonce initiale
+  const annId = Date.now();
+  await set(ref(db, `announcements/${annId}`), {
+    id: annId, author: 'Direction',
+    date: new Date().toLocaleDateString('fr-FR'),
+    title: 'Ouverture du centre syndical',
+    body: 'Le centre syndical de Last Signal est désormais opérationnel.',
+    type: 'info'
+  });
 }
 
-function showErr(el,msg){el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',4000);}
-function openModal(id){document.getElementById(id).classList.add('active');}
-function closeModal(id){document.getElementById(id).classList.remove('active');}
-function showView(id){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById(id).classList.add('active');}
+// ─── CHARGEMENT DONNÉES ─────────────────────────────────────
+async function loadAllData(){
+  const snap = await get(ref(db));
+  const data = snap.val() || {};
 
-// ============================================================
-// INIT DATA
-// ============================================================
-function initData(){
-  if(!gd('cwu_users',null)){
-    sd('cwu_users',[{
-      email:ADMIN_EMAIL,password:ADMIN_PASS,cid:'Alexandre J., Directeur',steam:'alexandre_jacopin',
-      role:'directeur',division:'Direction',status:'approved',matricule:'001',joined:new Date().toISOString()
-    }]);
-  }
-  if(!gd('cwu_grades',null)){
-    sd('cwu_grades',{
-      roles:['membre','superviseur','directeur'],
-      divisions:['Logistique','Maintenance','Sécurité','Administration','Direction']
-    });
-  }
-  if(!gd('cwu_pages',null)){
-    sd('cwu_pages',[
-      {id:'accueil',title:'Accueil',category:'Général',navOrder:0,inSidebar:false,accessRoles:'tous',content:[
-        {cat:'Bienvenue',title:'Civil Worker\'s Union',body:'Bienvenue dans le centre syndical de Last Signal. Le CWU est l\'organisation civile officielle sous l\'autorité de l\'Union. Nos travailleurs assurent les services essentiels à la vie du secteur.'},
-        {cat:'Directives',title:'Ordre du jour',body:'Toute demande d\'adhésion doit être validée par un superviseur ou directeur. Les membres actifs doivent se conformer aux règles de conduite du syndicat.'}
-      ]},
-      {id:'reglement',title:'Règlement',category:'Syndicat',navOrder:1,inSidebar:true,accessRoles:'tous',content:[
-        {cat:'Code de conduite',title:'Règles générales',body:'I. Tout membre du CWU se doit d\'obéir aux ordres de sa hiérarchie.\nII. La propagande anti-Union est strictement interdite.\nIII. Tout comportement perturbateur sera sanctionné.'},
-        {cat:'Sanctions',title:'Procédures disciplinaires',body:'Les manquements aux règles peuvent entraîner un avertissement, une suspension temporaire, ou l\'exclusion définitive du syndicat.'}
-      ]},
-      {id:'annonces',title:'Annonces',category:'Général',navOrder:2,inSidebar:false,accessRoles:'tous',content:[]},
-      {id:'rapports',title:'Rapports',category:'Activité',navOrder:3,inSidebar:false,accessRoles:'membre',content:[]},
-      {id:'classifie',title:'Zone Classifiée',category:'Direction',navOrder:99,inSidebar:true,accessRoles:'superviseur',content:[
-        {cat:'CONFIDENTIEL',title:'Directives internes',body:'Ce salon est réservé aux superviseurs et directeurs. Toute fuite d\'information sera sanctionnée.'}
-      ]}
-    ]);
-  }
-  if(!gd('cwu_announcements',null)){
-    sd('cwu_announcements',[{id:Date.now(),author:'Direction',date:new Date().toLocaleDateString('fr-FR'),title:'Ouverture du centre syndical',body:'Le centre syndical de Last Signal est désormais opérationnel. Toutes les demandes d\'adhésion sont ouvertes.',type:'info'}]);
-  }
-  if(!gd('cwu_reports',null)){
-    sd('cwu_reports',[]);
-  }
-  if(!gd('cwu_config',null)){
-    sd('cwu_config',{siteName:'Civil Worker\'s Union',siteSubtitle:'Centre Syndicale — Last Signal RP',adminEmail:ADMIN_EMAIL});
-  }
+  // Users : objet { emailKey: {...} }
+  _DB.users = data.users || {};
+
+  // Grades
+  const gr = data.grades || {};
+  _DB.grades = {
+    roles: gr.roles ? Object.values(gr.roles) : ROLES,
+    divisions: gr.divisions ? Object.values(gr.divisions) : []
+  };
+
+  // Pages : objet { pageId: {...} }
+  _DB.pages = data.pages || {};
+
+  // Reports : objet { reportId: {...} }
+  _DB.reports = data.reports || {};
+
+  // Announcements : objet { annId: {...} }
+  _DB.announcements = data.announcements || {};
+
+  // Config
+  _DB.config = data.config || {};
 }
 
-// ============================================================
-// SESSION
-// ============================================================
-let CU=null;// current user
-
-function getSession(){
-  const e=sessionStorage.getItem('cwu_ses');
-  if(!e)return null;
-  return (gd('cwu_users',[])).find(u=>u.email===e)||null;
+// Écoute en temps réel les changements (rapports, annonces, membres)
+function startRealtime(){
+  onValue(ref(db,'users'), snap => {
+    _DB.users = snap.val() || {};
+    updatePendingCount();
+    // Recharge la vue admin si ouverte
+    const ac = document.getElementById('admin-content');
+    if(ac && document.getElementById('view-admin').classList.contains('active')) {
+      // optionnel : rafraîchir silencieusement
+    }
+  });
+  onValue(ref(db,'reports'), snap => { _DB.reports = snap.val() || {}; });
+  onValue(ref(db,'announcements'), snap => { _DB.announcements = snap.val() || {}; });
 }
-function setSession(e){sessionStorage.setItem('cwu_ses',e);}
-function clearSession(){sessionStorage.removeItem('cwu_ses');}
 
-// ============================================================
-// LOGIN
-// ============================================================
+// ─── AUTH ───────────────────────────────────────────────────
+onAuthStateChanged(auth, async (firebaseUser) => {
+  if(firebaseUser){
+    const key = emailToKey(firebaseUser.email);
+    const snap = await get(ref(db, `users/${key}`));
+    if(snap.exists()){
+      const userData = snap.val();
+      if(userData.status === 'approved'){
+        CU = userData;
+        await loadAllData();
+        startRealtime();
+        enterSite();
+        return;
+      }
+    }
+  }
+  // Non connecté ou rejeté
+  hideSplash();
+});
+
+function hideSplash(){
+  const ls = document.getElementById('loading-screen');
+  if(ls){ ls.classList.add('fade-out'); setTimeout(()=>ls.remove(),700); }
+}
+
+// ─── LOGIN ───────────────────────────────────────────────────
 function switchTab(t){
   document.getElementById('tab-login').classList.toggle('active',t==='login');
   document.getElementById('tab-register').classList.toggle('active',t==='register');
   document.getElementById('panel-login').classList.toggle('active',t==='login');
   document.getElementById('panel-register').classList.toggle('active',t==='register');
 }
+window.switchTab = switchTab;
 
-function doLogin(){
-  const e=document.getElementById('login-email').value.trim();
-  const p=document.getElementById('login-pass').value;
-  const err=document.getElementById('login-err');
-  if(!e||!p){showErr(err,'Remplissez tous les champs.');return;}
-  const u=(gd('cwu_users',[])).find(x=>x.email===e&&x.password===p);
-  if(!u){showErr(err,'Identifiants incorrects.');return;}
-  if(u.status==='pending'){showErr(err,'Votre demande est en attente de validation.');return;}
-  if(u.status==='rejected'){showErr(err,'Votre demande a été refusée.');return;}
-  setSession(e);CU=u;enterSite();
+async function doLogin(){
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  const err   = document.getElementById('login-err');
+  const btn   = document.getElementById('btn-login');
+  if(!email||!pass){ showErr(err,'Remplissez tous les champs.'); return; }
+
+  btn.disabled = true; btn.textContent = 'CONNEXION...';
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+    // onAuthStateChanged prend le relais
+  } catch(e) {
+    let msg = 'Identifiants incorrects.';
+    if(e.code==='auth/too-many-requests') msg = 'Trop de tentatives. Réessayez plus tard.';
+    showErr(err, msg);
+    btn.disabled=false; btn.textContent='SE CONNECTER';
+  }
 }
+window.doLogin = doLogin;
 
-function doRegister(){
-  const cid=document.getElementById('reg-cid').value.trim();
-  const steam=document.getElementById('reg-steam').value.trim();
-  const div=document.getElementById('reg-div').value.trim();
-  const email=document.getElementById('reg-email').value.trim();
-  const pass=document.getElementById('reg-pass').value;
-  const err=document.getElementById('reg-err');
-  const ok=document.getElementById('reg-ok');
-  if(!cid||!steam||!email||!pass){showErr(err,'Remplissez tous les champs obligatoires.');return;}
-  if(pass.length<6){showErr(err,'Mot de passe trop court.');return;}
-  const users=gd('cwu_users',[]);
-  if(users.find(u=>u.email===email)){showErr(err,'Cet email est déjà utilisé.');return;}
-  const mat=String(users.length+1).padStart(3,'0');
-  users.push({email,password:pass,cid,steam,division:div||'Non assigné',role:'membre',status:'pending',matricule:mat,joined:new Date().toISOString()});
-  sd('cwu_users',users);
-  err.style.display='none';
-  ok.textContent='✓ Demande envoyée. Un responsable examinera votre candidature.';
-  ok.style.display='block';
-  ['reg-cid','reg-steam','reg-div','reg-email','reg-pass'].forEach(i=>document.getElementById(i).value='');
+async function doRegister(){
+  const cid   = document.getElementById('reg-cid').value.trim();
+  const steam = document.getElementById('reg-steam').value.trim();
+  const div   = document.getElementById('reg-div').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const pass  = document.getElementById('reg-pass').value;
+  const err   = document.getElementById('reg-err');
+  const ok    = document.getElementById('reg-ok');
+  const btn   = document.getElementById('btn-register');
+
+  if(!cid||!steam||!email||!pass){ showErr(err,'Remplissez tous les champs obligatoires.'); return; }
+  if(pass.length<6){ showErr(err,'Mot de passe trop court.'); return; }
+
+  btn.disabled=true; btn.textContent='ENVOI...';
+  try {
+    // Crée le compte Firebase Auth
+    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+    // Déconnecte immédiatement (en attente de validation)
+    await signOut(auth);
+
+    // Calcule le matricule
+    const userCount = Object.keys(_DB.users).length + 1;
+    const mat = String(userCount).padStart(3,'0');
+    const key = emailToKey(email);
+
+    await set(ref(db, `users/${key}`), {
+      email, cid, steam, division: div||'Non assigné',
+      role: 'membre', status: 'pending',
+      matricule: mat, joined: new Date().toISOString()
+    });
+
+    err.style.display='none';
+    ok.textContent='✓ Demande envoyée. Un responsable examinera votre candidature.';
+    ok.style.display='block';
+    ['reg-cid','reg-steam','reg-div','reg-email','reg-pass'].forEach(i=>document.getElementById(i).value='');
+    btn.disabled=false; btn.textContent='ENVOYER LA DEMANDE';
+  } catch(e) {
+    let msg = "Erreur lors de l'inscription.";
+    if(e.code==='auth/email-already-in-use') msg='Cet email est déjà utilisé.';
+    if(e.code==='auth/invalid-email') msg='Email invalide.';
+    showErr(err, msg);
+    btn.disabled=false; btn.textContent='ENVOYER LA DEMANDE';
+  }
 }
+window.doRegister = doRegister;
 
-function doSupLogin(){
-  const e=document.getElementById('sup-email').value.trim();
-  const p=document.getElementById('sup-pass').value;
-  const err=document.getElementById('sup-err');
-  const u=(gd('cwu_users',[])).find(x=>x.email===e&&x.password===p);
-  if(!u){showErr(err,'Identifiants incorrects.');return;}
-  if(!['directeur','superviseur'].includes(u.role)){showErr(err,'Accès refusé — droits insuffisants.');return;}
-  setSession(e);CU=u;closeModal('modal-sup');enterSite();
+async function doSupLogin(){
+  const email = document.getElementById('sup-email').value.trim();
+  const pass  = document.getElementById('sup-pass').value;
+  const err   = document.getElementById('sup-err');
+  if(!email||!pass){ showErr(err,'Remplissez tous les champs.'); return; }
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+    closeModal('modal-sup');
+    // onAuthStateChanged gère la suite
+  } catch(e) {
+    showErr(err,'Identifiants incorrects.');
+  }
 }
+window.doSupLogin = doSupLogin;
 
-function doLogout(){clearSession();CU=null;showView('view-login');}
+async function doLogout(){
+  await signOut(auth);
+  CU = null;
+  showView('view-login');
+}
+window.doLogout = doLogout;
 
-// ============================================================
-// SITE
-// ============================================================
-function enterSite(){buildNav();updateBar();showView('view-site');showPage('accueil');}
+// ─── SITE ────────────────────────────────────────────────────
+function enterSite(){
+  hideSplash();
+  buildNav();
+  updateBar();
+  showView('view-site');
+  showPage('accueil');
+}
 
 function updateBar(){
-  if(!CU)return;
-  document.getElementById('disp-name').textContent=CU.cid;
-  const r=document.getElementById('disp-role');
-  const labels={directeur:'DIRECTEUR',superviseur:'SUPERVISEUR',membre:'MEMBRE'};
-  r.textContent=labels[CU.role]||CU.role;
-  r.className='role-tag '+CU.role;
-  const ab=document.getElementById('admin-btn');
-  ab.style.display=['directeur','superviseur'].includes(CU.role)?'':'none';
+  if(!CU) return;
+  document.getElementById('disp-name').textContent = CU.cid;
+  const r = document.getElementById('disp-role');
+  const labels = {directeur:'DIRECTEUR',superviseur:'SUPERVISEUR',membre:'MEMBRE'};
+  r.textContent = labels[CU.role]||CU.role;
+  r.className = 'role-tag '+CU.role;
+  document.getElementById('admin-btn').style.display = ['directeur','superviseur'].includes(CU.role)?'':'none';
 }
 
 function buildNav(){
-  const pages=gd('cwu_pages',[]);
-  const navPages=pages.filter(p=>p.navOrder!==undefined&&canAccess(CU.role,p.accessRoles)).sort((a,b)=>a.navOrder-b.navOrder);
-  const nav=document.getElementById('main-nav');
-  nav.innerHTML='';
-  navPages.forEach(p=>{
-    const b=document.createElement('button');
-    b.className='nav-btn';b.textContent=p.title;b.onclick=()=>showPage(p.id);b.id='nav-'+p.id;
+  const pages = Object.values(_DB.pages);
+  const navPages = pages
+    .filter(p => p.navOrder !== undefined && p.navOrder !== null && canAccess(CU.role, p.accessRoles))
+    .sort((a,b) => a.navOrder - b.navOrder);
+
+  const nav = document.getElementById('main-nav');
+  nav.innerHTML = '';
+  navPages.forEach(p => {
+    const b = document.createElement('button');
+    b.className='nav-btn'; b.textContent=p.title; b.onclick=()=>showPage(p.id); b.id='nav-'+p.id;
     nav.appendChild(b);
   });
 
-  const sb=document.getElementById('sidebar-nav');
-  sb.innerHTML='';
-  const sidebarPages=pages.filter(p=>p.inSidebar&&canAccess(CU.role,p.accessRoles));
-  const cats=[...new Set(sidebarPages.map(p=>p.category))];
-  cats.forEach(cat=>{
-    const sec=document.createElement('div');
-    sec.innerHTML=`<div class="sidebar-cat">${cat}</div>`;
+  const sb = document.getElementById('sidebar-nav');
+  sb.innerHTML = '';
+  const sidebarPages = pages.filter(p => p.inSidebar && canAccess(CU.role, p.accessRoles));
+  const cats = [...new Set(sidebarPages.map(p=>p.category))];
+  cats.forEach(cat => {
+    const label = document.createElement('div');
+    label.className='sidebar-cat'; label.textContent=cat; sb.appendChild(label);
     sidebarPages.filter(p=>p.category===cat).forEach(p=>{
-      const link=document.createElement('div');
+      const link = document.createElement('div');
       link.className='sidebar-link';
-      const locked=!canAccess(CU.role,p.accessRoles);
-      link.innerHTML=`<span class="sidebar-icon">▸</span>${p.title}${locked?'<span class="lock-icon">🔒</span>':''}`;
+      link.innerHTML=`<span class="sidebar-icon">▸</span>${p.title}`;
       link.id='slink-'+p.id;
-      if(!locked)link.onclick=()=>showPage(p.id);
+      link.onclick=()=>showPage(p.id);
       sb.appendChild(link);
     });
-    sb.appendChild(sec);
   });
-  // Always add a divider + reports link
-  const div2=document.createElement('hr');div2.className='sidebar-divider';sb.appendChild(div2);
+
+  const hr = document.createElement('hr'); hr.className='sidebar-divider'; sb.appendChild(hr);
   if(canAccess(CU.role,'membre')){
-    const rl=document.createElement('div');rl.className='sidebar-link';
+    const rl = document.createElement('div'); rl.className='sidebar-link';
     rl.innerHTML='<span class="sidebar-icon">📋</span>Mes rapports';
-    rl.onclick=()=>showPage('rapports');sb.appendChild(rl);
-    const wrl=document.createElement('div');wrl.className='sidebar-link';
+    rl.onclick=()=>showPage('rapports'); sb.appendChild(rl);
+    const wrl = document.createElement('div'); wrl.className='sidebar-link';
     wrl.innerHTML='<span class="sidebar-icon">✏️</span>Rédiger un rapport';
-    wrl.onclick=()=>showPage('write-report');sb.appendChild(wrl);
+    wrl.onclick=()=>showPage('write-report'); sb.appendChild(wrl);
   }
 }
+window.buildNav = buildNav;
 
 function showPage(id){
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.sidebar-link').forEach(b=>b.classList.remove('active'));
-  const nb=document.getElementById('nav-'+id);if(nb)nb.classList.add('active');
-  const sl=document.getElementById('slink-'+id);if(sl)sl.classList.add('active');
+  const nb=document.getElementById('nav-'+id); if(nb)nb.classList.add('active');
+  const sl=document.getElementById('slink-'+id); if(sl)sl.classList.add('active');
 
   if(id==='annonces'){renderAnnounces();return;}
   if(id==='rapports'){renderReports();return;}
   if(id==='write-report'){renderWriteReport();return;}
 
-  const pages=gd('cwu_pages',[]);
-  const page=pages.find(p=>p.id===id);
-  if(!page){document.getElementById('page-content').innerHTML='<div class="card"><div class="card-body">Page introuvable.</div></div>';return;}
-
-  // Access check
-  if(!canAccess(CU.role,page.accessRoles)){
-    document.getElementById('page-content').innerHTML=`<div class="access-denied">
-      <div class="access-denied-icon">🔒</div>
-      <div class="access-denied-title">ACCÈS REFUSÉ</div>
-      <div class="access-denied-sub">Ce salon est réservé aux grades supérieurs.</div>
-    </div>`;return;
+  const page = _DB.pages[id];
+  if(!page){ document.getElementById('page-content').innerHTML='<div class="card"><div class="card-body">Page introuvable.</div></div>'; return; }
+  if(!canAccess(CU.role, page.accessRoles)){
+    document.getElementById('page-content').innerHTML=`<div class="access-denied"><div class="access-denied-icon">🔒</div><div class="access-denied-title">ACCÈS REFUSÉ</div><div class="access-denied-sub">Ce salon est réservé aux grades supérieurs.</div></div>`;
+    return;
   }
-
   let html=`<div class="page-header"><div class="page-title"><span class="prefix">▸ ${page.category}</span>${page.title}</div></div>`;
-  if(page.content&&page.content.length){
-    page.content.forEach(s=>{
+  const content = Array.isArray(page.content) ? page.content : Object.values(page.content||{});
+  if(content.length){
+    content.forEach(s=>{
       html+=`<div class="card"><div class="card-title">${s.cat}</div><div class="card-body"><h3 style="color:var(--text-primary);font-size:15px;margin-bottom:6px;font-weight:600">${s.title}</h3><div style="white-space:pre-line;margin-top:6px">${s.body}</div></div></div>`;
     });
   } else {
@@ -641,28 +763,26 @@ function showPage(id){
   }
   document.getElementById('page-content').innerHTML=html;
 }
+window.showPage = showPage;
 
 function renderAnnounces(){
-  const anns=gd('cwu_announcements',[]);
+  const anns = Object.values(_DB.announcements).sort((a,b)=>b.id-a.id);
   let html=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Général</span>Annonces</div></div>`;
-  if(!anns.length)html+=`<div class="alert info">Aucune annonce publiée.</div>`;
-  else[...anns].reverse().forEach(a=>{html+=`<div class="ann-item"><div class="ann-meta">${a.date} — par ${a.author}</div><div class="ann-title">${a.title}</div><div class="ann-body">${a.body}</div></div>`;});
+  if(!anns.length) html+=`<div class="alert info">Aucune annonce publiée.</div>`;
+  else anns.forEach(a=>{
+    html+=`<div class="ann-item"><div class="ann-meta">${a.date} — par ${a.author}</div><div class="ann-title">${a.title}</div><div class="ann-body">${a.body}</div></div>`;
+  });
   document.getElementById('page-content').innerHTML=html;
 }
 
-// ============================================================
-// REPORTS
-// ============================================================
+// ─── RAPPORTS ────────────────────────────────────────────────
 function renderReports(){
-  const reports=gd('cwu_reports',[]);
-  // Filter by what user can see: directeurs/superviseurs see all, membres see their own
-  let visible=reports;
-  if(CU.role==='membre') visible=reports.filter(r=>r.authorEmail===CU.email);
-
-  const myCount=reports.filter(r=>r.authorEmail===CU.email).length;
-  const weekAgo=Date.now()-7*24*60*60*1000;
-  const weekCount=visible.filter(r=>new Date(r.date).getTime()>weekAgo).length;
-  const alertCount=visible.filter(r=>r.type==='alert').length;
+  const reports = Object.values(_DB.reports);
+  let visible = reports;
+  if(CU.role==='membre') visible = reports.filter(r=>r.authorEmail===CU.email);
+  const weekAgo = Date.now()-7*24*60*60*1000;
+  const weekCount = visible.filter(r=>new Date(r.date).getTime()>weekAgo).length;
+  const alertCount = visible.filter(r=>r.type==='alert').length;
 
   let statsHtml='';
   if(['superviseur','directeur'].includes(CU.role)){
@@ -673,6 +793,8 @@ function renderReports(){
       <div class="stat-card orange"><div class="stat-number">${visible.filter(r=>r.type==='prioritaire').length}</div><div class="stat-label">Prioritaires</div></div>
     </div>`;
   }
+  const authorFilter = ['superviseur','directeur'].includes(CU.role)
+    ? `<select id="rf-author" onchange="filterReports()"><option value="">Tous les auteurs</option>${[...new Set(visible.map(r=>r.author))].map(a=>`<option value="${a}">${a}</option>`).join('')}</select>` : '';
 
   let html=`<div class="page-header">
     <div class="page-title"><span class="prefix">▸ Activité</span>Registre des rapports</div>
@@ -680,7 +802,7 @@ function renderReports(){
   </div>
   ${statsHtml}
   <div class="report-filters">
-    <input type="text" id="rf-search" placeholder="Rechercher (matricule, nom, résumé...)" oninput="filterReports()">
+    <input type="text" id="rf-search" placeholder="Rechercher..." oninput="filterReports()">
     <select id="rf-type" onchange="filterReports()">
       <option value="">Tous les types</option>
       <option value="unite">Rapport unité</option>
@@ -688,7 +810,7 @@ function renderReports(){
       <option value="alert">Alerte</option>
       <option value="prioritaire">Prioritaire</option>
     </select>
-    ${['superviseur','directeur'].includes(CU.role)?`<select id="rf-author" onchange="filterReports()"><option value="">Tous les auteurs</option>${[...new Set(visible.map(r=>r.author))].map(a=>`<option value="${a}">${a}</option>`).join('')}</select>`:``}
+    ${authorFilter}
   </div>
   <div class="report-row">
     <div class="report-cell header">DATE</div>
@@ -703,6 +825,7 @@ function renderReports(){
   window._rVisible=visible;
   filterReports();
 }
+window.renderReports = renderReports;
 
 function filterReports(){
   const search=(document.getElementById('rf-search')||{}).value?.toLowerCase()||'';
@@ -715,7 +838,7 @@ function filterReports(){
   const container=document.getElementById('report-list');
   if(!container)return;
   if(!list.length){container.innerHTML=`<div class="alert info" style="margin-top:8px">Aucun rapport trouvé.</div>`;return;}
-  container.innerHTML=[...list].reverse().map(r=>`<div class="report-row" onclick="openReport('${r.id}')">
+  container.innerHTML=[...list].sort((a,b)=>new Date(b.date)-new Date(a.date)).map(r=>`<div class="report-row" onclick="openReport('${r.id}')">
     <div class="report-cell">${new Date(r.date).toLocaleDateString('fr-FR')}</div>
     <div class="report-cell">${r.matricule||'—'}</div>
     <div class="report-cell">${r.author||'—'}</div>
@@ -724,19 +847,16 @@ function filterReports(){
     <div class="report-cell">${r.files&&r.files.length?'📎 '+r.files.length:'—'}</div>
   </div>`).join('');
 }
-
-function typeLabel(t){const m={unite:'Unité',division:'Division',alert:'ALERTE',prioritaire:'Prioritaire'};return m[t]||t;}
+window.filterReports = filterReports;
 
 function openReport(id){
-  const reports=gd('cwu_reports',[]);
-  const r=reports.find(x=>x.id===id);
+  const r = _DB.reports[id];
   if(!r)return;
-  // Permission: membres can only see their own
   if(CU.role==='membre'&&r.authorEmail!==CU.email)return;
   const body=document.getElementById('modal-report-body');
   body.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--border)">
-    <div><span class="report-type-badge ${r.type}" style="font-size:11px">${typeLabel(r.type)}</span></div>
-    <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim)">${new Date(r.date).toLocaleString('fr-FR')}</div>
+    <span class="report-type-badge ${r.type}">${typeLabel(r.type)}</span>
+    <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim)">${new Date(r.date).toLocaleString('fr-FR')}</span>
   </div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
     <div class="report-detail-field"><div class="report-detail-label">AUTEUR</div><div class="report-detail-value">${r.author}</div></div>
@@ -745,189 +865,177 @@ function openReport(id){
     <div class="report-detail-field"><div class="report-detail-label">UNITÉS IMPLIQUÉES</div><div class="report-detail-value">${r.unites||'—'}</div></div>
   </div>
   <div class="report-detail-field" style="margin-bottom:14px"><div class="report-detail-label">RÉSUMÉ</div><div class="report-detail-value" style="white-space:pre-wrap;background:var(--bg-card);border:1px solid var(--border);padding:12px;margin-top:6px">${r.resume||'—'}</div></div>
-  ${r.notes?`<div class="report-detail-field" style="margin-bottom:14px"><div class="report-detail-label">NOTES SUPPLÉMENTAIRES</div><div class="report-detail-value" style="white-space:pre-wrap;background:var(--bg-card);border:1px solid var(--border);padding:12px;margin-top:6px">${r.notes}</div></div>`:''}
+  ${r.notes?`<div class="report-detail-field" style="margin-bottom:14px"><div class="report-detail-label">NOTES</div><div class="report-detail-value" style="white-space:pre-wrap;background:var(--bg-card);border:1px solid var(--border);padding:12px;margin-top:6px">${r.notes}</div></div>`:''}
   ${r.files&&r.files.length?`<div class="report-detail-field"><div class="report-detail-label">PIÈCES JOINTES</div><div style="margin-top:6px">${r.files.map(f=>`<div class="file-item"><span>${f.name}</span></div>`).join('')}</div></div>`:''}
-  ${['superviseur','directeur'].includes(CU.role)?`<div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border);display:flex;gap:8px"><button class="btn-sm del" onclick="deleteReport('${r.id}')">🗑 Supprimer</button></div>`:''}`;
+  ${['superviseur','directeur'].includes(CU.role)?`<div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border)"><button class="btn-sm del" onclick="deleteReport('${r.id}')">🗑 Supprimer</button></div>`:''}`;
   openModal('modal-report');
 }
+window.openReport = openReport;
 
-function deleteReport(id){
+async function deleteReport(id){
   if(!confirm('Supprimer ce rapport ?'))return;
-  const reports=gd('cwu_reports',[]).filter(r=>r.id!==id);
-  sd('cwu_reports',reports);
+  await remove(ref(db,`reports/${id}`));
   closeModal('modal-report');
   renderReports();
 }
+window.deleteReport = deleteReport;
 
 function renderWriteReport(){
   const canDiv=['superviseur','directeur'].includes(CU.role);
-  const canAlert=['superviseur','directeur'].includes(CU.role);
-  const html=`<div class="page-header">
-    <div class="page-title"><span class="prefix">▸ Activité</span>Rédiger un rapport</div>
-  </div>
+  const html=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Activité</span>Rédiger un rapport</div></div>
   <div class="report-form-tabs">
     <div class="rtab active" id="rtab-unite" onclick="switchReportTab('unite')">📋 RAPPORT UNITÉ</div>
     <div class="rtab ${canDiv?'':'locked'}" id="rtab-division" onclick="${canDiv?"switchReportTab('division')":''}">🔒 RAPPORT DIVISIONNAIRE</div>
-    <div class="rtab ${canAlert?'':'locked'}" id="rtab-alert" onclick="${canAlert?"switchReportTab('alert')":''}">⚠️ ALERTE</div>
+    <div class="rtab ${canDiv?'':'locked'}" id="rtab-alert" onclick="${canDiv?"switchReportTab('alert')":''}">⚠️ ALERTE</div>
     <div class="rtab ${canDiv?'':'locked'}" id="rtab-prioritaire" onclick="${canDiv?"switchReportTab('prioritaire')":''}">🔴 PRIORITAIRE</div>
   </div>
   <div id="report-form-content"></div>`;
   document.getElementById('page-content').innerHTML=html;
   switchReportTab('unite');
 }
+window.renderWriteReport = renderWriteReport;
 
 function switchReportTab(type){
-  document.querySelectorAll('.rtab').forEach(t=>{t.classList.remove('active');});
+  document.querySelectorAll('.rtab').forEach(t=>t.classList.remove('active'));
   const tab=document.getElementById('rtab-'+type);
   if(tab&&!tab.classList.contains('locked'))tab.classList.add('active');
   window._reportType=type;
-  const typeDescriptions={unite:'Rapport standard — visible par tous les membres.',division:'Rapport division — visible par superviseurs et directeurs.',alert:'Alerte — visible par superviseurs et directeurs.',prioritaire:'Rapport prioritaire — visible par la direction uniquement.'};
-  const visNote=typeDescriptions[type]||'';
-  const cfg=gd('cwu_grades',{});
-  const divOptions=(cfg.divisions||[]).map(d=>`<option>${d}</option>`).join('');
+  const descriptions={unite:'Rapport standard — visible par tous les membres.',division:'Rapport division — visible par superviseurs et directeurs.',alert:'Alerte — visible par superviseurs et directeurs.',prioritaire:'Rapport prioritaire — visible par la direction uniquement.'};
+  const divOpts=_DB.grades.divisions.map(d=>`<option>${d}</option>`).join('');
   document.getElementById('report-form-content').innerHTML=`
-  <div class="alert info" style="margin-bottom:18px">${visNote}</div>
+  <div class="alert info" style="margin-bottom:18px">${descriptions[type]}</div>
   <div class="form-section">
     <div class="form-section-title">// RAPPORT D'ACTIVITÉ — FORM-${String(['unite','division','alert','prioritaire'].indexOf(type)+1).padStart(2,'0')}</div>
     <div class="form-grid">
-      <div class="field">
-        <label>Type d'activité *</label>
-        <select id="fr-acttype">
-          <option value="">— Sélectionner —</option>
-          <option>Session de travaille</option><option>Réunion</option><option>Autre</option>
-        </select>
+      <div class="field"><label>Type d'activité *</label>
+        <select id="fr-acttype"><option value="">— Sélectionner —</option><option>Session de travail</option><option>Réunion</option><option>Patrouille</option><option>Autre</option></select>
       </div>
-      <div class="field">
-        <label>Secteur / Zone</label>
-        <input type="text" id="fr-secteur" placeholder="Ex: Secteur 3, Nexus, Slums...">
-      </div>
-      <div class="field">
-        <label>Division concernée</label>
-        <select id="fr-division"><option value="">— Aucune —</option>${divOptions}</select>
-      </div>
-      <div class="field">
-        <label>Unités impliquées (matricules)</label>
-        <input type="text" id="fr-unites" placeholder="Ex: 001, 023, 047">
-      </div>
-      <div class="field form-grid-1">
-        <label>Résumé de l'activité *</label>
-        <textarea id="fr-resume" style="min-height:110px" placeholder="Décrivez le déroulement de l'activité..."></textarea>
-      </div>
-      <div class="field form-grid-1">
-        <label>Notes supplémentaires</label>
-        <textarea id="fr-notes" style="min-height:70px" placeholder="Informations complémentaires (optionnel)"></textarea>
-      </div>
+      <div class="field"><label>Secteur / Zone</label><input type="text" id="fr-secteur" placeholder="Ex: Secteur 3, Nexus, Slums..."></div>
+      <div class="field"><label>Division concernée</label><select id="fr-division"><option value="">— Aucune —</option>${divOpts}</select></div>
+      <div class="field"><label>Unités impliquées (matricules)</label><input type="text" id="fr-unites" placeholder="Ex: 001, 023, 047"></div>
+      <div class="field form-grid-1"><label>Résumé de l'activité *</label><textarea id="fr-resume" style="min-height:110px" placeholder="Décrivez le déroulement..."></textarea></div>
+      <div class="field form-grid-1"><label>Notes supplémentaires</label><textarea id="fr-notes" style="min-height:70px" placeholder="Informations complémentaires (optionnel)"></textarea></div>
     </div>
     <div class="field">
-      <label>Pièces jointes (max 2, images uniquement)</label>
+      <label>Pièces jointes (max 2, images)</label>
       <div class="dropzone" id="drop-zone" onclick="document.getElementById('file-input').click()" ondragover="doDragOver(event)" ondrop="doDrop(event)">
         <div class="dropzone-text">📎 Glissez vos images ici ou <span class="dropzone-link">parcourir</span></div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);margin-top:4px">Images (jpg, png, webp). Maximum 2 fichiers.</div>
       </div>
       <input type="file" id="file-input" multiple accept="image/*" style="display:none" onchange="handleFiles(this.files)">
       <div class="file-list" id="file-list"></div>
     </div>
     <div class="form-actions">
       <span class="form-id">FORM-${String(['unite','division','alert','prioritaire'].indexOf(type)+1).padStart(2,'0')} // ${CU.matricule||'—'}</span>
-      <button class="btn-reset" onclick="resetReportForm()">RÉINITIALISER</button>
-      <button class="btn-submit" onclick="submitReport()">▶ SOUMETTRE LE RAPPORT</button>
+      <button class="btn-reset" onclick="switchReportTab(window._reportType||'unite')">RÉINITIALISER</button>
+      <button class="btn-submit" id="btn-submit-report" onclick="submitReport()">▶ SOUMETTRE</button>
     </div>
   </div>`;
-  window._reportFiles=[];
+  _rfFiles=[];
 }
+window.switchReportTab = switchReportTab;
 
-let _rfFiles=[];
 function doDragOver(e){e.preventDefault();document.getElementById('drop-zone').classList.add('dragover');}
 function doDrop(e){e.preventDefault();document.getElementById('drop-zone').classList.remove('dragover');handleFiles(e.dataTransfer.files);}
 function handleFiles(files){
-  const arr=Array.from(files).slice(0,2);
-  _rfFiles=arr;
-  const fl=document.getElementById('file-list');
-  fl.innerHTML=arr.map((f,i)=>`<div class="file-item"><span>📎 ${f.name}</span><button onclick="removeFile(${i})">✕</button></div>`).join('');
+  _rfFiles=Array.from(files).slice(0,2);
+  document.getElementById('file-list').innerHTML=_rfFiles.map((f,i)=>`<div class="file-item"><span>📎 ${f.name}</span><button onclick="removeFile(${i})">✕</button></div>`).join('');
 }
-function removeFile(i){_rfFiles.splice(i,1);const fl=document.getElementById('file-list');fl.innerHTML=_rfFiles.map((f,j)=>`<div class="file-item"><span>📎 ${f.name}</span><button onclick="removeFile(${j})">✕</button></div>`).join('');}
-function resetReportForm(){switchReportTab(window._reportType||'unite');}
+function removeFile(i){_rfFiles.splice(i,1);document.getElementById('file-list').innerHTML=_rfFiles.map((f,j)=>`<div class="file-item"><span>📎 ${f.name}</span><button onclick="removeFile(${j})">✕</button></div>`).join('');}
+window.doDragOver=doDragOver; window.doDrop=doDrop; window.handleFiles=handleFiles; window.removeFile=removeFile;
 
-function submitReport(){
+async function submitReport(){
   const acttype=document.getElementById('fr-acttype')?.value||'';
   const secteur=document.getElementById('fr-secteur')?.value.trim()||'';
   const resume=document.getElementById('fr-resume')?.value.trim()||'';
-  if(!acttype||!resume){alert('Remplissez au moins le type d\'activité et le résumé.');return;}
-  const reports=gd('cwu_reports',[]);
+  if(!acttype||!resume){alert("Remplissez le type d'activité et le résumé.");return;}
+  const btn=document.getElementById('btn-submit-report');
+  btn.disabled=true; btn.textContent='ENVOI...';
+
   const id='rpt-'+Date.now();
-  reports.push({
-    id,type:window._reportType||'unite',author:CU.cid,authorEmail:CU.email,
-    matricule:CU.matricule||'—',date:new Date().toISOString(),
-    acttype,secteur,
+  await set(ref(db,`reports/${id}`),{
+    id, type:window._reportType||'unite',
+    author:CU.cid, authorEmail:CU.email,
+    matricule:CU.matricule||'—',
+    date:new Date().toISOString(),
+    acttype, secteur,
     division:document.getElementById('fr-division')?.value||'',
     unites:document.getElementById('fr-unites')?.value.trim()||'',
-    resume,notes:document.getElementById('fr-notes')?.value.trim()||'',
+    resume,
+    notes:document.getElementById('fr-notes')?.value.trim()||'',
     files:_rfFiles.map(f=>({name:f.name}))
   });
-  sd('cwu_reports',reports);
   _rfFiles=[];
-  // Show success
-  document.getElementById('page-content').innerHTML=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Activité</span>Rapport soumis</div></div>
-  <div class="alert success">✓ Rapport soumis avec succès et enregistré dans le registre.</div>
+  document.getElementById('page-content').innerHTML=`
+  <div class="page-header"><div class="page-title"><span class="prefix">▸ Activité</span>Rapport soumis</div></div>
+  <div class="alert success">✓ Rapport soumis avec succès et enregistré dans Firebase.</div>
   <div style="margin-top:16px;display:flex;gap:10px">
     <button class="btn-submit" onclick="showPage('write-report')">✏️ Nouveau rapport</button>
     <button class="btn-reset" onclick="showPage('rapports')">📋 Voir les rapports</button>
   </div>`;
 }
+window.submitReport = submitReport;
 
-// ============================================================
-// ADMIN
-// ============================================================
-function goAdmin(){showView('view-admin');adminSec('members');}
-function goSite(){showView('view-site');}
+// ─── ADMIN ───────────────────────────────────────────────────
+function goAdmin(){ showView('view-admin'); adminSec('members'); }
+function goSite(){ showView('view-site'); }
+window.goAdmin=goAdmin; window.goSite=goSite;
 
-function adminSec(sec){
+function updatePendingCount(){
+  const n = Object.values(_DB.users).filter(u=>u.status==='pending').length;
+  const el=document.getElementById('pending-count'); if(el)el.textContent=n;
+}
+
+async function adminSec(sec){
   document.querySelectorAll('.admin-nav').forEach(e=>e.classList.remove('active'));
   const nav=document.getElementById('anav-'+sec.replace('-admin',''));
   if(nav)nav.classList.add('active');
   const c=document.getElementById('admin-content');
+  // Recharge les données fraîches
+  await loadAllData();
   updatePendingCount();
 
   if(sec==='members'){
-    const users=gd('cwu_users',[]).filter(u=>u.status==='approved');
+    const users=Object.values(_DB.users).filter(u=>u.status==='approved');
     let h=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Administration</span>Membres actifs</div></div>
-    <table class="data-table"><thead><tr><th>Matricule</th><th>CID</th><th>Steam</th><th>Division</th><th>Grade</th><th>Depuis</th><th>Actions</th></tr></thead><tbody>`;
+    <table class="data-table"><thead><tr><th>Mat.</th><th>CID</th><th>Steam</th><th>Division</th><th>Grade</th><th>Depuis</th><th>Actions</th></tr></thead><tbody>`;
     users.forEach(u=>{
       const d=u.joined?new Date(u.joined).toLocaleDateString('fr-FR'):'—';
       h+=`<tr><td>${u.matricule||'—'}</td><td>${u.cid}</td><td>${u.steam||'—'}</td><td>${u.division||'—'}</td>
       <td><span class="grade-tag grade-${u.role}">${u.role}</span></td><td>${d}</td>
-      <td>${u.email!==ADMIN_EMAIL?`<button class="btn-sm promote" onclick="promoteUser('${u.email}')">↑ Promouvoir</button><button class="btn-sm reject" onclick="demoteUser('${u.email}')">↓ Rétrograder</button><button class="btn-sm del" onclick="kickUser('${u.email}')">Retirer</button>`:'<span style="font-family:monospace;font-size:10px;color:var(--orange)">DIRECTEUR</span>'}</td></tr>`;
+      <td>${u.email!==ADMIN_EMAIL
+        ?`<button class="btn-sm promote" onclick="promoteUser('${u.email}')">↑ Promouvoir</button><button class="btn-sm reject" onclick="demoteUser('${u.email}')">↓ Rétrograder</button><button class="btn-sm del" onclick="kickUser('${u.email}')">Retirer</button>`
+        :'<span style="font-family:monospace;font-size:10px;color:var(--orange)">DIRECTEUR</span>'}</td></tr>`;
     });
-    h+='</tbody></table>';c.innerHTML=h;
+    h+='</tbody></table>'; c.innerHTML=h;
   }
   else if(sec==='pending'){
-    const users=gd('cwu_users',[]).filter(u=>u.status==='pending');
+    const users=Object.values(_DB.users).filter(u=>u.status==='pending');
     let h=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Administration</span>Demandes en attente</div></div>`;
-    if(!users.length)h+=`<div class="alert info">Aucune demande.</div>`;
-    else{h+=`<table class="data-table"><thead><tr><th>CID</th><th>Steam</th><th>Division</th><th>Email</th><th>Date</th><th>Actions</th></tr></thead><tbody>`;
-    users.forEach(u=>{const d=u.joined?new Date(u.joined).toLocaleDateString('fr-FR'):'—';
-    h+=`<tr><td>${u.cid}</td><td>${u.steam||'—'}</td><td>${u.division||'—'}</td><td>${u.email}</td><td>${d}</td>
-    <td><button class="btn-sm approve" onclick="approveUser('${u.email}')">✓ Accepter</button><button class="btn-sm reject" onclick="rejectUser('${u.email}')">✕ Refuser</button></td></tr>`});
-    h+='</tbody></table>';}c.innerHTML=h;
+    if(!users.length) h+=`<div class="alert info">Aucune demande en attente.</div>`;
+    else {
+      h+=`<table class="data-table"><thead><tr><th>CID</th><th>Steam</th><th>Division</th><th>Email</th><th>Date</th><th>Actions</th></tr></thead><tbody>`;
+      users.forEach(u=>{
+        const d=u.joined?new Date(u.joined).toLocaleDateString('fr-FR'):'—';
+        h+=`<tr><td>${u.cid}</td><td>${u.steam||'—'}</td><td>${u.division||'—'}</td><td>${u.email}</td><td>${d}</td>
+        <td><button class="btn-sm approve" onclick="approveUser('${u.email}')">✓ Accepter</button><button class="btn-sm reject" onclick="rejectUser('${u.email}')">✕ Refuser</button></td></tr>`;
+      });
+      h+='</tbody></table>';
+    }
+    c.innerHTML=h;
   }
   else if(sec==='grades'){
-    const cfg=gd('cwu_grades',{roles:['membre','superviseur','directeur'],divisions:[]});
     c.innerHTML=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Administration</span>Grades & Divisions</div></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
       <div class="card">
         <div class="card-title">Grades (hiérarchie fixe)</div>
         <div class="card-body">
-          ${cfg.roles.map((r,i)=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
-            <span class="grade-tag grade-${r}">${r}</span>
-            <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim)">Niveau ${i+1}</span>
-          </div>`).join('')}
-          <div style="margin-top:14px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim)">Les grades sont fixes et non modifiables.</div>
+          ${_DB.grades.roles.map((r,i)=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span class="grade-tag grade-${r}">${r}</span><span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim)">Niveau ${i+1}</span></div>`).join('')}
         </div>
       </div>
       <div class="card">
         <div class="card-title">Divisions</div>
         <div class="card-body">
-          <div id="div-list">${cfg.divisions.map((d,i)=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span>${d}</span><button class="btn-sm del" onclick="removeDiv(${i})">✕</button></div>`).join('')}</div>
+          <div id="div-list">${_DB.grades.divisions.map((d,i)=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span>${d}</span><button class="btn-sm del" onclick="removeDiv(${i})">✕</button></div>`).join('')}</div>
           <div style="display:flex;gap:8px;margin-top:14px">
             <input type="text" id="new-div" placeholder="Nouvelle division..." style="background:var(--bg-input);border:1px solid var(--border);color:var(--text-primary);padding:8px 12px;font-family:'Share Tech Mono',monospace;font-size:12px;outline:none;flex:1">
             <button class="btn-orange" onclick="addDiv()">+ Ajouter</button>
@@ -937,46 +1045,48 @@ function adminSec(sec){
     </div>`;
   }
   else if(sec==='reports-admin'){
-    const reports=gd('cwu_reports',[]);
+    const reports=Object.values(_DB.reports);
     const weekAgo=Date.now()-7*24*60*60*1000;
-    let h=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Administration</span>Tous les rapports</div><button class="btn-orange" onclick="exportReports()">📥 Exporter CSV</button></div>
+    let h=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Administration</span>Tous les rapports</div><button class="btn-orange" onclick="exportReports()">📥 CSV</button></div>
     <div class="stats-grid">
       <div class="stat-card blue"><div class="stat-number">${reports.length}</div><div class="stat-label">Total</div></div>
-      <div class="stat-card green"><div class="stat-number">${reports.filter(r=>new Date(r.date).getTime()>weekAgo).length}</div><div class="stat-label">Cette semaine</div></div>
+      <div class="stat-card green"><div class="stat-number">${reports.filter(r=>new Date(r.date).getTime()>weekAgo).length}</div><div class="stat-label">Semaine</div></div>
       <div class="stat-card red"><div class="stat-number">${reports.filter(r=>r.type==='alert').length}</div><div class="stat-label">Alertes</div></div>
       <div class="stat-card orange"><div class="stat-number">${reports.filter(r=>r.type==='prioritaire').length}</div><div class="stat-label">Prioritaires</div></div>
     </div>
     <table class="data-table"><thead><tr><th>Date</th><th>Auteur</th><th>Mat.</th><th>Type</th><th>Secteur</th><th>Actions</th></tr></thead><tbody>`;
-    [...reports].reverse().forEach(r=>{
+    [...reports].sort((a,b)=>new Date(b.date)-new Date(a.date)).forEach(r=>{
       h+=`<tr><td>${new Date(r.date).toLocaleDateString('fr-FR')}</td><td>${r.author}</td><td>${r.matricule||'—'}</td>
       <td><span class="report-type-badge ${r.type}">${typeLabel(r.type)}</span></td>
       <td>${r.secteur||'—'}</td>
-      <td><button class="btn-sm edit" onclick="adminOpenReport('${r.id}')">👁 Voir</button><button class="btn-sm del" onclick="adminDeleteReport('${r.id}')">🗑</button></td></tr>`;
+      <td><button class="btn-sm edit" onclick="openReport('${r.id}')">👁 Voir</button><button class="btn-sm del" onclick="adminDeleteReport('${r.id}')">🗑</button></td></tr>`;
     });
-    h+='</tbody></table>';c.innerHTML=h;
+    h+='</tbody></table>'; c.innerHTML=h;
   }
   else if(sec==='pages'){
-    const pages=gd('cwu_pages',[]);
-    const grades=gd('cwu_grades',{roles:['membre','superviseur','directeur']});
-    const roleOpts=grades.roles.map(r=>`<option>${r}</option>`).join('');
-    let h=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Administration</span>Pages du site</div></div><div class="pages-list">`;
+    const pages=Object.values(_DB.pages);
+    let h=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Administration</span>Pages du site</div></div>`;
     pages.forEach(p=>{
       h+=`<div class="page-item">
-        <div><div class="page-item-title">${p.title}</div>
-        <div class="page-item-meta">Catégorie: ${p.category} | Visible: ${formatAccess(p.accessRoles)} | Nav: ${p.navOrder!==undefined?'oui':'non'} | Sidebar: ${p.inSidebar?'oui':'non'}</div></div>
+        <div><div class="page-item-title">${p.title}</div><div class="page-item-meta">Catégorie: ${p.category} | Visible: ${formatAccess(p.accessRoles)} | Sidebar: ${p.inSidebar?'oui':'non'}</div></div>
         <div style="display:flex;gap:6px">
           <button class="btn-sm edit" onclick="openEditPage('${p.id}')">✏️ Modifier</button>
           ${p.id!=='accueil'&&p.id!=='annonces'?`<button class="btn-sm del" onclick="deletePage('${p.id}')">🗑</button>`:''}
         </div>
       </div>`;
     });
-    h+='</div>';c.innerHTML=h;
+    c.innerHTML=h;
   }
   else if(sec==='announcements'){
-    const anns=gd('cwu_announcements',[]);
+    const anns=Object.values(_DB.announcements).sort((a,b)=>b.id-a.id);
     let h=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Administration</span>Annonces</div><button class="btn-orange" onclick="adminSec('new-ann')">+ Nouvelle</button></div>`;
-    if(!anns.length)h+=`<div class="alert info">Aucune annonce.</div>`;
-    else[...anns].reverse().forEach(a=>{h+=`<div class="ann-item" style="display:flex;justify-content:space-between;align-items:flex-start"><div><div class="ann-meta">${a.date} — par ${a.author}</div><div class="ann-title">${a.title}</div><div class="ann-body">${a.body}</div></div><button class="btn-sm del" onclick="deleteAnn(${a.id})" style="flex-shrink:0;margin-left:14px">🗑</button></div>`;});
+    if(!anns.length) h+=`<div class="alert info">Aucune annonce.</div>`;
+    else anns.forEach(a=>{
+      h+=`<div class="ann-item" style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div><div class="ann-meta">${a.date} — par ${a.author}</div><div class="ann-title">${a.title}</div><div class="ann-body">${a.body}</div></div>
+        <button class="btn-sm del" onclick="deleteAnn('${a.id}')" style="flex-shrink:0;margin-left:14px">🗑</button>
+      </div>`;
+    });
     c.innerHTML=h;
   }
   else if(sec==='new-ann'){
@@ -992,8 +1102,7 @@ function adminSec(sec){
     </div>`;
   }
   else if(sec==='new-page'){
-    const grades=gd('cwu_grades',{roles:['membre','superviseur','directeur']});
-    const roleChecks=grades.roles.map(r=>`<label><input type="checkbox" name="np-access" value="${r}"> ${r}</label>`).join('');
+    const roleChecks=_DB.grades.roles.map(r=>`<label><input type="checkbox" name="np-access" value="${r}"> ${r}</label>`).join('');
     c.innerHTML=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Administration</span>Créer une page</div></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
       <div class="card">
@@ -1003,13 +1112,10 @@ function adminSec(sec){
         <div class="field"><label>ID unique (sans espaces)</label><input type="text" id="np-id" placeholder="Ex: procedures"></div>
         <div class="field"><label>Position nav (vide = hors nav)</label><input type="number" id="np-nav" placeholder="Ex: 4"></div>
         <div class="field"><label>Afficher dans sidebar</label><select id="np-sidebar"><option value="yes">Oui</option><option value="no">Non</option></select></div>
-        <div class="field">
-          <label>Visible par (grades)</label>
-          <div class="pill-check">
-            <label><input type="checkbox" name="np-access" value="tous" checked> Tous</label>
-            ${roleChecks}
-          </div>
-        </div>
+        <div class="field"><label>Visible par</label><div class="pill-check">
+          <label><input type="checkbox" name="np-access" value="tous" checked> Tous</label>
+          ${roleChecks}
+        </div></div>
       </div>
       <div class="card">
         <div class="card-title">Premier bloc de contenu</div>
@@ -1024,100 +1130,135 @@ function adminSec(sec){
     </div>`;
   }
   else if(sec==='config'){
-    const cfg=gd('cwu_config',{});
+    const cfg=_DB.config;
     c.innerHTML=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Administration</span>Configuration</div></div>
     <div class="card">
       <div class="card-title">Paramètres du site</div>
-      <div class="field"><label>Nom du site</label><input type="text" id="cfg-name" value="${cfg.siteName||'Civil Worker\'s Union'}"></div>
+      <div class="field"><label>Nom du site</label><input type="text" id="cfg-name" value="${cfg.siteName||"Civil Worker's Union"}"></div>
       <div class="field"><label>Sous-titre</label><input type="text" id="cfg-sub" value="${cfg.siteSubtitle||''}"></div>
       <div style="margin-top:14px"><button class="btn-orange" onclick="saveConfig()">SAUVEGARDER</button></div>
     </div>
     <div class="card" style="margin-top:14px">
-      <div class="card-title">Données</div>
+      <div class="card-title">Sauvegarde</div>
       <div class="card-body">
-        <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button class="btn-ghost" onclick="exportAllData()">📥 Exporter tout (JSON)</button>
-          <button class="btn-ghost" onclick="importData()">📤 Importer depuis JSON</button>
-          <button class="btn-sm del" onclick="resetSite()" style="padding:9px 16px;font-size:12px">⚠️ Réinitialiser le site</button>
-        </div>
+        <button class="btn-ghost" onclick="exportAllData()">📥 Exporter JSON</button>
       </div>
     </div>`;
   }
 }
+window.adminSec = adminSec;
 
-function formatAccess(a){
-  if(a==='tous'||a==='all')return 'Tous';
-  if(Array.isArray(a))return a.join(', ');
-  return a||'Tous';
+// ─── ACTIONS ADMIN ───────────────────────────────────────────
+async function approveUser(email){
+  const key=emailToKey(email);
+  await update(ref(db,`users/${key}`),{status:'approved'});
+  adminSec('pending');
 }
-
-function updatePendingCount(){
-  const n=(gd('cwu_users',[])).filter(u=>u.status==='pending').length;
-  const el=document.getElementById('pending-count');if(el)el.textContent=n;
+async function rejectUser(email){
+  const key=emailToKey(email);
+  await update(ref(db,`users/${key}`),{status:'rejected'});
+  adminSec('pending');
 }
-
-function approveUser(email){const users=gd('cwu_users',[]);const u=users.find(x=>x.email===email);if(u){u.status='approved';sd('cwu_users',users);adminSec('pending');}}
-function rejectUser(email){const users=gd('cwu_users',[]);const u=users.find(x=>x.email===email);if(u){u.status='rejected';sd('cwu_users',users);adminSec('pending');}}
-function kickUser(email){if(!confirm('Retirer ce membre ?'))return;sd('cwu_users',gd('cwu_users',[]).filter(u=>u.email!==email));adminSec('members');}
-function promoteUser(email){
-  const users=gd('cwu_users',[]);const u=users.find(x=>x.email===email);if(!u)return;
-  const i=ROLES.indexOf(u.role);if(i<ROLES.length-1){u.role=ROLES[i+1];sd('cwu_users',users);adminSec('members');}else alert('Grade maximum atteint.');
+async function kickUser(email){
+  if(!confirm('Retirer ce membre ?'))return;
+  await remove(ref(db,`users/${emailToKey(email)}`));
+  adminSec('members');
 }
-function demoteUser(email){
-  const users=gd('cwu_users',[]);const u=users.find(x=>x.email===email);if(!u)return;
-  const i=ROLES.indexOf(u.role);if(i>0){u.role=ROLES[i-1];sd('cwu_users',users);adminSec('members');}else alert('Grade minimum atteint.');
+async function promoteUser(email){
+  const u=_DB.users[emailToKey(email)]; if(!u)return;
+  const i=ROLES.indexOf(u.role);
+  if(i<ROLES.length-1){ await update(ref(db,`users/${emailToKey(email)}`),{role:ROLES[i+1]}); adminSec('members'); }
+  else alert('Grade maximum atteint.');
 }
-function addDiv(){
-  const val=document.getElementById('new-div').value.trim();if(!val)return;
-  const cfg=gd('cwu_grades',{roles:ROLES,divisions:[]});
-  cfg.divisions.push(val);sd('cwu_grades',cfg);adminSec('grades');
+async function demoteUser(email){
+  const u=_DB.users[emailToKey(email)]; if(!u)return;
+  const i=ROLES.indexOf(u.role);
+  if(i>0){ await update(ref(db,`users/${emailToKey(email)}`),{role:ROLES[i-1]}); adminSec('members'); }
+  else alert('Grade minimum atteint.');
 }
-function removeDiv(i){
-  const cfg=gd('cwu_grades',{roles:ROLES,divisions:[]});
-  cfg.divisions.splice(i,1);sd('cwu_grades',cfg);adminSec('grades');
+async function addDiv(){
+  const val=document.getElementById('new-div').value.trim(); if(!val)return;
+  const divs=[..._DB.grades.divisions,val];
+  const obj={}; divs.forEach((d,i)=>obj[i]=d);
+  await set(ref(db,'grades/divisions'),obj);
+  adminSec('grades');
 }
-function publishAnn(){
+async function removeDiv(i){
+  const divs=[..._DB.grades.divisions]; divs.splice(i,1);
+  const obj={}; divs.forEach((d,j)=>obj[j]=d);
+  await set(ref(db,'grades/divisions'),obj);
+  adminSec('grades');
+}
+async function publishAnn(){
   const title=document.getElementById('ann-title').value.trim();
   const body=document.getElementById('ann-body').value.trim();
   if(!title||!body){alert('Remplissez tous les champs.');return;}
-  const anns=gd('cwu_announcements',[]);
-  anns.push({id:Date.now(),author:CU?CU.cid:'Directeur',date:new Date().toLocaleDateString('fr-FR'),title,body});
-  sd('cwu_announcements',anns);adminSec('announcements');
+  const id=Date.now();
+  await set(ref(db,`announcements/${id}`),{
+    id, author:CU?CU.cid:'Directeur',
+    date:new Date().toLocaleDateString('fr-FR'),
+    title, body
+  });
+  adminSec('announcements');
 }
-function deleteAnn(id){if(!confirm('Supprimer ?'))return;sd('cwu_announcements',gd('cwu_announcements',[]).filter(a=>a.id!==id));adminSec('announcements');}
-function adminOpenReport(id){
-  // Temporarily set CU to directeur if in admin
-  openReport(id);
+async function deleteAnn(id){
+  if(!confirm('Supprimer ?'))return;
+  await remove(ref(db,`announcements/${id}`));
+  adminSec('announcements');
 }
-function adminDeleteReport(id){if(!confirm('Supprimer ce rapport ?'))return;sd('cwu_reports',gd('cwu_reports',[]).filter(r=>r.id!==id));adminSec('reports-admin');}
-function exportReports(){
-  const r=gd('cwu_reports',[]);
-  const csv=['Date,Auteur,Matricule,Type,Secteur,Division,Résumé'].concat(r.map(x=>[new Date(x.date).toLocaleDateString('fr-FR'),x.author,x.matricule,x.type,x.secteur,x.division,(x.resume||'').replace(/\n/g,' ')].map(v=>`"${v||''}"`).join(','))).join('\n');
-  const blob=new Blob([csv],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='rapports-cwu.csv';a.click();
+async function adminDeleteReport(id){
+  if(!confirm('Supprimer ce rapport ?'))return;
+  await remove(ref(db,`reports/${id}`));
+  adminSec('reports-admin');
 }
-function saveConfig(){
-  const cfg={siteName:document.getElementById('cfg-name').value,siteSubtitle:document.getElementById('cfg-sub').value};
-  sd('cwu_config',cfg);alert('Configuration sauvegardée !');
+async function saveConfig(){
+  await update(ref(db,'config'),{
+    siteName:document.getElementById('cfg-name').value,
+    siteSubtitle:document.getElementById('cfg-sub').value
+  });
+  alert('Configuration sauvegardée !');
 }
 function exportAllData(){
-  const data={users:gd('cwu_users',[]),pages:gd('cwu_pages',[]),reports:gd('cwu_reports',[]),announcements:gd('cwu_announcements',[]),grades:gd('cwu_grades',{}),config:gd('cwu_config',{})};
-  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='cwu-backup.json';a.click();
+  const data={users:_DB.users,pages:_DB.pages,reports:_DB.reports,announcements:_DB.announcements,grades:_DB.grades,config:_DB.config};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='cwu-backup.json';a.click();
 }
-function importData(){alert('Pour importer, utilisez la console du navigateur (F12) et collez vos données via localStorage.');}
-function resetSite(){if(!confirm('⚠️ Cela supprimera TOUTES les données. Continuer ?')||!confirm('Dernière confirmation : réinitialiser ?'))return;['cwu_users','cwu_pages','cwu_reports','cwu_announcements','cwu_grades','cwu_config'].forEach(k=>localStorage.removeItem(k));location.reload();}
+async function createPage(){
+  const title=document.getElementById('np-title').value.trim();
+  const cat=document.getElementById('np-cat').value.trim();
+  const id=document.getElementById('np-id').value.trim().replace(/\s+/g,'-').toLowerCase();
+  const navVal=document.getElementById('np-nav').value.trim();
+  const sidebar=document.getElementById('np-sidebar').value==='yes';
+  if(!title||!cat||!id){alert('Titre, catégorie et ID requis.');return;}
+  if(_DB.pages[id]){alert('Cet ID existe déjà.');return;}
+  const checked=[...document.querySelectorAll('input[name="np-access"]:checked')].map(x=>x.value);
+  const accessRoles=checked.includes('tous')?'tous':(checked.length?checked:'tous');
+  const blCat=document.getElementById('np-bl-cat').value.trim();
+  const blTitle=document.getElementById('np-bl-title').value.trim();
+  const blBody=document.getElementById('np-bl-body').value.trim();
+  const content=[];
+  if(blCat||blTitle||blBody) content.push({cat:blCat||'Section',title:blTitle||'Titre',body:blBody||''});
+  await set(ref(db,`pages/${id}`),{
+    id,title,category:cat,
+    navOrder:navVal!==''?parseInt(navVal):null,
+    inSidebar:sidebar,accessRoles,content
+  });
+  await loadAllData(); buildNav(); adminSec('pages');
+}
+async function deletePage(id){
+  if(!confirm('Supprimer ?'))return;
+  await remove(ref(db,`pages/${id}`));
+  await loadAllData(); buildNav(); adminSec('pages');
+}
 
-// ========= EDIT PAGE MODAL =========
-let _editPageId=null;
+// ─── EDIT PAGE MODAL ─────────────────────────────────────────
 function openEditPage(id){
   _editPageId=id;
-  const pages=gd('cwu_pages',[]);
-  const page=pages.find(p=>p.id===id);
-  if(!page)return;
-  const grades=gd('cwu_grades',{roles:ROLES});
+  const page=_DB.pages[id]; if(!page)return;
   const curAccess=Array.isArray(page.accessRoles)?page.accessRoles:[page.accessRoles];
-  const roleChecks=['tous',...grades.roles].map(r=>`<label><input type="checkbox" name="ep-access" value="${r}" ${curAccess.includes(r)||page.accessRoles==='tous'&&r==='tous'?'checked':''}> ${r}</label>`).join('');
-
-  let blks=(page.content||[]).map((s,i)=>`<div class="card" style="margin-bottom:10px">
+  const roleChecks=['tous',..._DB.grades.roles].map(r=>`<label><input type="checkbox" name="ep-access" value="${r}" ${curAccess.includes(r)||page.accessRoles==='tous'&&r==='tous'?'checked':''}> ${r}</label>`).join('');
+  const content=Array.isArray(page.content)?page.content:Object.values(page.content||{});
+  const blks=content.map((s,i)=>`<div class="card" style="margin-bottom:10px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
       <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--accent)">BLOC ${i+1}</span>
       <button class="btn-sm del" onclick="rmBlock(${i})">🗑</button>
@@ -1126,15 +1267,11 @@ function openEditPage(id){
     <div class="field"><label>Titre</label><input type="text" class="ep-title-${i}" value="${s.title}"></div>
     <div class="field"><label>Texte</label><textarea class="ep-body-${i}" style="min-height:70px">${s.body}</textarea></div>
   </div>`).join('');
-
   document.getElementById('edit-page-body').innerHTML=`
     <div class="field"><label>Titre</label><input type="text" id="ep-title" value="${page.title}"></div>
     <div class="field"><label>Catégorie</label><input type="text" id="ep-cat" value="${page.category}"></div>
     <div class="field"><label>Dans sidebar</label><select id="ep-sidebar"><option value="yes" ${page.inSidebar?'selected':''}>Oui</option><option value="no" ${!page.inSidebar?'selected':''}>Non</option></select></div>
-    <div class="field">
-      <label>Visible par (grades)</label>
-      <div class="pill-check">${roleChecks}</div>
-    </div>
+    <div class="field"><label>Visible par</label><div class="pill-check">${roleChecks}</div></div>
     <hr style="border-color:var(--border);margin:16px 0">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
       <span style="font-family:'Orbitron',monospace;font-size:12px;color:var(--orange)">BLOCS DE CONTENU</span>
@@ -1143,72 +1280,84 @@ function openEditPage(id){
     <div id="edit-blocks">${blks}</div>`;
   openModal('modal-edit-page');
 }
-
-function addBlock(){
-  const pages=gd('cwu_pages',[]);const page=pages.find(p=>p.id===_editPageId);if(!page)return;
-  page.content=page.content||[];page.content.push({cat:'Nouvelle section',title:'Nouveau titre',body:''});
-  sd('cwu_pages',pages);openEditPage(_editPageId);
+async function addBlock(){
+  const page=_DB.pages[_editPageId]; if(!page)return;
+  const content=Array.isArray(page.content)?[...page.content]:Object.values(page.content||{});
+  content.push({cat:'Nouvelle section',title:'Nouveau titre',body:''});
+  await set(ref(db,`pages/${_editPageId}/content`),content);
+  await loadAllData(); openEditPage(_editPageId);
 }
-function rmBlock(i){
-  const pages=gd('cwu_pages',[]);const page=pages.find(p=>p.id===_editPageId);if(!page)return;
-  page.content.splice(i,1);sd('cwu_pages',pages);openEditPage(_editPageId);
+async function rmBlock(i){
+  const page=_DB.pages[_editPageId]; if(!page)return;
+  const content=Array.isArray(page.content)?[...page.content]:Object.values(page.content||{});
+  content.splice(i,1);
+  await set(ref(db,`pages/${_editPageId}/content`),content);
+  await loadAllData(); openEditPage(_editPageId);
 }
-function saveEditedPage(){
-  const pages=gd('cwu_pages',[]);const page=pages.find(p=>p.id===_editPageId);if(!page)return;
-  page.title=document.getElementById('ep-title').value.trim()||page.title;
-  page.category=document.getElementById('ep-cat').value.trim()||page.category;
-  page.inSidebar=document.getElementById('ep-sidebar').value==='yes';
+async function saveEditedPage(){
+  const page=_DB.pages[_editPageId]; if(!page)return;
+  const content=Array.isArray(page.content)?page.content:Object.values(page.content||{});
   const checked=[...document.querySelectorAll('input[name="ep-access"]:checked')].map(x=>x.value);
-  page.accessRoles=checked.includes('tous')?'tous':checked;
-  const nc=[];(page.content||[]).forEach((_,i)=>{const cat=document.querySelector(`.ep-cat-${i}`)?.value||'';const title=document.querySelector(`.ep-title-${i}`)?.value||'';const body=document.querySelector(`.ep-body-${i}`)?.value||'';nc.push({cat,title,body});});
-  page.content=nc;sd('cwu_pages',pages);buildNav();closeModal('modal-edit-page');adminSec('pages');
+  const nc=[];
+  content.forEach((_,i)=>{
+    const cat=document.querySelector(`.ep-cat-${i}`)?.value||'';
+    const title=document.querySelector(`.ep-title-${i}`)?.value||'';
+    const body=document.querySelector(`.ep-body-${i}`)?.value||'';
+    nc.push({cat,title,body});
+  });
+  await update(ref(db,`pages/${_editPageId}`),{
+    title:document.getElementById('ep-title').value.trim()||page.title,
+    category:document.getElementById('ep-cat').value.trim()||page.category,
+    inSidebar:document.getElementById('ep-sidebar').value==='yes',
+    accessRoles:checked.includes('tous')?'tous':checked,
+    content:nc
+  });
+  await loadAllData(); buildNav(); closeModal('modal-edit-page'); adminSec('pages');
 }
-function deletePage(id){if(!confirm('Supprimer ?'))return;sd('cwu_pages',gd('cwu_pages',[]).filter(p=>p.id!==id));buildNav();adminSec('pages');}
-function createPage(){
-  const title=document.getElementById('np-title').value.trim();
-  const cat=document.getElementById('np-cat').value.trim();
-  const id=document.getElementById('np-id').value.trim().replace(/\s+/g,'-').toLowerCase();
-  const navVal=document.getElementById('np-nav').value.trim();
-  const sidebar=document.getElementById('np-sidebar').value==='yes';
-  if(!title||!cat||!id){alert('Titre, catégorie et ID requis.');return;}
-  const pages=gd('cwu_pages',[]);
-  if(pages.find(p=>p.id===id)){alert('Cet ID existe déjà.');return;}
-  const checked=[...document.querySelectorAll('input[name="np-access"]:checked')].map(x=>x.value);
-  const accessRoles=checked.includes('tous')?'tous':(checked.length?checked:'tous');
-  const blCat=document.getElementById('np-bl-cat').value.trim();
-  const blTitle=document.getElementById('np-bl-title').value.trim();
-  const blBody=document.getElementById('np-bl-body').value.trim();
-  const content=[];if(blCat||blTitle||blBody)content.push({cat:blCat||'Section',title:blTitle||'Titre',body:blBody||''});
-  pages.push({id,title,category:cat,navOrder:navVal!==''?parseInt(navVal):undefined,inSidebar:sidebar,accessRoles,content});
-  sd('cwu_pages',pages);buildNav();adminSec('pages');
+function exportReports(){
+  const r=Object.values(_DB.reports);
+  const csv=['Date,Auteur,Matricule,Type,Secteur,Division,Résumé'].concat(
+    r.map(x=>[new Date(x.date).toLocaleDateString('fr-FR'),x.author,x.matricule,x.type,x.secteur,x.division,(x.resume||'').replace(/\n/g,' ')].map(v=>`"${v||''}"`).join(','))
+  ).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='rapports-cwu.csv';a.click();
 }
+window.approveUser=approveUser; window.rejectUser=rejectUser; window.kickUser=kickUser;
+window.promoteUser=promoteUser; window.demoteUser=demoteUser;
+window.addDiv=addDiv; window.removeDiv=removeDiv;
+window.publishAnn=publishAnn; window.deleteAnn=deleteAnn;
+window.adminDeleteReport=adminDeleteReport; window.saveConfig=saveConfig;
+window.exportAllData=exportAllData; window.exportReports=exportReports;
+window.createPage=createPage; window.deletePage=deletePage;
+window.openEditPage=openEditPage; window.addBlock=addBlock;
+window.rmBlock=rmBlock; window.saveEditedPage=saveEditedPage;
+window.openModal=openModal; window.closeModal=closeModal;
 
-// ============================================================
-// FOOTER TIME
-// ============================================================
-function updateTime(){const el=document.getElementById('footer-time');if(el)el.textContent=new Date().toLocaleTimeString('fr-FR');}
+// ─── FOOTER HORLOGE ──────────────────────────────────────────
+function updateTime(){ const el=document.getElementById('footer-time'); if(el)el.textContent=new Date().toLocaleTimeString('fr-FR'); }
+setInterval(updateTime,1000); updateTime();
 
-// ============================================================
-// INIT
-// ============================================================
-initData();
-
-window.addEventListener('load',()=>{
-  setTimeout(()=>{
-    document.getElementById('loading-screen').classList.add('fade-out');
-    setTimeout(()=>document.getElementById('loading-screen').remove(),700);
-    CU=getSession();
-    if(CU&&CU.status==='approved')enterSite();
-    setInterval(updateTime,1000);updateTime();
-  },1800);
-});
-
+// ─── ENTER KEY ───────────────────────────────────────────────
 document.addEventListener('keydown',e=>{
   if(e.key==='Enter'){
     const lp=document.getElementById('panel-login');
     if(lp&&lp.classList.contains('active'))doLogin();
   }
 });
+
+// ─── DÉMARRAGE ───────────────────────────────────────────────
+(async()=>{
+  setLoading('Initialisation de la base de données...');
+  await initDefaultData();
+  setLoading('Chargement des données...');
+  await loadAllData();
+  setLoading('Authentification...');
+  // onAuthStateChanged gère le reste automatiquement
+  // Si pas d'utilisateur connecté après 3s, on affiche le login
+  setTimeout(()=>{
+    if(!auth.currentUser) hideSplash();
+  }, 3000);
+})();
 </script>
 </body>
 </html>
