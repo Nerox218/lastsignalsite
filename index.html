@@ -200,6 +200,15 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .firebase-status.loading{border-color:var(--orange);color:var(--orange);}
 .admin-creds-box{background:rgba(244,162,28,0.05);border:1px solid rgba(244,162,28,0.3);padding:14px 18px;margin-bottom:20px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--orange);line-height:2;}
 .admin-creds-box strong{display:block;font-size:12px;letter-spacing:1px;margin-bottom:4px;}
+
+/* ── DISCORD TOAST ── */
+.discord-toast{position:fixed;top:70px;right:20px;z-index:9000;font-family:'Share Tech Mono',monospace;font-size:11px;padding:8px 14px;border:1px solid;display:flex;align-items:center;gap:8px;animation:toastIn 0.3s ease;pointer-events:none;}
+.discord-toast.ok{background:rgba(56,161,105,0.12);border-color:#38a169;color:#68d391;}
+.discord-toast.err{background:rgba(229,62,62,0.12);border-color:var(--red);color:#fc8181;}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
+
+/* ── PENDING HIGHLIGHT BAR ── */
+.pending-alert-bar{background:rgba(244,162,28,0.08);border:1px solid rgba(244,162,28,0.35);border-left:3px solid var(--orange);padding:10px 16px;margin-bottom:16px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--orange);}
 </style>
 </head>
 <body>
@@ -228,14 +237,12 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
         <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">Connexion</button>
         <button class="tab-btn" id="tab-register" onclick="switchTab('register')">Demander l'entrée</button>
       </div>
-      <!-- CONNEXION -->
       <div class="tab-panel active" id="panel-login">
         <div class="err-msg" id="login-err"></div>
         <div class="field"><label>Email</label><input type="email" id="login-email" placeholder="exemple@email.com"></div>
         <div class="field"><label>Mot de passe</label><input type="password" id="login-pass" placeholder="••••••••"></div>
         <button class="btn-primary" id="btn-login" onclick="doLogin()">SE CONNECTER</button>
       </div>
-      <!-- INSCRIPTION -->
       <div class="tab-panel" id="panel-register">
         <div class="ok-msg" id="reg-ok"></div>
         <div class="err-msg" id="reg-err"></div>
@@ -344,9 +351,9 @@ import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
   signOut, onAuthStateChanged }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-/* ────────────────────────────────────────────────────────────
+/* ══════════════════════════════════════════════════════════════
    CONFIG
-──────────────────────────────────────────────────────────── */
+══════════════════════════════════════════════════════════════ */
 const firebaseConfig = {
   apiKey: "AIzaSyA7aaQo9lUvoPjqv93vH_xnAqWsuac5vrE",
   authDomain: "lastsignal-7f6e7.firebaseapp.com",
@@ -360,22 +367,160 @@ const app  = initializeApp(firebaseConfig);
 const db   = getDatabase(app);
 const auth = getAuth(app);
 
-/* ── IDENTIFIANTS ADMIN (MIS À JOUR) ── */
-const ADMIN_EMAIL    = 'alexandre.jacopin@gmail.com';
+/* ══════════════════════════════════════════════════════════════
+   DISCORD WEBHOOK
+══════════════════════════════════════════════════════════════ */
+const DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1503376518779375769/63RkX3iPRX6cCDzqN6cOZhPV119eKR9U9aqWtAcRWwe9FDImxlJ5DP9WMpA6TrtHN2qR';
+
+/**
+ * Retourne l'URL du site (sans query string ni hash).
+ * Sert à construire les deep links envoyés dans Discord.
+ */
+function getSiteUrl() {
+  return window.location.origin + window.location.pathname;
+}
+
+/**
+ * Envoie un embed formaté vers le webhook Discord.
+ */
+async function sendDiscord(embed) {
+  try {
+    const r = await fetch(DISCORD_WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ embeds: [embed] })
+    });
+    showDiscordToast(r.ok || r.status === 204 ? 'ok' : 'err',
+      r.ok || r.status === 204 ? '● Discord notifié' : '● Erreur Discord ' + r.status);
+  } catch(e) {
+    showDiscordToast('err', '● Discord non joignable');
+  }
+}
+
+/** Notification — nouvelle demande d'adhésion */
+async function dcNotifyRequest(cid, steam, division, email) {
+  const link = getSiteUrl() + '?admin=pending';
+  await sendDiscord({
+    title: '📋 Nouvelle demande d\'adhésion — CWU',
+    color: 0x00b4d8,
+    fields: [
+      { name: '👤 CID (Nom RP)',   value: cid      || '—', inline: true  },
+      { name: '🎮 Pseudo Steam',   value: steam    || '—', inline: true  },
+      { name: '🏢 Division',       value: division || 'Non renseigné', inline: true },
+      { name: '📧 Email',          value: email    || '—', inline: false },
+      {
+        name: '🔗 Gérer depuis le panneau admin',
+        value:
+          `**[→ Cliquez ici pour accéder aux demandes en attente](${link})**\n` +
+          `*(Connectez-vous avec votre compte directeur — la section s'ouvrira automatiquement)*`,
+        inline: false
+      }
+    ],
+    footer: { text: 'Civil Worker\'s Union — Last Signal RP' },
+    timestamp: new Date().toISOString()
+  });
+}
+
+/** Notification — membre approuvé */
+async function dcNotifyApproved(cid, email) {
+  await sendDiscord({
+    title: '✅ Demande acceptée — CWU',
+    color: 0x38a169,
+    fields: [
+      { name: '👤 CID',   value: cid   || '—', inline: true },
+      { name: '📧 Email', value: email || '—', inline: true },
+      { name: 'Statut',   value: 'Accès au site accordé ✔',  inline: false }
+    ],
+    footer: { text: 'Civil Worker\'s Union — Last Signal RP' },
+    timestamp: new Date().toISOString()
+  });
+}
+
+/** Notification — membre refusé */
+async function dcNotifyRejected(cid, email) {
+  await sendDiscord({
+    title: '❌ Demande refusée — CWU',
+    color: 0xe53e3e,
+    fields: [
+      { name: '👤 CID',   value: cid   || '—', inline: true },
+      { name: '📧 Email', value: email || '—', inline: true },
+      { name: 'Statut',   value: 'Accès refusé ✖',           inline: false }
+    ],
+    footer: { text: 'Civil Worker\'s Union — Last Signal RP' },
+    timestamp: new Date().toISOString()
+  });
+}
+
+/** Notification — rapport alerte / prioritaire */
+async function dcNotifyReport(type, author, secteur, resume) {
+  if (!['alert','prioritaire'].includes(type)) return;
+  const link = getSiteUrl() + '?admin=reports-admin';
+  await sendDiscord({
+    title: (type === 'alert' ? '🚨 Rapport ALERTE' : '🔴 Rapport PRIORITAIRE') + ' — CWU',
+    color: type === 'alert' ? 0xe53e3e : 0xf4a21c,
+    fields: [
+      { name: '✍️ Auteur',  value: author  || '—', inline: true  },
+      { name: '📍 Secteur', value: secteur || '—', inline: true  },
+      {
+        name: '📝 Résumé',
+        value: (resume || '—').substring(0, 300) + ((resume||'').length > 300 ? '…' : ''),
+        inline: false
+      },
+      {
+        name: '🔗 Voir dans le panneau admin',
+        value: `**[→ Accéder aux rapports](${link})**`,
+        inline: false
+      }
+    ],
+    footer: { text: 'Civil Worker\'s Union — Last Signal RP' },
+    timestamp: new Date().toISOString()
+  });
+}
+
+/** Toast de confirmation en haut à droite */
+function showDiscordToast(type, msg) {
+  const t = document.createElement('div');
+  t.className = `discord-toast ${type}`;
+  t.innerHTML = `<span>${type==='ok'?'🔔':'⚠️'}</span>${msg}`;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   DEEP LINK  ?admin=<section>
+   Après login d'un superviseur/directeur qui suit le lien
+   Discord, on l'envoie directement sur la bonne section admin.
+══════════════════════════════════════════════════════════════ */
+function handleDeepLink() {
+  const params = new URLSearchParams(window.location.search);
+  const target = params.get('admin');
+  if (!target) return false;
+  if (!CU || !['superviseur','directeur'].includes(CU.role)) return false;
+  // Nettoie l'URL sans recharger
+  window.history.replaceState({}, '', window.location.pathname);
+  showView('view-admin');
+  adminSec(target);
+  return true;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   CONFIG ADMIN & CONSTANTES
+══════════════════════════════════════════════════════════════ */
+const ADMIN_EMAIL    = 'alexandre.jacopin76@gmail.com';
 const ADMIN_PASSWORD = 'admin-cwu-2024';
 const ROLES = ['membre','superviseur','directeur'];
 
-/* ────────────────────────────────────────────────────────────
+/* ══════════════════════════════════════════════════════════════
    ÉTAT GLOBAL
-──────────────────────────────────────────────────────────── */
+══════════════════════════════════════════════════════════════ */
 let CU = null;
 let _DB = { users:{}, pages:{}, reports:{}, announcements:{}, grades:{roles:ROLES,divisions:[]}, config:{} };
 let _editPageId = null;
 let _splashDone = false;
 
-/* ────────────────────────────────────────────────────────────
-   INDICATEUR FIREBASE
-──────────────────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   FIREBASE STATUS
+══════════════════════════════════════════════════════════════ */
 const fbEl = document.getElementById('fb-status');
 onValue(ref(db,'.info/connected'), s=>{
   const ok=s.val();
@@ -383,9 +528,9 @@ onValue(ref(db,'.info/connected'), s=>{
   fbEl.className   = 'firebase-status '+(ok?'connected':'disconnected');
 });
 
-/* ────────────────────────────────────────────────────────────
+/* ══════════════════════════════════════════════════════════════
    UTILITAIRES
-──────────────────────────────────────────────────────────── */
+══════════════════════════════════════════════════════════════ */
 const emailToKey = e => e.replace(/\./g,'_dot_').replace(/@/g,'_at_');
 const roleLevel  = r => ROLES.indexOf(r);
 function canAccess(uRole, req){
@@ -401,79 +546,35 @@ function closeModal(id){ document.getElementById(id).classList.remove('active');
 function showView(id)  { document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); document.getElementById(id).classList.add('active'); }
 const fmtAccess = a => (!a||a==='tous')?'Tous':Array.isArray(a)?a.join(', '):a;
 const typeLabel = t => ({unite:'Unité',division:'Division',alert:'ALERTE',prioritaire:'Prioritaire'}[t]||t);
-
-function hideSplash(){
-  if(_splashDone) return; _splashDone=true;
-  const ls=document.getElementById('loading-screen');
-  if(ls){ ls.classList.add('fade-out'); setTimeout(()=>{ try{ls.remove();}catch(e){} },700); }
-}
+function hideSplash(){ if(_splashDone)return; _splashDone=true; const ls=document.getElementById('loading-screen'); if(ls){ls.classList.add('fade-out');setTimeout(()=>{try{ls.remove();}catch(e){}},700);} }
 function setMsg(m){ const el=document.getElementById('loading-msg'); if(el)el.textContent=m; }
 
-/* ────────────────────────────────────────────────────────────
-   INIT BASE DE DONNÉES (première visite seulement)
-──────────────────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   INIT BASE DE DONNÉES
+══════════════════════════════════════════════════════════════ */
 async function initDefaultData(){
   const snap=await get(ref(db,'config/siteName'));
-  if(snap.exists()) return; // Déjà initialisé
-
-  /* Crée le compte Firebase Auth pour l'admin.
-     Si le compte existe déjà → on ignore l'erreur silencieusement. */
-  try {
-    const cred = await createUserWithEmailAndPassword(auth, ADMIN_EMAIL, ADMIN_PASSWORD);
-    await signOut(auth); // Déconnecte tout de suite, onAuthStateChanged gérera plus tard
-  } catch(e){
-    if(e.code==='auth/email-already-in-use'){
-      // Compte déjà créé lors d'un précédent chargement → OK
-    } else {
-      console.warn('Admin init auth warn:', e.code);
-    }
-  }
-
-  // Profil admin en DB
-  await set(ref(db,`users/${emailToKey(ADMIN_EMAIL)}`),{
-    email:ADMIN_EMAIL, cid:'Alexandre J., Directeur', steam:'alexandre_jacopin',
-    role:'directeur', division:'Direction', status:'approved',
-    matricule:'001', joined:new Date().toISOString()
-  });
-
-  // Grades & Divisions
-  await set(ref(db,'grades'),{
-    roles:{0:'membre',1:'superviseur',2:'directeur'},
-    divisions:{0:'Logistique',1:'Maintenance',2:'Sécurité',3:'Administration',4:'Direction'}
-  });
-
-  // Config
-  await set(ref(db,'config'),{
-    siteName:"Civil Worker's Union",
-    siteSubtitle:'Centre Syndicale — Last Signal RP',
-    adminEmail:ADMIN_EMAIL
-  });
-
-  // Pages par défaut
+  if(snap.exists()) return;
+  try { await createUserWithEmailAndPassword(auth,ADMIN_EMAIL,ADMIN_PASSWORD); await signOut(auth); }
+  catch(e){ if(e.code!=='auth/email-already-in-use') console.warn('init warn:',e.code); }
+  await set(ref(db,`users/${emailToKey(ADMIN_EMAIL)}`),{ email:ADMIN_EMAIL,cid:'Alexandre J., Directeur',steam:'alexandre_jacopin',role:'directeur',division:'Direction',status:'approved',matricule:'001',joined:new Date().toISOString() });
+  await set(ref(db,'grades'),{ roles:{0:'membre',1:'superviseur',2:'directeur'}, divisions:{0:'Logistique',1:'Maintenance',2:'Sécurité',3:'Administration',4:'Direction'} });
+  await set(ref(db,'config'),{ siteName:"Civil Worker's Union",siteSubtitle:'Centre Syndicale — Last Signal RP',adminEmail:ADMIN_EMAIL });
   const pages=[
-    {id:'accueil',title:'Accueil',category:'Général',navOrder:0,inSidebar:false,accessRoles:'tous',content:[
-      {cat:'Bienvenue',title:"Civil Worker's Union",body:"Bienvenue dans le centre syndical de Last Signal. Le CWU est l'organisation civile officielle sous l'autorité de l'Union."},
-      {cat:'Directives',title:'Ordre du jour',body:"Toute demande d'adhésion doit être validée par un superviseur ou directeur.\nLes membres doivent se conformer aux règles de conduite du syndicat."}
-    ]},
-    {id:'reglement',title:'Règlement',category:'Syndicat',navOrder:1,inSidebar:true,accessRoles:'tous',content:[
-      {cat:'Code de conduite',title:'Règles générales',body:"I. Tout membre du CWU se doit d'obéir aux ordres de sa hiérarchie.\nII. La propagande anti-Union est interdite.\nIII. Tout comportement perturbateur sera sanctionné."},
-      {cat:'Sanctions',title:'Procédures disciplinaires',body:"Les manquements peuvent entraîner un avertissement, une suspension ou l'exclusion."}
-    ]},
+    {id:'accueil',title:'Accueil',category:'Général',navOrder:0,inSidebar:false,accessRoles:'tous',content:[{cat:'Bienvenue',title:"Civil Worker's Union",body:"Bienvenue dans le centre syndical de Last Signal."},{cat:'Directives',title:'Ordre du jour',body:"Toute demande d'adhésion doit être validée par un superviseur ou directeur."}]},
+    {id:'reglement',title:'Règlement',category:'Syndicat',navOrder:1,inSidebar:true,accessRoles:'tous',content:[{cat:'Code de conduite',title:'Règles générales',body:"I. Obéir aux ordres de sa hiérarchie.\nII. La propagande anti-Union est interdite.\nIII. Tout comportement perturbateur sera sanctionné."},{cat:'Sanctions',title:'Procédures disciplinaires',body:"Les manquements peuvent entraîner un avertissement, une suspension ou l'exclusion."}]},
     {id:'annonces',title:'Annonces',category:'Général',navOrder:2,inSidebar:false,accessRoles:'tous',content:[]},
     {id:'rapports',title:'Rapports',category:'Activité',navOrder:3,inSidebar:false,accessRoles:'membre',content:[]},
-    {id:'classifie',title:'Zone Classifiée',category:'Direction',navOrder:99,inSidebar:true,accessRoles:'superviseur',content:[
-      {cat:'CONFIDENTIEL',title:'Directives internes',body:'Ce salon est réservé aux superviseurs et directeurs.'}
-    ]}
+    {id:'classifie',title:'Zone Classifiée',category:'Direction',navOrder:99,inSidebar:true,accessRoles:'superviseur',content:[{cat:'CONFIDENTIEL',title:'Directives internes',body:'Réservé aux superviseurs et directeurs.'}]}
   ];
   for(const p of pages) await set(ref(db,`pages/${p.id}`),p);
-
   const annId=Date.now();
-  await set(ref(db,`announcements/${annId}`),{id:annId,author:'Direction',date:new Date().toLocaleDateString('fr-FR'),title:'Ouverture du centre syndical',body:"Le centre syndical de Last Signal est désormais opérationnel. Toutes les demandes d'adhésion sont ouvertes.",type:'info'});
+  await set(ref(db,`announcements/${annId}`),{id:annId,author:'Direction',date:new Date().toLocaleDateString('fr-FR'),title:'Ouverture du centre syndical',body:"Le centre syndical de Last Signal est désormais opérationnel.",type:'info'});
 }
 
-/* ────────────────────────────────────────────────────────────
+/* ══════════════════════════════════════════════════════════════
    CHARGEMENT DONNÉES
-──────────────────────────────────────────────────────────── */
+══════════════════════════════════════════════════════════════ */
 async function loadAll(){
   const snap=await get(ref(db)); const d=snap.val()||{};
   _DB.users=d.users||{};
@@ -484,16 +585,15 @@ async function loadAll(){
   _DB.announcements=d.announcements||{};
   _DB.config=d.config||{};
 }
-
 function startRealtime(){
   onValue(ref(db,'users'),         s=>{ _DB.users=s.val()||{}; updatePendingCount(); });
   onValue(ref(db,'reports'),       s=>{ _DB.reports=s.val()||{}; });
   onValue(ref(db,'announcements'), s=>{ _DB.announcements=s.val()||{}; });
 }
 
-/* ────────────────────────────────────────────────────────────
-   AUTH STATE — cœur du système
-──────────────────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   AUTH STATE
+══════════════════════════════════════════════════════════════ */
 onAuthStateChanged(auth, async fbUser=>{
   if(fbUser){
     const key=emailToKey(fbUser.email);
@@ -502,7 +602,10 @@ onAuthStateChanged(auth, async fbUser=>{
       if(snap.exists()){
         const ud=snap.val();
         if(ud.status==='approved'){
-          CU=ud; await loadAll(); startRealtime(); enterSite(); return;
+          CU=ud; await loadAll(); startRealtime();
+          // Deep link Discord ?admin=... → section admin directe
+          if(!handleDeepLink()) enterSite();
+          return;
         } else if(ud.status==='pending'){
           await signOut(auth); hideSplash();
           showErr(document.getElementById('login-err'),'Votre demande est en attente de validation.'); return;
@@ -517,9 +620,9 @@ onAuthStateChanged(auth, async fbUser=>{
   hideSplash();
 });
 
-/* ────────────────────────────────────────────────────────────
+/* ══════════════════════════════════════════════════════════════
    LOGIN / INSCRIPTION
-──────────────────────────────────────────────────────────── */
+══════════════════════════════════════════════════════════════ */
 function switchTab(t){
   ['login','register'].forEach(x=>{
     document.getElementById('tab-'+x).classList.toggle('active',x===t);
@@ -535,10 +638,8 @@ async function doLogin(){
   const btn=document.getElementById('btn-login');
   if(!email||!pass){ showErr(errEl,'Remplissez tous les champs.'); return; }
   btn.disabled=true; btn.textContent='CONNEXION...';
-  try {
-    await signInWithEmailAndPassword(auth,email,pass);
-    // onAuthStateChanged prend le relais
-  } catch(e){
+  try { await signInWithEmailAndPassword(auth,email,pass); }
+  catch(e){
     const codes={'auth/invalid-credential':'Email ou mot de passe incorrect.','auth/user-not-found':'Email ou mot de passe incorrect.','auth/wrong-password':'Email ou mot de passe incorrect.','auth/too-many-requests':'Trop de tentatives. Réessayez plus tard.','auth/network-request-failed':'Erreur réseau.'};
     showErr(errEl, codes[e.code]||'Identifiants incorrects.');
     btn.disabled=false; btn.textContent='SE CONNECTER';
@@ -546,12 +647,6 @@ async function doLogin(){
 }
 window.doLogin=doLogin;
 
-/* ──────────────────────────────────────────────
-   FIX INSCRIPTION : déconnexion immédiate après
-   createUserWithEmailAndPassword pour ne pas
-   déclencher onAuthStateChanged → enterSite()
-   alors que le compte est "pending".
-────────────────────────────────────────────── */
 async function doRegister(){
   const cid=document.getElementById('reg-cid').value.trim();
   const steam=document.getElementById('reg-steam').value.trim();
@@ -561,22 +656,14 @@ async function doRegister(){
   const errEl=document.getElementById('reg-err');
   const okEl=document.getElementById('reg-ok');
   const btn=document.getElementById('btn-register');
-
   if(!cid||!steam||!email||!pass){ showErr(errEl,'Remplissez tous les champs obligatoires.'); return; }
   if(pass.length<6){ showErr(errEl,'Mot de passe trop court (6 caractères minimum).'); return; }
   if(!/\S+@\S+\.\S+/.test(email)){ showErr(errEl,"Format d'email invalide."); return; }
-
   btn.disabled=true; btn.textContent='ENVOI...';
   errEl.style.display='none'; okEl.style.display='none';
-
   try {
-    /* 1 — Crée le compte Firebase Auth */
     await createUserWithEmailAndPassword(auth, email, pass);
-
-    /* 2 — CRITIQUE : déconnecte immédiatement pour bloquer onAuthStateChanged */
-    await signOut(auth);
-
-    /* 3 — Enregistre le profil "pending" dans la DB */
+    await signOut(auth); // Déconnecte immédiatement → ne déclenche pas enterSite()
     const mat=String(Object.keys(_DB.users).length+1).padStart(3,'0');
     await set(ref(db,`users/${emailToKey(email)}`),{
       email, cid, steam,
@@ -585,24 +672,15 @@ async function doRegister(){
       matricule:mat,
       joined:new Date().toISOString()
     });
-
-    /* 4 — Message de succès */
+    /* ── DISCORD : nouvelle demande ── */
+    await dcNotifyRequest(cid, steam, div||'Non renseigné', email);
     okEl.textContent='✓ Demande envoyée ! Un responsable examinera votre candidature.';
     okEl.style.display='block';
     ['reg-cid','reg-steam','reg-div','reg-email','reg-pass'].forEach(id=>document.getElementById(id).value='');
-
   } catch(e){
-    const codes={
-      'auth/email-already-in-use':'Cet email est déjà utilisé. Connectez-vous à la place.',
-      'auth/invalid-email':"Format d'email invalide.",
-      'auth/weak-password':'Mot de passe trop faible.',
-      'auth/network-request-failed':'Problème réseau. Vérifiez votre connexion.',
-      'auth/operation-not-allowed':'Les inscriptions sont temporairement désactivées.'
-    };
-    console.error('Register error:',e.code,e.message);
-    showErr(errEl, codes[e.code]||"Erreur lors de l'inscription. Réessayez.");
+    const codes={'auth/email-already-in-use':'Cet email est déjà utilisé.','auth/invalid-email':"Format d'email invalide.",'auth/weak-password':'Mot de passe trop faible.','auth/network-request-failed':'Problème réseau.','auth/operation-not-allowed':'Inscriptions désactivées.'};
+    showErr(errEl, codes[e.code]||"Erreur lors de l'inscription.");
   }
-
   btn.disabled=false; btn.textContent='ENVOYER LA DEMANDE';
 }
 window.doRegister=doRegister;
@@ -612,19 +690,17 @@ async function doSupLogin(){
   const pass=document.getElementById('sup-pass').value;
   const errEl=document.getElementById('sup-err');
   if(!email||!pass){ showErr(errEl,'Remplissez tous les champs.'); return; }
-  try {
-    await signInWithEmailAndPassword(auth,email,pass);
-    closeModal('modal-sup');
-  } catch(e){ showErr(errEl,'Identifiants incorrects.'); }
+  try { await signInWithEmailAndPassword(auth,email,pass); closeModal('modal-sup'); }
+  catch(e){ showErr(errEl,'Identifiants incorrects.'); }
 }
 window.doSupLogin=doSupLogin;
 
 async function doLogout(){ await signOut(auth); CU=null; showView('view-login'); }
 window.doLogout=doLogout;
 
-/* ────────────────────────────────────────────────────────────
+/* ══════════════════════════════════════════════════════════════
    SITE
-──────────────────────────────────────────────────────────── */
+══════════════════════════════════════════════════════════════ */
 function enterSite(){ buildNav(); updateBar(); showView('view-site'); showPage('accueil'); }
 
 function updateBar(){
@@ -639,17 +715,12 @@ function updateBar(){
 function buildNav(){
   const pages=Object.values(_DB.pages);
   const nav=document.getElementById('main-nav'); nav.innerHTML='';
-  pages.filter(p=>p.navOrder!=null&&canAccess(CU.role,p.accessRoles))
-    .sort((a,b)=>a.navOrder-b.navOrder)
-    .forEach(p=>{ const b=document.createElement('button'); b.className='nav-btn'; b.textContent=p.title; b.id='nav-'+p.id; b.onclick=()=>showPage(p.id); nav.appendChild(b); });
-
+  pages.filter(p=>p.navOrder!=null&&canAccess(CU.role,p.accessRoles)).sort((a,b)=>a.navOrder-b.navOrder).forEach(p=>{ const b=document.createElement('button'); b.className='nav-btn'; b.textContent=p.title; b.id='nav-'+p.id; b.onclick=()=>showPage(p.id); nav.appendChild(b); });
   const sb=document.getElementById('sidebar-nav'); sb.innerHTML='';
   const sp=pages.filter(p=>p.inSidebar&&canAccess(CU.role,p.accessRoles));
   [...new Set(sp.map(p=>p.category))].forEach(cat=>{
     const lbl=document.createElement('div'); lbl.className='sidebar-cat'; lbl.textContent=cat; sb.appendChild(lbl);
-    sp.filter(p=>p.category===cat).forEach(p=>{
-      const l=document.createElement('div'); l.className='sidebar-link'; l.innerHTML=`<span class="sidebar-icon">▸</span>${p.title}`; l.id='slink-'+p.id; l.onclick=()=>showPage(p.id); sb.appendChild(l);
-    });
+    sp.filter(p=>p.category===cat).forEach(p=>{ const l=document.createElement('div'); l.className='sidebar-link'; l.innerHTML=`<span class="sidebar-icon">▸</span>${p.title}`; l.id='slink-'+p.id; l.onclick=()=>showPage(p.id); sb.appendChild(l); });
   });
   const hr=document.createElement('hr'); hr.className='sidebar-divider'; sb.appendChild(hr);
   if(canAccess(CU.role,'membre')){
@@ -674,8 +745,8 @@ function showPage(id){
   }
   const content=Array.isArray(page.content)?page.content:Object.values(page.content||{});
   let html=`<div class="page-header"><div class="page-title"><span class="prefix">▸ ${page.category}</span>${page.title}</div></div>`;
-  if(content.length){ content.forEach(s=>{ html+=`<div class="card"><div class="card-title">${s.cat}</div><div class="card-body"><h3 style="color:var(--text-primary);font-size:15px;margin-bottom:6px;font-weight:600">${s.title}</h3><div style="white-space:pre-line;margin-top:6px">${s.body}</div></div></div>`; }); }
-  else html+=`<div class="card"><div class="card-body" style="color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:12px">Aucun contenu. Ajoutez depuis le panneau Admin.</div></div>`;
+  if(content.length) content.forEach(s=>{ html+=`<div class="card"><div class="card-title">${s.cat}</div><div class="card-body"><h3 style="color:var(--text-primary);font-size:15px;margin-bottom:6px;font-weight:600">${s.title}</h3><div style="white-space:pre-line;margin-top:6px">${s.body}</div></div></div>`; });
+  else html+=`<div class="card"><div class="card-body" style="color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:12px">Aucun contenu.</div></div>`;
   document.getElementById('page-content').innerHTML=html;
 }
 window.showPage=showPage;
@@ -688,7 +759,9 @@ function renderAnn(){
   document.getElementById('page-content').innerHTML=html;
 }
 
-/* ── RAPPORTS ── */
+/* ══════════════════════════════════════════════════════════════
+   RAPPORTS
+══════════════════════════════════════════════════════════════ */
 function renderReports(){
   const rpts=Object.values(_DB.reports);
   let vis=rpts; if(CU.role==='membre') vis=rpts.filter(r=>r.authorEmail===CU.email);
@@ -748,12 +821,18 @@ async function submitReport(){
   if(!act||!res){alert("Remplissez le type et le résumé.");return;}
   const btn=document.getElementById('btn-sub'); btn.disabled=true; btn.textContent='ENVOI...';
   const id='rpt-'+Date.now();
-  await set(ref(db,`reports/${id}`),{id,type:window._rType||'unite',author:CU.cid,authorEmail:CU.email,matricule:CU.matricule||'—',date:new Date().toISOString(),acttype:act,secteur:document.getElementById('fr-sec')?.value.trim()||'',division:document.getElementById('fr-div')?.value||'',unites:document.getElementById('fr-uni')?.value.trim()||'',resume:res,notes:document.getElementById('fr-not')?.value.trim()||''});
+  const type=window._rType||'unite';
+  const secteur=document.getElementById('fr-sec')?.value.trim()||'';
+  await set(ref(db,`reports/${id}`),{id,type,author:CU.cid,authorEmail:CU.email,matricule:CU.matricule||'—',date:new Date().toISOString(),acttype:act,secteur,division:document.getElementById('fr-div')?.value||'',unites:document.getElementById('fr-uni')?.value.trim()||'',resume:res,notes:document.getElementById('fr-not')?.value.trim()||''});
+  /* ── DISCORD : alerte / prioritaire seulement ── */
+  await dcNotifyReport(type, CU.cid, secteur, res);
   document.getElementById('page-content').innerHTML=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Activité</span>Rapport soumis</div></div><div class="alert success">✓ Rapport soumis avec succès.</div><div style="margin-top:16px;display:flex;gap:10px"><button class="btn-submit" onclick="showPage('write-report')">✏️ Nouveau rapport</button><button class="btn-reset" onclick="showPage('rapports')">📋 Voir les rapports</button></div>`;
 }
 window.submitReport=submitReport;
 
-/* ── ADMIN ── */
+/* ══════════════════════════════════════════════════════════════
+   ADMIN
+══════════════════════════════════════════════════════════════ */
 function goAdmin(){ showView('view-admin'); adminSec('members'); }
 function goSite() { showView('view-site'); }
 window.goAdmin=goAdmin; window.goSite=goSite;
@@ -769,17 +848,16 @@ async function adminSec(sec){
   if(sec==='members'){
     const users=Object.values(_DB.users).filter(u=>u.status==='approved');
     let h=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Admin</span>Membres actifs</div></div><table class="data-table"><thead><tr><th>Mat.</th><th>CID</th><th>Steam</th><th>Division</th><th>Grade</th><th>Depuis</th><th>Actions</th></tr></thead><tbody>`;
-    users.forEach(u=>{
-      const d=u.joined?new Date(u.joined).toLocaleDateString('fr-FR'):'—';
-      h+=`<tr><td>${u.matricule||'—'}</td><td>${u.cid}</td><td>${u.steam||'—'}</td><td>${u.division||'—'}</td><td><span class="grade-tag grade-${u.role}">${u.role}</span></td><td>${d}</td><td>${u.email!==ADMIN_EMAIL?`<button class="btn-sm promote" onclick="promoteUser('${u.email}')">↑</button><button class="btn-sm reject" onclick="demoteUser('${u.email}')">↓</button><button class="btn-sm del" onclick="kickUser('${u.email}')">✕</button>`:'<span style="color:var(--orange);font-family:monospace;font-size:10px">⬡ DIRECTEUR</span>'}</td></tr>`;
-    });
+    users.forEach(u=>{ const d=u.joined?new Date(u.joined).toLocaleDateString('fr-FR'):'—'; h+=`<tr><td>${u.matricule||'—'}</td><td>${u.cid}</td><td>${u.steam||'—'}</td><td>${u.division||'—'}</td><td><span class="grade-tag grade-${u.role}">${u.role}</span></td><td>${d}</td><td>${u.email!==ADMIN_EMAIL?`<button class="btn-sm promote" onclick="promoteUser('${u.email}')">↑</button><button class="btn-sm reject" onclick="demoteUser('${u.email}')">↓</button><button class="btn-sm del" onclick="kickUser('${u.email}')">✕</button>`:'<span style="color:var(--orange);font-family:monospace;font-size:10px">⬡ DIRECTEUR</span>'}</td></tr>`; });
     h+='</tbody></table>'; c.innerHTML=h;
   }
   else if(sec==='pending'){
     const users=Object.values(_DB.users).filter(u=>u.status==='pending');
     let h=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Admin</span>Demandes en attente</div></div>`;
-    if(!users.length) h+=`<div class="alert info">Aucune demande en attente.</div>`;
-    else {
+    if(!users.length){
+      h+=`<div class="alert info">Aucune demande en attente.</div>`;
+    } else {
+      h+=`<div class="pending-alert-bar">⚠️ ${users.length} demande${users.length>1?'s':''} en attente — Approuvez ou refusez chaque candidature.</div>`;
       h+=`<table class="data-table"><thead><tr><th>CID</th><th>Steam</th><th>Division</th><th>Email</th><th>Date</th><th>Actions</th></tr></thead><tbody>`;
       users.forEach(u=>{ const d=u.joined?new Date(u.joined).toLocaleDateString('fr-FR'):'—'; h+=`<tr><td>${u.cid}</td><td>${u.steam||'—'}</td><td>${u.division||'—'}</td><td>${u.email}</td><td>${d}</td><td><button class="btn-sm approve" onclick="approveUser('${u.email}')">✓ Accepter</button><button class="btn-sm reject" onclick="rejectUser('${u.email}')">✕ Refuser</button></td></tr>`; });
       h+='</tbody></table>';
@@ -820,19 +898,47 @@ async function adminSec(sec){
     c.innerHTML=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Admin</span>Configuration</div></div>
     <div class="admin-creds-box">
       <strong>⬡ COMPTE DIRECTEUR (VOS IDENTIFIANTS)</strong>
-      Email : alexandre.jacopin@gmail.com<br>
+      Email : alexandre.jacopin76@gmail.com<br>
       Mot de passe : admin-cwu-2024<br>
       <span style="opacity:0.6;font-size:10px">Utilisez ces identifiants sur la page "Connexion" ou "Accès superviseur"</span>
     </div>
-    <div class="card"><div class="card-title">Paramètres du site</div><div class="field"><label>Nom</label><input type="text" id="cfg-name" value="${cfg.siteName||"Civil Worker's Union"}"></div><div class="field"><label>Sous-titre</label><input type="text" id="cfg-sub" value="${cfg.siteSubtitle||''}"></div><div style="margin-top:14px"><button class="btn-orange" onclick="saveConfig()">SAUVEGARDER</button></div></div>
+    <div class="card">
+      <div class="card-title">🔔 Intégration Discord — Webhook actif</div>
+      <div class="card-body" style="font-size:13px;line-height:2">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-secondary)">
+          Les événements suivants déclenchent une notification dans votre salon Discord :<br>
+          📋 <b style="color:var(--accent)">Nouvelle demande d'adhésion</b> → lien direct vers la section <i>En attente</i><br>
+          ✅ <b style="color:var(--green)">Membre approuvé</b><br>
+          ❌ <b style="color:#fc8181">Membre refusé</b><br>
+          🚨 <b style="color:#fc8181">Rapport ALERTE</b> → lien direct vers les rapports<br>
+          🔴 <b style="color:var(--orange)">Rapport PRIORITAIRE</b> → lien direct vers les rapports
+        </div>
+        <div style="margin-top:12px;padding:10px 14px;background:rgba(0,180,216,0.06);border:1px solid var(--border);font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-secondary)">
+          💡 Depuis Discord, cliquez le lien → connectez-vous → vous arrivez directement sur la bonne section.
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:14px"><div class="card-title">Paramètres du site</div><div class="field"><label>Nom</label><input type="text" id="cfg-name" value="${cfg.siteName||"Civil Worker's Union"}"></div><div class="field"><label>Sous-titre</label><input type="text" id="cfg-sub" value="${cfg.siteSubtitle||''}"></div><div style="margin-top:14px"><button class="btn-orange" onclick="saveConfig()">SAUVEGARDER</button></div></div>
     <div class="card" style="margin-top:14px"><div class="card-title">Export & Sauvegarde</div><div class="card-body" style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn-ghost" onclick="exportAll()">📥 Backup JSON</button><button class="btn-ghost" onclick="exportReports()">📥 CSV Rapports</button></div></div>`;
   }
 }
 window.adminSec=adminSec;
 
-/* ── ACTIONS ADMIN ── */
-async function approveUser(e){ await update(ref(db,`users/${emailToKey(e)}`),{status:'approved'}); adminSec('pending'); }
-async function rejectUser(e) { await update(ref(db,`users/${emailToKey(e)}`),{status:'rejected'}); adminSec('pending'); }
+/* ══════════════════════════════════════════════════════════════
+   ACTIONS ADMIN — avec notifications Discord
+══════════════════════════════════════════════════════════════ */
+async function approveUser(e){
+  const u=_DB.users[emailToKey(e)];
+  await update(ref(db,`users/${emailToKey(e)}`),{status:'approved'});
+  if(u) await dcNotifyApproved(u.cid, u.email);
+  adminSec('pending');
+}
+async function rejectUser(e){
+  const u=_DB.users[emailToKey(e)];
+  await update(ref(db,`users/${emailToKey(e)}`),{status:'rejected'});
+  if(u) await dcNotifyRejected(u.cid, u.email);
+  adminSec('pending');
+}
 async function kickUser(e)   { if(!confirm('Retirer ce membre ?'))return; await remove(ref(db,`users/${emailToKey(e)}`)); adminSec('members'); }
 async function promoteUser(e){ const u=_DB.users[emailToKey(e)]; if(!u)return; const i=ROLES.indexOf(u.role); if(i<ROLES.length-1){await update(ref(db,`users/${emailToKey(e)}`),{role:ROLES[i+1]});adminSec('members');}else alert('Grade max atteint.'); }
 async function demoteUser(e) { const u=_DB.users[emailToKey(e)]; if(!u)return; const i=ROLES.indexOf(u.role); if(i>0){await update(ref(db,`users/${emailToKey(e)}`),{role:ROLES[i-1]});adminSec('members');}else alert('Grade min atteint.'); }
@@ -845,27 +951,21 @@ async function saveConfig(){ await update(ref(db,'config'),{siteName:document.ge
 function exportAll(){ const b=new Blob([JSON.stringify(_DB,null,2)],{type:'application/json'}); const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='cwu-backup.json';a.click(); }
 function exportReports(){ const r=Object.values(_DB.reports); const csv=['Date,Auteur,Matricule,Type,Secteur,Résumé'].concat(r.map(x=>[new Date(x.date).toLocaleDateString('fr-FR'),x.author,x.matricule,x.type,x.secteur,(x.resume||'').replace(/\n/g,' ')].map(v=>`"${v||''}"`).join(','))).join('\n'); const b=new Blob([csv],{type:'text/csv'}); const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='rapports.csv';a.click(); }
 async function createPage(){
-  const title=document.getElementById('np-title').value.trim();
-  const cat=document.getElementById('np-cat').value.trim();
-  const id=document.getElementById('np-id').value.trim().replace(/\s+/g,'-').toLowerCase();
-  const nav=document.getElementById('np-nav').value.trim();
-  const sb=document.getElementById('np-sb').value==='yes';
+  const title=document.getElementById('np-title').value.trim(), cat=document.getElementById('np-cat').value.trim(), id=document.getElementById('np-id').value.trim().replace(/\s+/g,'-').toLowerCase(), nav=document.getElementById('np-nav').value.trim(), sb=document.getElementById('np-sb').value==='yes';
   if(!title||!cat||!id){alert('Titre, catégorie et ID requis.');return;}
   if(_DB.pages[id]){alert('ID déjà utilisé.');return;}
   const chk=[...document.querySelectorAll('input[name="np-acc"]:checked')].map(x=>x.value);
   const access=chk.includes('tous')?'tous':(chk.length?chk:'tous');
   const bc=document.getElementById('np-bc').value.trim(), bt=document.getElementById('np-bt').value.trim(), bb=document.getElementById('np-bb').value.trim();
-  const content=[];
-  if(bc||bt||bb)content.push({cat:bc||'Section',title:bt||'Titre',body:bb||''});
+  const content=[]; if(bc||bt||bb)content.push({cat:bc||'Section',title:bt||'Titre',body:bb||''});
   await set(ref(db,`pages/${id}`),{id,title,category:cat,navOrder:nav!==''?parseInt(nav):null,inSidebar:sb,accessRoles:access,content});
   await loadAll(); buildNav(); alert(`✓ Page "${title}" créée !`); adminSec('pages');
 }
-async function delPage(id){ if(!confirm(`Supprimer la page ?`))return; await remove(ref(db,`pages/${id}`)); await loadAll(); buildNav(); adminSec('pages'); }
+async function delPage(id){ if(!confirm('Supprimer la page ?'))return; await remove(ref(db,`pages/${id}`)); await loadAll(); buildNav(); adminSec('pages'); }
 
-/* ── ÉDITION PAGE MODAL ── */
+/* ══ ÉDITION PAGE ══ */
 function openEditPage(id){
-  _editPageId=id;
-  const page=_DB.pages[id]; if(!page)return;
+  _editPageId=id; const page=_DB.pages[id]; if(!page)return;
   const cur=Array.isArray(page.accessRoles)?page.accessRoles:[page.accessRoles];
   const rc=['tous',...ROLES].map(r=>`<label><input type="checkbox" name="ep-acc" value="${r}" ${cur.includes(r)||(page.accessRoles==='tous'&&r==='tous')?'checked':''}> ${r}</label>`).join('');
   const content=Array.isArray(page.content)?page.content:Object.values(page.content||{});
@@ -894,20 +994,19 @@ window.createPage=createPage; window.delPage=delPage;
 window.openEditPage=openEditPage; window.addBlock=addBlock; window.rmBlock=rmBlock; window.saveEditedPage=saveEditedPage;
 window.openModal=openModal; window.closeModal=closeModal;
 
-/* ── HORLOGE ── */
+/* ══ HORLOGE ══ */
 function tick(){ const el=document.getElementById('footer-time'); if(el)el.textContent=new Date().toLocaleTimeString('fr-FR'); }
 setInterval(tick,1000); tick();
 
 document.addEventListener('keydown',e=>{ if(e.key==='Enter'){ const lp=document.getElementById('panel-login'); if(lp&&lp.classList.contains('active'))doLogin(); } });
 
-/* ── DÉMARRAGE ── */
+/* ══ DÉMARRAGE ══ */
 (async()=>{
   setMsg('Initialisation de la base de données...');
   try { await initDefaultData(); } catch(e){ console.warn('init warn:',e); }
   setMsg('Chargement des données...');
   try { await loadAll(); } catch(e){ console.warn('load warn:',e); }
   setMsg('Vérification de session...');
-  // Timeout de sécurité si Firebase Auth ne répond pas
   setTimeout(()=>{ if(!auth.currentUser) hideSplash(); }, 4500);
 })();
 </script>
