@@ -197,6 +197,270 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .firebase-status{position:fixed;bottom:22px;right:22px;font-family:'Share Tech Mono',monospace;font-size:10px;padding:5px 10px;border:1px solid var(--border);background:var(--bg-panel);z-index:200;}
 .firebase-status.connected{border-color:var(--green);color:var(--green);}
 .firebase-status.disconnected{border-color:var(--red);color:#fc8181;}
+.firebase-status.loading{border-color:var(--orange);color:var(--orange);}
+.admin-creds-box{background:rgba(244,162,28,0.05);border:1px solid rgba(244,162,28,0.3);padding:14px 18px;margin-bottom:20px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--orange);line-height:2;}
+.admin-creds-box strong{display:block;font-size:12px;letter-spacing:1px;margin-bottom:4px;}
+
+/* ── DISCORD TOAST ── */
+.discord-toast{position:fixed;top:70px;right:20px;z-index:9000;font-family:'Share Tech Mono',monospace;font-size:11px;padding:8px 14px;border:1px solid;display:flex;align-items:center;gap:8px;animation:toastIn 0.3s ease;pointer-events:none;}
+.discord-toast.ok{background:rgba(56,161,105,0.12);border-color:#38a169;color:#68d391;}
+.discord-toast.err{background:rgba(229,62,62,0.12);border-color:var(--red);color:#fc8181;}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
+
+/* ── PENDING HIGHLIGHT BAR ── */
+.pending-alert-bar{background:rgba(244,162,28,0.08);border:1px solid rgba(244,162,28,0.35);border-left:3px solid var(--orange);padding:10px 16px;margin-bottom:16px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--orange);}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+
+<div id="loading-screen">
+  <div class="loading-logo">CWU</div>
+  <div class="loading-text" id="loading-msg">Connexion à Firebase...</div>
+  <div class="loading-bar"><div class="loading-bar-fill"></div></div>
+</div>
+
+<div id="app">
+
+<!-- LOGIN -->
+<div id="view-login" class="view active">
+  <div class="login-wrap">
+    <div class="login-head">
+      <div class="cwu-hex">CWU</div>
+      <div><h1>Civil Worker's Union</h1><p>Centre Syndicale — Last Signal RP</p></div>
+    </div>
+    <div class="login-body">
+      <div class="login-title">Accès syndical</div>
+      <div class="login-sub">Connectez-vous ou demandez votre adhésion</div>
+      <div class="tab-bar">
+        <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">Connexion</button>
+        <button class="tab-btn" id="tab-register" onclick="switchTab('register')">Demander l'entrée</button>
+      </div>
+      <div class="tab-panel active" id="panel-login">
+        <div class="err-msg" id="login-err"></div>
+        <div class="field"><label>Email</label><input type="email" id="login-email" placeholder="exemple@email.com"></div>
+        <div class="field"><label>Mot de passe</label><input type="password" id="login-pass" placeholder="••••••••"></div>
+        <button class="btn-primary" id="btn-login" onclick="doLogin()">SE CONNECTER</button>
+      </div>
+      <div class="tab-panel" id="panel-register">
+        <div class="ok-msg" id="reg-ok"></div>
+        <div class="err-msg" id="reg-err"></div>
+        <div class="field"><label>CID (Nom RP + matricule)</label><input type="text" id="reg-cid" placeholder="Jack Latrousse, #52468"></div>
+        <div class="field"><label>Pseudo Steam</label><input type="text" id="reg-steam" placeholder="votre_pseudo_steam"></div>
+        <div class="field"><label>Division (optionnel)</label><input type="text" id="reg-div" placeholder="Ex: Logistique, Maintenance"></div>
+        <div class="field"><label>Email</label><input type="email" id="reg-email" placeholder="exemple@email.com"></div>
+        <div class="field"><label>Mot de passe (6+ caractères)</label><input type="password" id="reg-pass" placeholder="••••••••"></div>
+        <button class="btn-primary" id="btn-register" onclick="doRegister()">ENVOYER LA DEMANDE</button>
+      </div>
+      <div class="login-note">Votre entrée doit être validée par un responsable.</div>
+    </div>
+  </div>
+  <button class="sup-btn" onclick="openModal('modal-sup')">⬡ Accès superviseur</button>
+</div>
+
+<!-- SITE PRINCIPAL -->
+<div id="view-site" class="view">
+  <div class="topbar">
+    <div class="topbar-logo" onclick="showPage('accueil')">
+      <div class="cwu-hex">CWU</div>
+      <div class="logo-text">Civil Worker's Union<span>Centre Syndicale — Last Signal</span></div>
+    </div>
+    <nav class="topbar-nav" id="main-nav"></nav>
+    <div class="topbar-right">
+      <div class="user-badge">
+        <span class="status-dot on"></span>
+        <span id="disp-name">—</span>
+        <span class="role-tag" id="disp-role">—</span>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">DÉCONN.</button>
+      <button class="logout-btn" id="admin-btn" onclick="goAdmin()" style="border-color:var(--orange);color:var(--orange);display:none">⬡ ADMIN</button>
+    </div>
+  </div>
+  <div class="site-layout">
+    <aside class="sidebar" id="sidebar-nav"></aside>
+    <main class="content-area" id="page-content"></main>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-text">© Civil Worker's Union — Last Signal RP</div>
+    <div class="footer-text">SYSTÈME ACTIF — <span id="footer-time"></span></div>
+  </footer>
+</div>
+
+<!-- ADMIN -->
+<div id="view-admin" class="view">
+  <div class="admin-bar">
+    <div class="admin-bar-title">⬡ PANNEAU DE CONTRÔLE <span class="admin-badge">DIRECTION</span></div>
+    <div style="display:flex;align-items:center;gap:14px;">
+      <span class="back-link" onclick="goSite()">← Retour au site</span>
+      <button class="logout-btn" onclick="doLogout()">DÉCONN.</button>
+    </div>
+  </div>
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="admin-nav active" id="anav-members"   onclick="adminSec('members')">👥 Membres</div>
+      <div class="admin-nav"        id="anav-pending"   onclick="adminSec('pending')">⏳ En attente <span class="notif-badge" id="pending-count">0</span></div>
+      <div class="admin-nav"        id="anav-grades"    onclick="adminSec('grades')">🏷 Grades & Divisions</div>
+      <div class="admin-nav"        id="anav-reports"   onclick="adminSec('reports-admin')">📋 Rapports</div>
+      <div class="admin-nav"        id="anav-pages"     onclick="adminSec('pages')">📄 Pages du site</div>
+      <div class="admin-nav"        id="anav-ann"       onclick="adminSec('announcements')">📢 Annonces</div>
+      <div class="admin-nav"        id="anav-newpage"   onclick="adminSec('new-page')">➕ Nouvelle page</div>
+      <div class="admin-nav"        id="anav-config"    onclick="adminSec('config')">⚙️ Configuration</div>
+    </aside>
+    <div class="admin-content" id="admin-content"></div>
+  </div>
+</div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-sup">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title">⬡ ACCÈS SUPERVISEUR / DIRECTEUR</div><button class="modal-close" onclick="closeModal('modal-sup')">✕</button></div>
+    <div class="modal-body">
+      <div class="err-msg" id="sup-err"></div>
+      <div class="field"><label>Email</label><input type="email" id="sup-email" placeholder="email@exemple.com"></div>
+      <div class="field"><label>Mot de passe</label><input type="password" id="sup-pass" placeholder="••••••••"></div>
+    </div>
+    <div class="modal-footer"><button class="btn-ghost" onclick="closeModal('modal-sup')">Annuler</button><button class="btn-orange" onclick="doSupLogin()">ACCÉDER</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-edit-page">
+  <div class="modal wide">
+    <div class="modal-head"><div class="modal-title">✏️ MODIFIER LA PAGE</div><button class="modal-close" onclick="closeModal('modal-edit-page')">✕</button></div>
+    <div class="modal-body" id="edit-page-body" style="max-height:70vh;overflow-y:auto;"></div>
+    <div class="modal-footer"><button class="btn-ghost" onclick="closeModal('modal-edit-page')">Annuler</button><button class="btn-orange" onclick="saveEditedPage()">SAUVEGARDER</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-report">
+  <div class="modal wide">
+    <div class="modal-head"><div class="modal-title">📋 RAPPORT D'ACTIVITÉ</div><button class="modal-close" onclick="closeModal('modal-report')">✕</button></div>
+    <div class="modal-body" id="modal-report-body" style="max-height:75vh;overflow-y:auto;"></div>
+    <div class="modal-footer"><button class="btn-ghost" onclick="closeModal('modal-report')">Fermer</button></div>
+  </div>
+</div>
+
+<div class="firebase-status loading" id="fb-status">● FIREBASE...</div>
+
+<script type="module">
+import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, get, remove, update, onValue }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+  signOut, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+/* ══════════════════════════════════════════════════════════════
+   CONFIG
+══════════════════════════════════════════════════════════════ */
+const firebaseConfig = {
+  apiKey: "AIzaSyA7aaQo9lUvoPjqv93vH_xnAqWsuac5vrE",
+  authDomain: "lastsignal-7f6e7.firebaseapp.com",
+  databaseURL: "https://lastsignal-7f6e7-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "lastsignal-7f6e7",
+  storageBucket: "lastsignal-7f6e7.firebasestorage.app",
+  messagingSenderId: "523051023821",
+  appId: "1:523051023821:web:50da417109bb0b9bed9884"
+};
+const app  = initializeApp(firebaseConfig);
+const db   = getDatabase(app);
+const auth = getAuth(app);
+
+/* ══════════════════════════════════════════════════════════════
+   DISCORD WEBHOOK
+══════════════════════════════════════════════════════════════ */
+const DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1503376518779375769/63RkX3iPRX6cCDzqN6cOZhPV119eKR9U9aqWtAcRWwe9FDImxlJ5DP9WMpA6TrtHN2qR';
+
+/**
+ * Retourne l'URL du site (sans query string ni hash).
+ * Sert à construire les deep links envoyés dans Discord.
+ */
+function getSiteUrl() {
+  return window.location.origin + window.location.pathname;
+}
+
+/**
+ * Envoie un embed formaté vers le webhook Discord.
+ */
+async function sendDiscord(embed) {
+  try {
+    const r = await fetch(DISCORD_WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ embeds: [embed] })
+    });
+    showDiscordToast(r.ok || r.status === 204 ? 'ok' : 'err',
+      r.ok || r.status === 204 ? '● Discord notifié' : '● Erreur Discord ' + r.status);
+  } catch(e) {
+    showDiscordToast('err', '● Discord non joignable');
+  }
+}
+
+/** Notification — nouvelle demande d'adhésion */
+async function dcNotifyRequest(cid, steam, division, email) {
+  const link = getSiteUrl() + '?admin=pending';
+  await sendDiscord({
+    title: '📋 Nouvelle demande d\'adhésion — CWU',
+    color: 0x00b4d8,
+    fields: [
+      { name: '👤 CID (Nom RP)',   value: cid      || '—', inline: true  },
+      { name: '🎮 Pseudo Steam',   value: steam    || '—', inline: true  },
+      { name: '🏢 Division',       value: division || 'Non renseigné', inline: true },
+      { name: '📧 Email',          value: email    || '—', inline: false },
+      {
+        name: '🔗 Gérer depuis le panneau admin',
+        value:
+          `**[→ Cliquez ici pour accéder aux demandes en attente](${link})**\n` +
+          `*(Connectez-vous avec votre compte directeur — la section s'ouvrira automatiquement)*`,
+        inline: false
+      }
+    ],
+    footer: { text: 'Civil Worker\'s Union — Last Signal RP' },
+    timestamp: new Date().toISOString()
+  });
+}
+
+/** Notification — membre approuvé */
+async function dcNotifyApproved(cid, email) {
+  await sendDiscord({
+    title: '✅ Demande acceptée — CWU',
+    color: 0x38a169,
+    fields: [
+      { name: '👤 CID',   value: cid   || '—', inline: true },
+      { name: '📧 Email', value: email || '—', inline: true },
+      { name: 'Statut',   value: 'Accès au site accordé ✔',  inline: false }
+    ],
+    footer: { text: 'Civil Worker\'s Union — Last Signal RP' },
+    timestamp: new Date().toISOString()
+  });
+}
+
+/** Notification — membre refusé */
+async function dcNotifyRejected(cid, email) {
+  await sendDiscord({
+    title: '❌ Demande refusée — CWU',
+    color: 0xe53e3e,
+    fields: [
+      { name: '👤 CID',   value: cid   || '—', inline: true },
+      { name: '📧 Email', value: email || '—', inline: true },
+      { name: 'Statut',   value: 'Accès refusé ✖',           inline: false }
+    ],
+    footer: { text: 'Civil Worker\'s Union — Last Signal RP' },
+    timestamp: new Date().toISOString()
+  });
+}
+
+/** Notification — rapport alerte / prioritaire */
+async function dcNotifyReport(type, author, secteur, resume) {
+  if (!['alert','prioritaire'].includes(type)) return;
+  const link = getSiteUrl() + '?admin=reports-admin';
+  await sendDiscord({
+    title: (type === 'alert' ? '🚨 Rapport ALERTE' : '🔴 Rapport PRIORITAIRE') + ' — CWU',
+    color: type === 'alert' ? 0xe53e3e : 0xf4a21c,
+    fields: [
+      { name: '✍️ Auteur',  value: author  || '—', inline: true  },
+      { name: '📍 Secteur', value: secteur || '—', inline: true  },
       {
         name: '📝 Résumé',
         value: (resume || '—').substring(0, 300) + ((resume||'').length > 300 ? '…' : ''),
@@ -212,6 +476,7 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
     timestamp: new Date().toISOString()
   });
 }
+
 /** Toast de confirmation en haut à droite */
 function showDiscordToast(type, msg) {
   const t = document.createElement('div');
@@ -220,6 +485,7 @@ function showDiscordToast(type, msg) {
   document.body.appendChild(t);
   setTimeout(() => t.remove(), 3500);
 }
+
 /* ══════════════════════════════════════════════════════════════
    DEEP LINK  ?admin=<section>
    Après login d'un superviseur/directeur qui suit le lien
@@ -236,24 +502,22 @@ function handleDeepLink() {
   adminSec(target);
   return true;
 }
+
 /* ══════════════════════════════════════════════════════════════
    CONFIG ADMIN & CONSTANTES
 ══════════════════════════════════════════════════════════════ */
 const ADMIN_EMAIL    = 'alexandre.jacopin76@gmail.com';
 const ADMIN_PASSWORD = 'admin-cwu-2024';
 const ROLES = ['membre','superviseur','directeur'];
-/* ────────────────────────────────────────────────────────────
+
 /* ══════════════════════════════════════════════════════════════
    ÉTAT GLOBAL
-──────────────────────────────────────────────────────────── */
 ══════════════════════════════════════════════════════════════ */
 let CU = null;
 let _DB = { users:{}, pages:{}, reports:{}, announcements:{}, grades:{roles:ROLES,divisions:[]}, config:{} };
 let _editPageId = null;
 let _splashDone = false;
-/* ────────────────────────────────────────────────────────────
-   INDICATEUR FIREBASE
-──────────────────────────────────────────────────────────── */
+
 /* ══════════════════════════════════════════════════════════════
    FIREBASE STATUS
 ══════════════════════════════════════════════════════════════ */
@@ -263,64 +527,33 @@ onValue(ref(db,'.info/connected'), s=>{
   fbEl.textContent = ok?'● FIREBASE CONNECTÉ':'● HORS LIGNE';
   fbEl.className   = 'firebase-status '+(ok?'connected':'disconnected');
 });
-/* ────────────────────────────────────────────────────────────
+
 /* ══════════════════════════════════════════════════════════════
    UTILITAIRES
-──────────────────────────────────────────────────────────── */
 ══════════════════════════════════════════════════════════════ */
 const emailToKey = e => e.replace(/\./g,'_dot_').replace(/@/g,'_at_');
 const roleLevel  = r => ROLES.indexOf(r);
 function canAccess(uRole, req){
-@@ -401,79 +546,35 @@
+  if(!req||req==='tous'||req==='all') return true;
+  const arr=Array.isArray(req)?req:[req];
+  if(arr.includes('tous')||arr.includes('all')) return true;
+  const min=Math.min(...arr.map(r=>roleLevel(r)).filter(l=>l>=0));
+  return roleLevel(uRole)>=min;
+}
+function showErr(el,msg){ el.textContent=msg; el.style.display='block'; setTimeout(()=>el.style.display='none',5000); }
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id){ document.getElementById(id).classList.remove('active'); }
 function showView(id)  { document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); document.getElementById(id).classList.add('active'); }
 const fmtAccess = a => (!a||a==='tous')?'Tous':Array.isArray(a)?a.join(', '):a;
 const typeLabel = t => ({unite:'Unité',division:'Division',alert:'ALERTE',prioritaire:'Prioritaire'}[t]||t);
-function hideSplash(){
-  if(_splashDone) return; _splashDone=true;
-  const ls=document.getElementById('loading-screen');
-  if(ls){ ls.classList.add('fade-out'); setTimeout(()=>{ try{ls.remove();}catch(e){} },700); }
-}
 function hideSplash(){ if(_splashDone)return; _splashDone=true; const ls=document.getElementById('loading-screen'); if(ls){ls.classList.add('fade-out');setTimeout(()=>{try{ls.remove();}catch(e){}},700);} }
 function setMsg(m){ const el=document.getElementById('loading-msg'); if(el)el.textContent=m; }
-/* ────────────────────────────────────────────────────────────
-   INIT BASE DE DONNÉES (première visite seulement)
-──────────────────────────────────────────────────────────── */
+
 /* ══════════════════════════════════════════════════════════════
    INIT BASE DE DONNÉES
 ══════════════════════════════════════════════════════════════ */
 async function initDefaultData(){
   const snap=await get(ref(db,'config/siteName'));
-  if(snap.exists()) return; // Déjà initialisé
-  /* Crée le compte Firebase Auth pour l'admin.
-     Si le compte existe déjà → on ignore l'erreur silencieusement. */
-  try {
-    const cred = await createUserWithEmailAndPassword(auth, ADMIN_EMAIL, ADMIN_PASSWORD);
-    await signOut(auth); // Déconnecte tout de suite, onAuthStateChanged gérera plus tard
-  } catch(e){
-    if(e.code==='auth/email-already-in-use'){
-      // Compte déjà créé lors d'un précédent chargement → OK
-    } else {
-      console.warn('Admin init auth warn:', e.code);
-    }
-  }
-  // Profil admin en DB
-  await set(ref(db,`users/${emailToKey(ADMIN_EMAIL)}`),{
-    email:ADMIN_EMAIL, cid:'Alexandre J., Directeur', steam:'alexandre_jacopin',
-    role:'directeur', division:'Direction', status:'approved',
-    matricule:'001', joined:new Date().toISOString()
-  });
-  // Grades & Divisions
-  await set(ref(db,'grades'),{
-    roles:{0:'membre',1:'superviseur',2:'directeur'},
-    divisions:{0:'Logistique',1:'Maintenance',2:'Sécurité',3:'Administration',4:'Direction'}
-  });
-  // Config
-  await set(ref(db,'config'),{
-    siteName:"Civil Worker's Union",
-    siteSubtitle:'Centre Syndicale — Last Signal RP',
-    adminEmail:ADMIN_EMAIL
-  });
-  // Pages par défaut
   if(snap.exists()) return;
   try { await createUserWithEmailAndPassword(auth,ADMIN_EMAIL,ADMIN_PASSWORD); await signOut(auth); }
   catch(e){ if(e.code!=='auth/email-already-in-use') console.warn('init warn:',e.code); }
@@ -328,37 +561,27 @@ async function initDefaultData(){
   await set(ref(db,'grades'),{ roles:{0:'membre',1:'superviseur',2:'directeur'}, divisions:{0:'Logistique',1:'Maintenance',2:'Sécurité',3:'Administration',4:'Direction'} });
   await set(ref(db,'config'),{ siteName:"Civil Worker's Union",siteSubtitle:'Centre Syndicale — Last Signal RP',adminEmail:ADMIN_EMAIL });
   const pages=[
-    {id:'accueil',title:'Accueil',category:'Général',navOrder:0,inSidebar:false,accessRoles:'tous',content:[
-      {cat:'Bienvenue',title:"Civil Worker's Union",body:"Bienvenue dans le centre syndical de Last Signal. Le CWU est l'organisation civile officielle sous l'autorité de l'Union."},
-      {cat:'Directives',title:'Ordre du jour',body:"Toute demande d'adhésion doit être validée par un superviseur ou directeur.\nLes membres doivent se conformer aux règles de conduite du syndicat."}
-    ]},
-    {id:'reglement',title:'Règlement',category:'Syndicat',navOrder:1,inSidebar:true,accessRoles:'tous',content:[
-      {cat:'Code de conduite',title:'Règles générales',body:"I. Tout membre du CWU se doit d'obéir aux ordres de sa hiérarchie.\nII. La propagande anti-Union est interdite.\nIII. Tout comportement perturbateur sera sanctionné."},
-      {cat:'Sanctions',title:'Procédures disciplinaires',body:"Les manquements peuvent entraîner un avertissement, une suspension ou l'exclusion."}
-    ]},
     {id:'accueil',title:'Accueil',category:'Général',navOrder:0,inSidebar:false,accessRoles:'tous',content:[{cat:'Bienvenue',title:"Civil Worker's Union",body:"Bienvenue dans le centre syndical de Last Signal."},{cat:'Directives',title:'Ordre du jour',body:"Toute demande d'adhésion doit être validée par un superviseur ou directeur."}]},
     {id:'reglement',title:'Règlement',category:'Syndicat',navOrder:1,inSidebar:true,accessRoles:'tous',content:[{cat:'Code de conduite',title:'Règles générales',body:"I. Obéir aux ordres de sa hiérarchie.\nII. La propagande anti-Union est interdite.\nIII. Tout comportement perturbateur sera sanctionné."},{cat:'Sanctions',title:'Procédures disciplinaires',body:"Les manquements peuvent entraîner un avertissement, une suspension ou l'exclusion."}]},
     {id:'annonces',title:'Annonces',category:'Général',navOrder:2,inSidebar:false,accessRoles:'tous',content:[]},
     {id:'rapports',title:'Rapports',category:'Activité',navOrder:3,inSidebar:false,accessRoles:'membre',content:[]},
-    {id:'classifie',title:'Zone Classifiée',category:'Direction',navOrder:99,inSidebar:true,accessRoles:'superviseur',content:[
-      {cat:'CONFIDENTIEL',title:'Directives internes',body:'Ce salon est réservé aux superviseurs et directeurs.'}
-    ]}
     {id:'classifie',title:'Zone Classifiée',category:'Direction',navOrder:99,inSidebar:true,accessRoles:'superviseur',content:[{cat:'CONFIDENTIEL',title:'Directives internes',body:'Réservé aux superviseurs et directeurs.'}]}
   ];
   for(const p of pages) await set(ref(db,`pages/${p.id}`),p);
   const annId=Date.now();
-  await set(ref(db,`announcements/${annId}`),{id:annId,author:'Direction',date:new Date().toLocaleDateString('fr-FR'),title:'Ouverture du centre syndical',body:"Le centre syndical de Last Signal est désormais opérationnel. Toutes les demandes d'adhésion sont ouvertes.",type:'info'});
   await set(ref(db,`announcements/${annId}`),{id:annId,author:'Direction',date:new Date().toLocaleDateString('fr-FR'),title:'Ouverture du centre syndical',body:"Le centre syndical de Last Signal est désormais opérationnel.",type:'info'});
 }
-/* ────────────────────────────────────────────────────────────
+
 /* ══════════════════════════════════════════════════════════════
    CHARGEMENT DONNÉES
-──────────────────────────────────────────────────────────── */
 ══════════════════════════════════════════════════════════════ */
 async function loadAll(){
   const snap=await get(ref(db)); const d=snap.val()||{};
   _DB.users=d.users||{};
-@@ -484,16 +585,15 @@
+  const gr=d.grades||{};
+  _DB.grades={ roles:gr.roles?Object.values(gr.roles):ROLES, divisions:gr.divisions?Object.values(gr.divisions):[] };
+  _DB.pages=d.pages||{};
+  _DB.reports=d.reports||{};
   _DB.announcements=d.announcements||{};
   _DB.config=d.config||{};
 }
@@ -367,20 +590,18 @@ function startRealtime(){
   onValue(ref(db,'reports'),       s=>{ _DB.reports=s.val()||{}; });
   onValue(ref(db,'announcements'), s=>{ _DB.announcements=s.val()||{}; });
 }
-/* ────────────────────────────────────────────────────────────
-   AUTH STATE — cœur du système
-──────────────────────────────────────────────────────────── */
+
 /* ══════════════════════════════════════════════════════════════
    AUTH STATE
 ══════════════════════════════════════════════════════════════ */
 onAuthStateChanged(auth, async fbUser=>{
   if(fbUser){
     const key=emailToKey(fbUser.email);
-@@ -502,7 +602,10 @@
+    try {
+      const snap=await get(ref(db,`users/${key}`));
       if(snap.exists()){
         const ud=snap.val();
         if(ud.status==='approved'){
-          CU=ud; await loadAll(); startRealtime(); enterSite(); return;
           CU=ud; await loadAll(); startRealtime();
           // Deep link Discord ?admin=... → section admin directe
           if(!handleDeepLink()) enterSite();
@@ -388,25 +609,35 @@ onAuthStateChanged(auth, async fbUser=>{
         } else if(ud.status==='pending'){
           await signOut(auth); hideSplash();
           showErr(document.getElementById('login-err'),'Votre demande est en attente de validation.'); return;
-@@ -517,9 +620,9 @@
+        } else {
+          await signOut(auth); hideSplash();
+          showErr(document.getElementById('login-err'),'Accès refusé.'); return;
+        }
+      }
+    } catch(e){ console.error(e); }
+    await signOut(auth);
+  }
   hideSplash();
 });
-/* ────────────────────────────────────────────────────────────
+
 /* ══════════════════════════════════════════════════════════════
    LOGIN / INSCRIPTION
-──────────────────────────────────────────────────────────── */
 ══════════════════════════════════════════════════════════════ */
 function switchTab(t){
   ['login','register'].forEach(x=>{
     document.getElementById('tab-'+x).classList.toggle('active',x===t);
-@@ -535,23 +638,15 @@
+    document.getElementById('panel-'+x).classList.toggle('active',x===t);
+  });
+}
+window.switchTab=switchTab;
+
+async function doLogin(){
+  const email=document.getElementById('login-email').value.trim().toLowerCase();
+  const pass=document.getElementById('login-pass').value;
+  const errEl=document.getElementById('login-err');
   const btn=document.getElementById('btn-login');
   if(!email||!pass){ showErr(errEl,'Remplissez tous les champs.'); return; }
   btn.disabled=true; btn.textContent='CONNEXION...';
-  try {
-    await signInWithEmailAndPassword(auth,email,pass);
-    // onAuthStateChanged prend le relais
-  } catch(e){
   try { await signInWithEmailAndPassword(auth,email,pass); }
   catch(e){
     const codes={'auth/invalid-credential':'Email ou mot de passe incorrect.','auth/user-not-found':'Email ou mot de passe incorrect.','auth/wrong-password':'Email ou mot de passe incorrect.','auth/too-many-requests':'Trop de tentatives. Réessayez plus tard.','auth/network-request-failed':'Erreur réseau.'};
@@ -415,16 +646,13 @@ function switchTab(t){
   }
 }
 window.doLogin=doLogin;
-/* ──────────────────────────────────────────────
-   FIX INSCRIPTION : déconnexion immédiate après
-   createUserWithEmailAndPassword pour ne pas
-   déclencher onAuthStateChanged → enterSite()
-   alors que le compte est "pending".
-────────────────────────────────────────────── */
+
 async function doRegister(){
   const cid=document.getElementById('reg-cid').value.trim();
   const steam=document.getElementById('reg-steam').value.trim();
-@@ -561,22 +656,14 @@
+  const div=document.getElementById('reg-div').value.trim();
+  const email=document.getElementById('reg-email').value.trim().toLowerCase();
+  const pass=document.getElementById('reg-pass').value;
   const errEl=document.getElementById('reg-err');
   const okEl=document.getElementById('reg-ok');
   const btn=document.getElementById('btn-register');
@@ -434,107 +662,165 @@ async function doRegister(){
   btn.disabled=true; btn.textContent='ENVOI...';
   errEl.style.display='none'; okEl.style.display='none';
   try {
-    /* 1 — Crée le compte Firebase Auth */
     await createUserWithEmailAndPassword(auth, email, pass);
-    /* 2 — CRITIQUE : déconnecte immédiatement pour bloquer onAuthStateChanged */
-    await signOut(auth);
-    /* 3 — Enregistre le profil "pending" dans la DB */
     await signOut(auth); // Déconnecte immédiatement → ne déclenche pas enterSite()
     const mat=String(Object.keys(_DB.users).length+1).padStart(3,'0');
     await set(ref(db,`users/${emailToKey(email)}`),{
       email, cid, steam,
-@@ -585,24 +672,15 @@
+      division: div||'Non assigné',
+      role:'membre', status:'pending',
       matricule:mat,
       joined:new Date().toISOString()
     });
-    /* 4 — Message de succès */
     /* ── DISCORD : nouvelle demande ── */
     await dcNotifyRequest(cid, steam, div||'Non renseigné', email);
     okEl.textContent='✓ Demande envoyée ! Un responsable examinera votre candidature.';
     okEl.style.display='block';
     ['reg-cid','reg-steam','reg-div','reg-email','reg-pass'].forEach(id=>document.getElementById(id).value='');
   } catch(e){
-    const codes={
-      'auth/email-already-in-use':'Cet email est déjà utilisé. Connectez-vous à la place.',
-      'auth/invalid-email':"Format d'email invalide.",
-      'auth/weak-password':'Mot de passe trop faible.',
-      'auth/network-request-failed':'Problème réseau. Vérifiez votre connexion.',
-      'auth/operation-not-allowed':'Les inscriptions sont temporairement désactivées.'
-    };
-    console.error('Register error:',e.code,e.message);
-    showErr(errEl, codes[e.code]||"Erreur lors de l'inscription. Réessayez.");
     const codes={'auth/email-already-in-use':'Cet email est déjà utilisé.','auth/invalid-email':"Format d'email invalide.",'auth/weak-password':'Mot de passe trop faible.','auth/network-request-failed':'Problème réseau.','auth/operation-not-allowed':'Inscriptions désactivées.'};
     showErr(errEl, codes[e.code]||"Erreur lors de l'inscription.");
   }
   btn.disabled=false; btn.textContent='ENVOYER LA DEMANDE';
 }
 window.doRegister=doRegister;
-@@ -612,19 +690,17 @@
+
+async function doSupLogin(){
+  const email=document.getElementById('sup-email').value.trim().toLowerCase();
   const pass=document.getElementById('sup-pass').value;
   const errEl=document.getElementById('sup-err');
   if(!email||!pass){ showErr(errEl,'Remplissez tous les champs.'); return; }
-  try {
-    await signInWithEmailAndPassword(auth,email,pass);
-    closeModal('modal-sup');
-  } catch(e){ showErr(errEl,'Identifiants incorrects.'); }
   try { await signInWithEmailAndPassword(auth,email,pass); closeModal('modal-sup'); }
   catch(e){ showErr(errEl,'Identifiants incorrects.'); }
 }
 window.doSupLogin=doSupLogin;
+
 async function doLogout(){ await signOut(auth); CU=null; showView('view-login'); }
 window.doLogout=doLogout;
-/* ────────────────────────────────────────────────────────────
+
 /* ══════════════════════════════════════════════════════════════
    SITE
-──────────────────────────────────────────────────────────── */
 ══════════════════════════════════════════════════════════════ */
 function enterSite(){ buildNav(); updateBar(); showView('view-site'); showPage('accueil'); }
+
 function updateBar(){
-@@ -639,17 +715,12 @@
+  if(!CU) return;
+  document.getElementById('disp-name').textContent=CU.cid;
+  const r=document.getElementById('disp-role');
+  r.textContent={directeur:'DIRECTEUR',superviseur:'SUPERVISEUR',membre:'MEMBRE'}[CU.role]||CU.role;
+  r.className='role-tag '+CU.role;
+  document.getElementById('admin-btn').style.display=['directeur','superviseur'].includes(CU.role)?'':'none';
+}
+
 function buildNav(){
   const pages=Object.values(_DB.pages);
   const nav=document.getElementById('main-nav'); nav.innerHTML='';
-  pages.filter(p=>p.navOrder!=null&&canAccess(CU.role,p.accessRoles))
-    .sort((a,b)=>a.navOrder-b.navOrder)
-    .forEach(p=>{ const b=document.createElement('button'); b.className='nav-btn'; b.textContent=p.title; b.id='nav-'+p.id; b.onclick=()=>showPage(p.id); nav.appendChild(b); });
   pages.filter(p=>p.navOrder!=null&&canAccess(CU.role,p.accessRoles)).sort((a,b)=>a.navOrder-b.navOrder).forEach(p=>{ const b=document.createElement('button'); b.className='nav-btn'; b.textContent=p.title; b.id='nav-'+p.id; b.onclick=()=>showPage(p.id); nav.appendChild(b); });
   const sb=document.getElementById('sidebar-nav'); sb.innerHTML='';
   const sp=pages.filter(p=>p.inSidebar&&canAccess(CU.role,p.accessRoles));
   [...new Set(sp.map(p=>p.category))].forEach(cat=>{
     const lbl=document.createElement('div'); lbl.className='sidebar-cat'; lbl.textContent=cat; sb.appendChild(lbl);
-    sp.filter(p=>p.category===cat).forEach(p=>{
-      const l=document.createElement('div'); l.className='sidebar-link'; l.innerHTML=`<span class="sidebar-icon">▸</span>${p.title}`; l.id='slink-'+p.id; l.onclick=()=>showPage(p.id); sb.appendChild(l);
-    });
     sp.filter(p=>p.category===cat).forEach(p=>{ const l=document.createElement('div'); l.className='sidebar-link'; l.innerHTML=`<span class="sidebar-icon">▸</span>${p.title}`; l.id='slink-'+p.id; l.onclick=()=>showPage(p.id); sb.appendChild(l); });
   });
   const hr=document.createElement('hr'); hr.className='sidebar-divider'; sb.appendChild(hr);
   if(canAccess(CU.role,'membre')){
-@@ -674,8 +745,8 @@
+    const rl=document.createElement('div'); rl.className='sidebar-link'; rl.innerHTML='<span class="sidebar-icon">📋</span>Mes rapports'; rl.onclick=()=>showPage('rapports'); sb.appendChild(rl);
+    const wrl=document.createElement('div'); wrl.className='sidebar-link'; wrl.innerHTML='<span class="sidebar-icon">✏️</span>Rédiger un rapport'; wrl.onclick=()=>showPage('write-report'); sb.appendChild(wrl);
+  }
+}
+window.buildNav=buildNav;
+
+function showPage(id){
+  document.querySelectorAll('.nav-btn,.sidebar-link').forEach(b=>b.classList.remove('active'));
+  const nb=document.getElementById('nav-'+id); if(nb)nb.classList.add('active');
+  const sl=document.getElementById('slink-'+id); if(sl)sl.classList.add('active');
+  if(id==='annonces'){ renderAnn(); return; }
+  if(id==='rapports'){ renderReports(); return; }
+  if(id==='write-report'){ renderWriteReport(); return; }
+  const page=_DB.pages[id];
+  if(!page){ document.getElementById('page-content').innerHTML='<div class="card"><div class="card-body">Page introuvable.</div></div>'; return; }
+  if(!canAccess(CU.role,page.accessRoles)){
+    document.getElementById('page-content').innerHTML=`<div class="access-denied"><div class="access-denied-icon">🔒</div><div class="access-denied-title">ACCÈS REFUSÉ</div><div class="access-denied-sub">Grade insuffisant.</div></div>`;
+    return;
   }
   const content=Array.isArray(page.content)?page.content:Object.values(page.content||{});
   let html=`<div class="page-header"><div class="page-title"><span class="prefix">▸ ${page.category}</span>${page.title}</div></div>`;
-  if(content.length){ content.forEach(s=>{ html+=`<div class="card"><div class="card-title">${s.cat}</div><div class="card-body"><h3 style="color:var(--text-primary);font-size:15px;margin-bottom:6px;font-weight:600">${s.title}</h3><div style="white-space:pre-line;margin-top:6px">${s.body}</div></div></div>`; }); }
-  else html+=`<div class="card"><div class="card-body" style="color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:12px">Aucun contenu. Ajoutez depuis le panneau Admin.</div></div>`;
   if(content.length) content.forEach(s=>{ html+=`<div class="card"><div class="card-title">${s.cat}</div><div class="card-body"><h3 style="color:var(--text-primary);font-size:15px;margin-bottom:6px;font-weight:600">${s.title}</h3><div style="white-space:pre-line;margin-top:6px">${s.body}</div></div></div>`; });
   else html+=`<div class="card"><div class="card-body" style="color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:12px">Aucun contenu.</div></div>`;
   document.getElementById('page-content').innerHTML=html;
 }
 window.showPage=showPage;
-@@ -688,7 +759,9 @@
+
+function renderAnn(){
+  const anns=Object.values(_DB.announcements).sort((a,b)=>b.id-a.id);
+  let html=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Général</span>Annonces</div></div>`;
+  if(!anns.length) html+=`<div class="alert info">Aucune annonce publiée.</div>`;
+  else anns.forEach(a=>{ html+=`<div class="ann-item"><div class="ann-meta">${a.date} — par ${a.author}</div><div class="ann-title">${a.title}</div><div class="ann-body">${a.body}</div></div>`; });
   document.getElementById('page-content').innerHTML=html;
 }
-/* ── RAPPORTS ── */
+
 /* ══════════════════════════════════════════════════════════════
    RAPPORTS
 ══════════════════════════════════════════════════════════════ */
 function renderReports(){
   const rpts=Object.values(_DB.reports);
   let vis=rpts; if(CU.role==='membre') vis=rpts.filter(r=>r.authorEmail===CU.email);
-@@ -748,12 +821,18 @@
+  const w=Date.now()-7*24*60*60*1000;
+  let stats='';
+  if(['superviseur','directeur'].includes(CU.role))
+    stats=`<div class="stats-grid"><div class="stat-card blue"><div class="stat-number">${vis.length}</div><div class="stat-label">Total</div></div><div class="stat-card green"><div class="stat-number">${vis.filter(r=>new Date(r.date).getTime()>w).length}</div><div class="stat-label">Semaine</div></div><div class="stat-card red"><div class="stat-number">${vis.filter(r=>r.type==='alert').length}</div><div class="stat-label">Alertes</div></div><div class="stat-card orange"><div class="stat-number">${vis.filter(r=>r.type==='prioritaire').length}</div><div class="stat-label">Prioritaires</div></div></div>`;
+  const authorSel=['superviseur','directeur'].includes(CU.role)?`<select id="rf-author" onchange="filterReports()"><option value="">Tous auteurs</option>${[...new Set(vis.map(r=>r.author))].map(a=>`<option>${a}</option>`).join('')}</select>`:'';
+  document.getElementById('page-content').innerHTML=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Activité</span>Registre des rapports</div><button class="btn-submit" onclick="showPage('write-report')">✏️ Rédiger</button></div>${stats}<div class="report-filters"><input type="text" id="rf-search" placeholder="Rechercher..." oninput="filterReports()"><select id="rf-type" onchange="filterReports()"><option value="">Tous les types</option><option value="unite">Unité</option><option value="division">Division</option><option value="alert">Alerte</option><option value="prioritaire">Prioritaire</option></select>${authorSel}</div><div class="report-row"><div class="report-cell header">DATE</div><div class="report-cell header">MAT.</div><div class="report-cell header">AUTEUR</div><div class="report-cell header">TYPE</div><div class="report-cell header">SECTEUR</div><div class="report-cell header">PJ</div></div><div id="report-list"></div>`;
+  window._rVis=vis; filterReports();
+}
+window.renderReports=renderReports;
+
+function filterReports(){
+  const s=(document.getElementById('rf-search')||{}).value?.toLowerCase()||'';
+  const t=(document.getElementById('rf-type')||{}).value||'';
+  const a=(document.getElementById('rf-author')||{}).value||'';
+  let l=window._rVis||[];
+  if(s)l=l.filter(r=>(r.author+r.matricule+r.resume+r.secteur).toLowerCase().includes(s));
+  if(t)l=l.filter(r=>r.type===t); if(a)l=l.filter(r=>r.author===a);
+  const c=document.getElementById('report-list'); if(!c)return;
+  if(!l.length){c.innerHTML=`<div class="alert info" style="margin-top:8px">Aucun rapport.</div>`;return;}
+  c.innerHTML=[...l].sort((a,b)=>new Date(b.date)-new Date(a.date)).map(r=>`<div class="report-row" onclick="openReport('${r.id}')"><div class="report-cell">${new Date(r.date).toLocaleDateString('fr-FR')}</div><div class="report-cell">${r.matricule||'—'}</div><div class="report-cell">${r.author||'—'}</div><div class="report-cell"><span class="report-type-badge ${r.type}">${typeLabel(r.type)}</span></div><div class="report-cell">${r.secteur||'—'}</div><div class="report-cell">${r.files?.length?'📎 '+r.files.length:'—'}</div></div>`).join('');
+}
+window.filterReports=filterReports;
+
+function openReport(id){
+  const r=_DB.reports[id]; if(!r)return;
+  if(CU.role==='membre'&&r.authorEmail!==CU.email)return;
+  document.getElementById('modal-report-body').innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--border)"><span class="report-type-badge ${r.type}">${typeLabel(r.type)}</span><span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim)">${new Date(r.date).toLocaleString('fr-FR')}</span></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px"><div class="report-detail-field"><div class="report-detail-label">AUTEUR</div><div class="report-detail-value">${r.author}</div></div><div class="report-detail-field"><div class="report-detail-label">MATRICULE</div><div class="report-detail-value">${r.matricule||'—'}</div></div><div class="report-detail-field"><div class="report-detail-label">SECTEUR</div><div class="report-detail-value">${r.secteur||'—'}</div></div><div class="report-detail-field"><div class="report-detail-label">AGENTS</div><div class="report-detail-value">${r.unites||'—'}</div></div></div><div class="report-detail-field"><div class="report-detail-label">RÉSUMÉ</div><div class="report-detail-value" style="white-space:pre-wrap;background:var(--bg-card);border:1px solid var(--border);padding:12px;margin-top:6px">${r.resume||'—'}</div></div>${r.notes?`<div class="report-detail-field" style="margin-top:14px"><div class="report-detail-label">NOTES</div><div class="report-detail-value" style="white-space:pre-wrap;background:var(--bg-card);border:1px solid var(--border);padding:12px;margin-top:6px">${r.notes}</div></div>`:''}${['superviseur','directeur'].includes(CU.role)?`<div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border)"><button class="btn-sm del" onclick="delReport('${r.id}')">🗑 Supprimer</button></div>`:''}`;
+  openModal('modal-report');
+}
+window.openReport=openReport;
+
+async function delReport(id){ if(!confirm('Supprimer ce rapport ?'))return; await remove(ref(db,`reports/${id}`)); closeModal('modal-report'); renderReports(); }
+window.delReport=delReport;
+
+function renderWriteReport(){
+  const canAdv=['superviseur','directeur'].includes(CU.role);
+  document.getElementById('page-content').innerHTML=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Activité</span>Rédiger un rapport</div></div><div class="report-form-tabs"><div class="rtab active" id="rtab-unite" onclick="switchRTab('unite')">📋 UNITÉ</div><div class="rtab ${canAdv?'':'locked'}" id="rtab-division" onclick="${canAdv?"switchRTab('division')":''}">🔒 DIVISIONNEL</div><div class="rtab ${canAdv?'':'locked'}" id="rtab-alert" onclick="${canAdv?"switchRTab('alert')":''}">⚠️ ALERTE</div><div class="rtab ${canAdv?'':'locked'}" id="rtab-prioritaire" onclick="${canAdv?"switchRTab('prioritaire')":''}">🔴 PRIORITAIRE</div></div><div id="rform"></div>`;
+  switchRTab('unite');
+}
+window.renderWriteReport=renderWriteReport;
+
+function switchRTab(t){
+  document.querySelectorAll('.rtab').forEach(x=>x.classList.remove('active'));
+  const el=document.getElementById('rtab-'+t); if(el&&!el.classList.contains('locked'))el.classList.add('active');
+  window._rType=t;
+  const dOpts=_DB.grades.divisions.map(d=>`<option>${d}</option>`).join('');
+  document.getElementById('rform').innerHTML=`<div class="form-section"><div class="form-section-title">// RAPPORT ${t.toUpperCase()} — AGENT: ${CU.cid} — MAT.${CU.matricule||'—'}</div><div class="form-grid"><div class="field"><label>Type d'activité *</label><select id="fr-act"><option value="">— Sélectionner —</option><option>Session de travail</option><option>Réunion</option><option>Patrouille</option><option>Distribution</option><option>Maintenance</option><option>Autre</option></select></div><div class="field"><label>Secteur / Zone</label><input type="text" id="fr-sec" placeholder="Ex: Secteur 3, Nexus..."></div><div class="field"><label>Division</label><select id="fr-div"><option value="">— Aucune —</option>${dOpts}</select></div><div class="field"><label>Agents impliqués</label><input type="text" id="fr-uni" placeholder="Ex: Léon Pheter..."></div><div class="field form-grid-1"><label>Résumé *</label><textarea id="fr-res" style="min-height:110px" placeholder="Décrivez le déroulement..."></textarea></div><div class="field form-grid-1"><label>Notes supplémentaires</label><textarea id="fr-not" style="min-height:70px" placeholder="Optionnel"></textarea></div></div><div class="form-actions"><span class="form-id">${new Date().toLocaleDateString('fr-FR')}</span><button class="btn-reset" onclick="renderWriteReport()">RÉINITIALISER</button><button class="btn-submit" id="btn-sub" onclick="submitReport()">▶ SOUMETTRE</button></div></div>`;
+}
+window.switchRTab=switchRTab;
+
+async function submitReport(){
+  const act=document.getElementById('fr-act')?.value||'';
+  const res=document.getElementById('fr-res')?.value.trim()||'';
   if(!act||!res){alert("Remplissez le type et le résumé.");return;}
   const btn=document.getElementById('btn-sub'); btn.disabled=true; btn.textContent='ENVOI...';
   const id='rpt-'+Date.now();
-  await set(ref(db,`reports/${id}`),{id,type:window._rType||'unite',author:CU.cid,authorEmail:CU.email,matricule:CU.matricule||'—',date:new Date().toISOString(),acttype:act,secteur:document.getElementById('fr-sec')?.value.trim()||'',division:document.getElementById('fr-div')?.value||'',unites:document.getElementById('fr-uni')?.value.trim()||'',resume:res,notes:document.getElementById('fr-not')?.value.trim()||''});
   const type=window._rType||'unite';
   const secteur=document.getElementById('fr-sec')?.value.trim()||'';
   await set(ref(db,`reports/${id}`),{id,type,author:CU.cid,authorEmail:CU.email,matricule:CU.matricule||'—',date:new Date().toISOString(),acttype:act,secteur,division:document.getElementById('fr-div')?.value||'',unites:document.getElementById('fr-uni')?.value.trim()||'',resume:res,notes:document.getElementById('fr-not')?.value.trim()||''});
@@ -543,29 +829,31 @@ function renderReports(){
   document.getElementById('page-content').innerHTML=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Activité</span>Rapport soumis</div></div><div class="alert success">✓ Rapport soumis avec succès.</div><div style="margin-top:16px;display:flex;gap:10px"><button class="btn-submit" onclick="showPage('write-report')">✏️ Nouveau rapport</button><button class="btn-reset" onclick="showPage('rapports')">📋 Voir les rapports</button></div>`;
 }
 window.submitReport=submitReport;
-/* ── ADMIN ── */
+
 /* ══════════════════════════════════════════════════════════════
    ADMIN
 ══════════════════════════════════════════════════════════════ */
 function goAdmin(){ showView('view-admin'); adminSec('members'); }
 function goSite() { showView('view-site'); }
 window.goAdmin=goAdmin; window.goSite=goSite;
-@@ -769,17 +848,16 @@
+
+function updatePendingCount(){ const n=Object.values(_DB.users).filter(u=>u.status==='pending').length; const el=document.getElementById('pending-count'); if(el)el.textContent=n; }
+
+async function adminSec(sec){
+  document.querySelectorAll('.admin-nav').forEach(e=>e.classList.remove('active'));
+  const nav=document.getElementById('anav-'+sec.replace('-admin','')); if(nav)nav.classList.add('active');
+  const c=document.getElementById('admin-content');
+  await loadAll(); updatePendingCount();
+
   if(sec==='members'){
     const users=Object.values(_DB.users).filter(u=>u.status==='approved');
     let h=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Admin</span>Membres actifs</div></div><table class="data-table"><thead><tr><th>Mat.</th><th>CID</th><th>Steam</th><th>Division</th><th>Grade</th><th>Depuis</th><th>Actions</th></tr></thead><tbody>`;
-    users.forEach(u=>{
-      const d=u.joined?new Date(u.joined).toLocaleDateString('fr-FR'):'—';
-      h+=`<tr><td>${u.matricule||'—'}</td><td>${u.cid}</td><td>${u.steam||'—'}</td><td>${u.division||'—'}</td><td><span class="grade-tag grade-${u.role}">${u.role}</span></td><td>${d}</td><td>${u.email!==ADMIN_EMAIL?`<button class="btn-sm promote" onclick="promoteUser('${u.email}')">↑</button><button class="btn-sm reject" onclick="demoteUser('${u.email}')">↓</button><button class="btn-sm del" onclick="kickUser('${u.email}')">✕</button>`:'<span style="color:var(--orange);font-family:monospace;font-size:10px">⬡ DIRECTEUR</span>'}</td></tr>`;
-    });
     users.forEach(u=>{ const d=u.joined?new Date(u.joined).toLocaleDateString('fr-FR'):'—'; h+=`<tr><td>${u.matricule||'—'}</td><td>${u.cid}</td><td>${u.steam||'—'}</td><td>${u.division||'—'}</td><td><span class="grade-tag grade-${u.role}">${u.role}</span></td><td>${d}</td><td>${u.email!==ADMIN_EMAIL?`<button class="btn-sm promote" onclick="promoteUser('${u.email}')">↑</button><button class="btn-sm reject" onclick="demoteUser('${u.email}')">↓</button><button class="btn-sm del" onclick="kickUser('${u.email}')">✕</button>`:'<span style="color:var(--orange);font-family:monospace;font-size:10px">⬡ DIRECTEUR</span>'}</td></tr>`; });
     h+='</tbody></table>'; c.innerHTML=h;
   }
   else if(sec==='pending'){
     const users=Object.values(_DB.users).filter(u=>u.status==='pending');
     let h=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Admin</span>Demandes en attente</div></div>`;
-    if(!users.length) h+=`<div class="alert info">Aucune demande en attente.</div>`;
-    else {
     if(!users.length){
       h+=`<div class="alert info">Aucune demande en attente.</div>`;
     } else {
@@ -573,16 +861,47 @@ window.goAdmin=goAdmin; window.goSite=goSite;
       h+=`<table class="data-table"><thead><tr><th>CID</th><th>Steam</th><th>Division</th><th>Email</th><th>Date</th><th>Actions</th></tr></thead><tbody>`;
       users.forEach(u=>{ const d=u.joined?new Date(u.joined).toLocaleDateString('fr-FR'):'—'; h+=`<tr><td>${u.cid}</td><td>${u.steam||'—'}</td><td>${u.division||'—'}</td><td>${u.email}</td><td>${d}</td><td><button class="btn-sm approve" onclick="approveUser('${u.email}')">✓ Accepter</button><button class="btn-sm reject" onclick="rejectUser('${u.email}')">✕ Refuser</button></td></tr>`; });
       h+='</tbody></table>';
-@@ -820,19 +898,47 @@
+    }
+    c.innerHTML=h;
+  }
+  else if(sec==='grades'){
+    c.innerHTML=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Admin</span>Grades & Divisions</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:20px"><div class="card"><div class="card-title">Grades</div><div class="card-body">${ROLES.map((r,i)=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span class="grade-tag grade-${r}">${r}</span><span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim)">Niveau ${i+1}</span></div>`).join('')}</div></div><div class="card"><div class="card-title">Divisions</div><div class="card-body"><div id="div-list">${_DB.grades.divisions.map((d,i)=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span>${d}</span><button class="btn-sm del" onclick="removeDiv(${i})">✕</button></div>`).join('')}</div><div style="display:flex;gap:8px;margin-top:14px"><input type="text" id="new-div" placeholder="Nouvelle division..." style="background:var(--bg-input);border:1px solid var(--border);color:var(--text-primary);padding:8px 12px;font-family:'Share Tech Mono',monospace;font-size:12px;outline:none;flex:1"><button class="btn-orange" onclick="addDiv()">+ Ajouter</button></div></div></div></div>`;
+  }
+  else if(sec==='reports-admin'){
+    const rpts=Object.values(_DB.reports); const w=Date.now()-7*24*60*60*1000;
+    let h=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Admin</span>Tous les rapports</div><button class="btn-orange" onclick="exportReports()">📥 CSV</button></div><div class="stats-grid"><div class="stat-card blue"><div class="stat-number">${rpts.length}</div><div class="stat-label">Total</div></div><div class="stat-card green"><div class="stat-number">${rpts.filter(r=>new Date(r.date).getTime()>w).length}</div><div class="stat-label">Semaine</div></div><div class="stat-card red"><div class="stat-number">${rpts.filter(r=>r.type==='alert').length}</div><div class="stat-label">Alertes</div></div><div class="stat-card orange"><div class="stat-number">${rpts.filter(r=>r.type==='prioritaire').length}</div><div class="stat-label">Prioritaires</div></div></div><table class="data-table"><thead><tr><th>Date</th><th>Auteur</th><th>Mat.</th><th>Type</th><th>Secteur</th><th>Actions</th></tr></thead><tbody>`;
+    [...rpts].sort((a,b)=>new Date(b.date)-new Date(a.date)).forEach(r=>{ h+=`<tr><td>${new Date(r.date).toLocaleDateString('fr-FR')}</td><td>${r.author}</td><td>${r.matricule||'—'}</td><td><span class="report-type-badge ${r.type}">${typeLabel(r.type)}</span></td><td>${r.secteur||'—'}</td><td><button class="btn-sm edit" onclick="openReport('${r.id}')">👁</button><button class="btn-sm del" onclick="adminDelReport('${r.id}')">🗑</button></td></tr>`; });
+    h+='</tbody></table>'; c.innerHTML=h;
+  }
+  else if(sec==='pages'){
+    const pages=Object.values(_DB.pages).sort((a,b)=>(a.navOrder??99)-(b.navOrder??99));
+    let h=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Admin</span>Pages du site</div></div>`;
+    pages.forEach(p=>{ h+=`<div class="page-item"><div><div class="page-item-title">${p.title}</div><div class="page-item-meta">Cat: ${p.category} | Accès: ${fmtAccess(p.accessRoles)} | Sidebar: ${p.inSidebar?'oui':'non'}</div></div><div style="display:flex;gap:6px"><button class="btn-sm edit" onclick="openEditPage('${p.id}')">✏️ Modifier</button>${p.id!=='accueil'&&p.id!=='annonces'?`<button class="btn-sm del" onclick="delPage('${p.id}')">🗑</button>`:''}</div></div>`; });
+    c.innerHTML=h;
+  }
+  else if(sec==='announcements'){
+    const anns=Object.values(_DB.announcements).sort((a,b)=>b.id-a.id);
+    let h=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Admin</span>Annonces</div><button class="btn-orange" onclick="adminSec('new-ann')">+ Nouvelle</button></div>`;
+    if(!anns.length) h+=`<div class="alert info">Aucune annonce.</div>`;
+    else anns.forEach(a=>{ h+=`<div class="ann-item" style="display:flex;justify-content:space-between;align-items:flex-start"><div><div class="ann-meta">${a.date} — par ${a.author}</div><div class="ann-title">${a.title}</div><div class="ann-body">${a.body}</div></div><button class="btn-sm del" onclick="delAnn('${a.id}')" style="flex-shrink:0;margin-left:14px">🗑</button></div>`; });
+    c.innerHTML=h;
+  }
+  else if(sec==='new-ann'){
+    c.innerHTML=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Admin</span>Nouvelle annonce</div></div><div class="card"><div class="card-title">Rédiger une annonce</div><div class="field"><label>Titre</label><input type="text" id="ann-title" placeholder="Titre"></div><div class="field"><label>Contenu</label><textarea id="ann-body" style="min-height:100px" placeholder="Contenu..."></textarea></div><div style="margin-top:14px;display:flex;gap:8px"><button class="btn-orange" onclick="pubAnn()">PUBLIER</button><button class="btn-ghost" onclick="adminSec('announcements')">Annuler</button></div></div>`;
+  }
+  else if(sec==='new-page'){
+    const rc=ROLES.map(r=>`<label><input type="checkbox" name="np-acc" value="${r}"> ${r}</label>`).join('');
+    c.innerHTML=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Admin</span>Créer une nouvelle page</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:20px"><div class="card"><div class="card-title">Paramètres</div><div class="field"><label>Titre</label><input type="text" id="np-title" placeholder="Ex: Procédures internes"></div><div class="field"><label>Catégorie</label><input type="text" id="np-cat" placeholder="Ex: Syndicat"></div><div class="field"><label>ID unique (sans espaces)</label><input type="text" id="np-id" placeholder="Ex: procedures"></div><div class="field"><label>Position nav (vide = hors nav)</label><input type="number" id="np-nav" placeholder="Ex: 4"></div><div class="field"><label>Sidebar</label><select id="np-sb"><option value="yes">Oui</option><option value="no">Non</option></select></div><div class="field"><label>Visible par</label><div class="pill-check"><label><input type="checkbox" name="np-acc" value="tous" checked> Tous</label>${rc}</div></div></div><div class="card"><div class="card-title">Premier bloc</div><div class="field"><label>Label</label><input type="text" id="np-bc" placeholder="Ex: Introduction"></div><div class="field"><label>Titre du bloc</label><input type="text" id="np-bt" placeholder="Ex: À propos"></div><div class="field"><label>Texte</label><textarea id="np-bb" style="min-height:120px" placeholder="Contenu..."></textarea></div></div></div><div style="margin-top:16px;display:flex;gap:8px"><button class="btn-orange" onclick="createPage()">CRÉER LA PAGE</button><button class="btn-ghost" onclick="adminSec('pages')">Annuler</button></div>`;
+  }
+  else if(sec==='config'){
+    const cfg=_DB.config;
     c.innerHTML=`<div class="page-header"><div class="page-title"><span class="prefix">▸ Admin</span>Configuration</div></div>
     <div class="admin-creds-box">
       <strong>⬡ COMPTE DIRECTEUR (VOS IDENTIFIANTS)</strong>
-      Email : alexandre.jacopin@gmail.com<br>
       Email : alexandre.jacopin76@gmail.com<br>
       Mot de passe : admin-cwu-2024<br>
       <span style="opacity:0.6;font-size:10px">Utilisez ces identifiants sur la page "Connexion" ou "Accès superviseur"</span>
     </div>
-    <div class="card"><div class="card-title">Paramètres du site</div><div class="field"><label>Nom</label><input type="text" id="cfg-name" value="${cfg.siteName||"Civil Worker's Union"}"></div><div class="field"><label>Sous-titre</label><input type="text" id="cfg-sub" value="${cfg.siteSubtitle||''}"></div><div style="margin-top:14px"><button class="btn-orange" onclick="saveConfig()">SAUVEGARDER</button></div></div>
     <div class="card">
       <div class="card-title">🔔 Intégration Discord — Webhook actif</div>
       <div class="card-body" style="font-size:13px;line-height:2">
@@ -604,9 +923,7 @@ window.goAdmin=goAdmin; window.goSite=goSite;
   }
 }
 window.adminSec=adminSec;
-/* ── ACTIONS ADMIN ── */
-async function approveUser(e){ await update(ref(db,`users/${emailToKey(e)}`),{status:'approved'}); adminSec('pending'); }
-async function rejectUser(e) { await update(ref(db,`users/${emailToKey(e)}`),{status:'rejected'}); adminSec('pending'); }
+
 /* ══════════════════════════════════════════════════════════════
    ACTIONS ADMIN — avec notifications Discord
 ══════════════════════════════════════════════════════════════ */
@@ -625,47 +942,64 @@ async function rejectUser(e){
 async function kickUser(e)   { if(!confirm('Retirer ce membre ?'))return; await remove(ref(db,`users/${emailToKey(e)}`)); adminSec('members'); }
 async function promoteUser(e){ const u=_DB.users[emailToKey(e)]; if(!u)return; const i=ROLES.indexOf(u.role); if(i<ROLES.length-1){await update(ref(db,`users/${emailToKey(e)}`),{role:ROLES[i+1]});adminSec('members');}else alert('Grade max atteint.'); }
 async function demoteUser(e) { const u=_DB.users[emailToKey(e)]; if(!u)return; const i=ROLES.indexOf(u.role); if(i>0){await update(ref(db,`users/${emailToKey(e)}`),{role:ROLES[i-1]});adminSec('members');}else alert('Grade min atteint.'); }
-@@ -845,27 +951,21 @@
+async function addDiv(){ const v=document.getElementById('new-div').value.trim(); if(!v)return; const d=[..._DB.grades.divisions,v]; const o={}; d.forEach((x,i)=>o[i]=x); await set(ref(db,'grades/divisions'),o); adminSec('grades'); }
+async function removeDiv(i){ const d=[..._DB.grades.divisions]; d.splice(i,1); const o={}; d.forEach((x,j)=>o[j]=x); await set(ref(db,'grades/divisions'),o); adminSec('grades'); }
+async function pubAnn(){ const t=document.getElementById('ann-title').value.trim(); const b=document.getElementById('ann-body').value.trim(); if(!t||!b){alert('Remplissez tous les champs.');return;} const id=Date.now(); await set(ref(db,`announcements/${id}`),{id,author:CU?CU.cid:'Directeur',date:new Date().toLocaleDateString('fr-FR'),title:t,body:b}); adminSec('announcements'); }
+async function delAnn(id){ if(!confirm('Supprimer ?'))return; await remove(ref(db,`announcements/${id}`)); adminSec('announcements'); }
+async function adminDelReport(id){ if(!confirm('Supprimer ce rapport ?'))return; await remove(ref(db,`reports/${id}`)); adminSec('reports-admin'); }
+async function saveConfig(){ await update(ref(db,'config'),{siteName:document.getElementById('cfg-name').value,siteSubtitle:document.getElementById('cfg-sub').value}); alert('Sauvegardé !'); }
 function exportAll(){ const b=new Blob([JSON.stringify(_DB,null,2)],{type:'application/json'}); const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='cwu-backup.json';a.click(); }
 function exportReports(){ const r=Object.values(_DB.reports); const csv=['Date,Auteur,Matricule,Type,Secteur,Résumé'].concat(r.map(x=>[new Date(x.date).toLocaleDateString('fr-FR'),x.author,x.matricule,x.type,x.secteur,(x.resume||'').replace(/\n/g,' ')].map(v=>`"${v||''}"`).join(','))).join('\n'); const b=new Blob([csv],{type:'text/csv'}); const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='rapports.csv';a.click(); }
 async function createPage(){
-  const title=document.getElementById('np-title').value.trim();
-  const cat=document.getElementById('np-cat').value.trim();
-  const id=document.getElementById('np-id').value.trim().replace(/\s+/g,'-').toLowerCase();
-  const nav=document.getElementById('np-nav').value.trim();
-  const sb=document.getElementById('np-sb').value==='yes';
   const title=document.getElementById('np-title').value.trim(), cat=document.getElementById('np-cat').value.trim(), id=document.getElementById('np-id').value.trim().replace(/\s+/g,'-').toLowerCase(), nav=document.getElementById('np-nav').value.trim(), sb=document.getElementById('np-sb').value==='yes';
   if(!title||!cat||!id){alert('Titre, catégorie et ID requis.');return;}
   if(_DB.pages[id]){alert('ID déjà utilisé.');return;}
   const chk=[...document.querySelectorAll('input[name="np-acc"]:checked')].map(x=>x.value);
   const access=chk.includes('tous')?'tous':(chk.length?chk:'tous');
   const bc=document.getElementById('np-bc').value.trim(), bt=document.getElementById('np-bt').value.trim(), bb=document.getElementById('np-bb').value.trim();
-  const content=[];
-  if(bc||bt||bb)content.push({cat:bc||'Section',title:bt||'Titre',body:bb||''});
   const content=[]; if(bc||bt||bb)content.push({cat:bc||'Section',title:bt||'Titre',body:bb||''});
   await set(ref(db,`pages/${id}`),{id,title,category:cat,navOrder:nav!==''?parseInt(nav):null,inSidebar:sb,accessRoles:access,content});
   await loadAll(); buildNav(); alert(`✓ Page "${title}" créée !`); adminSec('pages');
 }
-async function delPage(id){ if(!confirm(`Supprimer la page ?`))return; await remove(ref(db,`pages/${id}`)); await loadAll(); buildNav(); adminSec('pages'); }
 async function delPage(id){ if(!confirm('Supprimer la page ?'))return; await remove(ref(db,`pages/${id}`)); await loadAll(); buildNav(); adminSec('pages'); }
-/* ── ÉDITION PAGE MODAL ── */
+
 /* ══ ÉDITION PAGE ══ */
 function openEditPage(id){
-  _editPageId=id;
-  const page=_DB.pages[id]; if(!page)return;
   _editPageId=id; const page=_DB.pages[id]; if(!page)return;
   const cur=Array.isArray(page.accessRoles)?page.accessRoles:[page.accessRoles];
   const rc=['tous',...ROLES].map(r=>`<label><input type="checkbox" name="ep-acc" value="${r}" ${cur.includes(r)||(page.accessRoles==='tous'&&r==='tous')?'checked':''}> ${r}</label>`).join('');
   const content=Array.isArray(page.content)?page.content:Object.values(page.content||{});
-@@ -894,20 +994,19 @@
+  const blks=content.map((s,i)=>`<div class="card" style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--accent)">BLOC ${i+1}</span><button class="btn-sm del" onclick="rmBlock(${i})">🗑</button></div><div class="field"><label>Label</label><input type="text" class="ep-c-${i}" value="${s.cat.replace(/"/g,'&quot;')}"></div><div class="field"><label>Titre</label><input type="text" class="ep-t-${i}" value="${s.title.replace(/"/g,'&quot;')}"></div><div class="field"><label>Texte</label><textarea class="ep-b-${i}" style="min-height:80px">${s.body}</textarea></div></div>`).join('');
+  document.getElementById('edit-page-body').innerHTML=`<div class="field"><label>Titre</label><input type="text" id="ep-title" value="${page.title}"></div><div class="field"><label>Catégorie</label><input type="text" id="ep-cat" value="${page.category}"></div><div class="field"><label>Sidebar</label><select id="ep-sb"><option value="yes" ${page.inSidebar?'selected':''}>Oui</option><option value="no" ${!page.inSidebar?'selected':''}>Non</option></select></div><div class="field"><label>Visible par</label><div class="pill-check">${rc}</div></div><hr style="border-color:var(--border);margin:16px 0"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-family:'Orbitron',monospace;font-size:12px;color:var(--orange)">BLOCS DE CONTENU</span><button class="btn-sm approve" onclick="addBlock()">+ Ajouter un bloc</button></div><div id="edit-blocks">${blks}</div>`;
+  openModal('modal-edit-page');
+}
+async function addBlock(){ const page=_DB.pages[_editPageId]; if(!page)return; const c=Array.isArray(page.content)?[...page.content]:Object.values(page.content||{}); c.push({cat:'Section',title:'Titre',body:''}); await set(ref(db,`pages/${_editPageId}/content`),c); await loadAll(); openEditPage(_editPageId); }
+async function rmBlock(i){ const page=_DB.pages[_editPageId]; if(!page)return; const c=Array.isArray(page.content)?[...page.content]:Object.values(page.content||{}); c.splice(i,1); await set(ref(db,`pages/${_editPageId}/content`),c); await loadAll(); openEditPage(_editPageId); }
+async function saveEditedPage(){
+  const page=_DB.pages[_editPageId]; if(!page)return;
+  const content=Array.isArray(page.content)?page.content:Object.values(page.content||{});
+  const chk=[...document.querySelectorAll('input[name="ep-acc"]:checked')].map(x=>x.value);
+  const nc=content.map((_,i)=>({cat:document.querySelector(`.ep-c-${i}`)?.value||'',title:document.querySelector(`.ep-t-${i}`)?.value||'',body:document.querySelector(`.ep-b-${i}`)?.value||''}));
+  await update(ref(db,`pages/${_editPageId}`),{title:document.getElementById('ep-title').value.trim()||page.title,category:document.getElementById('ep-cat').value.trim()||page.category,inSidebar:document.getElementById('ep-sb').value==='yes',accessRoles:chk.includes('tous')?'tous':chk,content:nc});
+  await loadAll(); buildNav(); closeModal('modal-edit-page'); adminSec('pages');
+}
+
+window.approveUser=approveUser; window.rejectUser=rejectUser; window.kickUser=kickUser;
+window.promoteUser=promoteUser; window.demoteUser=demoteUser;
+window.addDiv=addDiv; window.removeDiv=removeDiv;
+window.pubAnn=pubAnn; window.delAnn=delAnn;
+window.adminDelReport=adminDelReport; window.saveConfig=saveConfig;
+window.exportAll=exportAll; window.exportReports=exportReports;
+window.createPage=createPage; window.delPage=delPage;
 window.openEditPage=openEditPage; window.addBlock=addBlock; window.rmBlock=rmBlock; window.saveEditedPage=saveEditedPage;
 window.openModal=openModal; window.closeModal=closeModal;
-/* ── HORLOGE ── */
+
 /* ══ HORLOGE ══ */
 function tick(){ const el=document.getElementById('footer-time'); if(el)el.textContent=new Date().toLocaleTimeString('fr-FR'); }
 setInterval(tick,1000); tick();
+
 document.addEventListener('keydown',e=>{ if(e.key==='Enter'){ const lp=document.getElementById('panel-login'); if(lp&&lp.classList.contains('active'))doLogin(); } });
-/* ── DÉMARRAGE ── */
+
 /* ══ DÉMARRAGE ══ */
 (async()=>{
   setMsg('Initialisation de la base de données...');
@@ -673,7 +1007,8 @@ document.addEventListener('keydown',e=>{ if(e.key==='Enter'){ const lp=document.
   setMsg('Chargement des données...');
   try { await loadAll(); } catch(e){ console.warn('load warn:',e); }
   setMsg('Vérification de session...');
-  // Timeout de sécurité si Firebase Auth ne répond pas
   setTimeout(()=>{ if(!auth.currentUser) hideSplash(); }, 4500);
 })();
 </script>
+</body>
+</html>
