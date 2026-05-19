@@ -284,15 +284,9 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
         <button class="btn-primary" id="btn-register" onclick="doRegister()">ENVOYER LA DEMANDE</button>
       </div>
       <div class="login-note">Votre entrée doit être validée par un responsable.</div>
-      <div id="setup-notice" style="display:none;margin-top:14px;background:rgba(244,162,28,0.08);border:1px solid var(--orange);padding:10px 14px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--orange);line-height:1.8;">
-        ⚡ PREMIER LANCEMENT : créez le compte admin dans Firebase Console<br>
-        console.firebase.google.com → Authentication → Users → Add user<br>
-        Email : <b style="color:#fff">alexandre.jacopin76@gmail.com</b><br>
-        Mot de passe : celui de votre choix
-      </div>
-    </div>
+</div>
   </div>
-  <button class="sup-btn" onclick="openModal('modal-sup')">⬡ Accès superviseur</button>
+  <button class="sup-btn" onclick="openModal('modal-sup')">⬡ Accès administrateur</button>
 </div>
 
 <!-- MAIN SITE -->
@@ -352,7 +346,7 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 <!-- MODALS -->
 <div class="modal-overlay" id="modal-sup">
   <div class="modal">
-    <div class="modal-head"><div class="modal-title">⬡ ACCÈS SUPERVISEUR</div><button class="modal-close" onclick="closeModal('modal-sup')">✕</button></div>
+    <div class="modal-head"><div class="modal-title">⬡ ACCÈS ADMINISTRATEUR</div><button class="modal-close" onclick="closeModal('modal-sup')">✕</button></div>
     <div class="modal-body">
       <div class="err-msg" id="sup-err"></div>
       <div class="field"><label>Email</label><input type="email" id="sup-email" placeholder="directeur@cwu.rp"></div>
@@ -385,9 +379,7 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, set, get, push, remove, update, onValue }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
-  signOut, onAuthStateChanged }
-  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+// Firebase Auth supprimé — système de login maison
 
 const firebaseConfig = {
   apiKey: "AIzaSyA7aaQo9lUvoPjqv93vH_xnAqWsuac5vrE",
@@ -401,12 +393,22 @@ const firebaseConfig = {
 
 const app  = initializeApp(firebaseConfig);
 const db   = getDatabase(app);
-const auth = getAuth(app);
 
 const ADMIN_EMAIL = 'alexandre.jacopin76@gmail.com';
+const ADMIN_DEFAULT_PASS = 'Alexandre@88';
 
-// FIX : hiérarchie complète avec les 3 rôles dans le bon ordre (croissant)
 const ROLES = ['membre', 'superviseur', 'directeur'];
+
+// ─── HASH SHA-256 (WebCrypto) ─────────────────────────────
+async function sha256(str){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+// ─── SESSION (sessionStorage, perdue à la fermeture de l'onglet) ──────────
+function saveSession(userData){ sessionStorage.setItem('cwu_session', JSON.stringify(userData)); }
+function loadSession(){ try{ return JSON.parse(sessionStorage.getItem('cwu_session')); }catch(e){return null;} }
+function clearSession(){ sessionStorage.removeItem('cwu_session'); }
 
 let CU = null;
 let _DB = { users:{}, pages:{}, reports:{}, announcements:{}, grades:{ roles: ROLES, divisions:[] }, config:{} };
@@ -448,17 +450,15 @@ function setLoading(msg){ document.getElementById('loading-msg').textContent = m
 function emailToKey(email){ return email.replace(/\./g,'_dot_').replace(/@/g,'_at_'); }
 
 // ─── INIT DONNÉES PAR DÉFAUT ────────────────────────────────
-// Cette fonction initialise uniquement la base de données (Realtime DB).
-// Le compte Firebase Auth de l'admin DOIT être créé manuellement une seule fois
-// via : https://console.firebase.google.com → Authentication → Add user
-// Email : alexandre.jacopin76@gmail.com  /  Mot de passe : celui de ton choix
 async function initDefaultData(){
   const snap = await get(ref(db, 'config/siteName'));
   if(snap.exists()) return;
 
   const adminKey = emailToKey(ADMIN_EMAIL);
+  const adminHash = await sha256(ADMIN_DEFAULT_PASS);
 
   await set(ref(db, `users/${adminKey}`), {
+    passwordHash: adminHash,
     email: ADMIN_EMAIL, cid: 'Alexandre J., Directeur', steam: 'alexandre_jacopin',
     role: 'directeur', division: 'Direction', status: 'approved',
     matricule: '001', joined: new Date().toISOString()
@@ -526,32 +526,28 @@ function startRealtime(){
   onValue(ref(db,'announcements'), snap => { _DB.announcements = snap.val() || {}; });
 }
 
-// ─── AUTH ───────────────────────────────────────────────────
-onAuthStateChanged(auth, async (firebaseUser) => {
-  if(firebaseUser){
-    const key = emailToKey(firebaseUser.email);
+// ─── AUTH — VÉRIFICATION SESSION AU DÉMARRAGE ───────────────
+async function checkSession(){
+  const saved = loadSession();
+  if(saved && saved.email){
+    // Revalide que le compte existe toujours et est approuvé en DB
+    const key = emailToKey(saved.email);
     const snap = await get(ref(db, `users/${key}`));
     if(snap.exists()){
       const userData = snap.val();
       if(userData.status === 'approved'){
         CU = userData;
+        saveSession(userData); // rafraîchit
         await loadAllData();
         startRealtime();
         enterSite();
         return;
-      } else if(userData.status === 'pending'){
-        await signOut(auth);
-        hideSplash();
-        const err = document.getElementById('login-err');
-        if(err){ err.textContent = 'Votre demande est en attente de validation.'; err.style.display='block'; }
-        return;
       }
     }
-    // Utilisateur Auth mais pas dans la DB ou rejeté
-    await signOut(auth);
+    clearSession();
   }
   hideSplash();
-});
+}
 
 function hideSplash(){
   const ls = document.getElementById('loading-screen');
@@ -568,20 +564,29 @@ function switchTab(t){
 window.switchTab = switchTab;
 
 async function doLogin(){
-  const email = document.getElementById('login-email').value.trim();
+  const email = document.getElementById('login-email').value.trim().toLowerCase();
   const pass  = document.getElementById('login-pass').value;
   const err   = document.getElementById('login-err');
   const btn   = document.getElementById('btn-login');
   if(!email||!pass){ showErr(err,'Remplissez tous les champs.'); return; }
   btn.disabled=true; btn.textContent='CONNEXION...';
   try {
-    await signInWithEmailAndPassword(auth, email, pass);
-    // onAuthStateChanged prend le relais
+    const key = emailToKey(email);
+    const snap = await get(ref(db, `users/${key}`));
+    if(!snap.exists()){ showErr(err,'Identifiants incorrects.'); btn.disabled=false; btn.textContent='SE CONNECTER'; return; }
+    const userData = snap.val();
+    if(userData.status === 'pending'){ showErr(err,'Votre demande est en attente de validation.'); btn.disabled=false; btn.textContent='SE CONNECTER'; return; }
+    if(userData.status === 'rejected'){ showErr(err,'Votre accès a été refusé.'); btn.disabled=false; btn.textContent='SE CONNECTER'; return; }
+    const hashed = await sha256(pass);
+    if(userData.passwordHash !== hashed){ showErr(err,'Mot de passe incorrect.'); btn.disabled=false; btn.textContent='SE CONNECTER'; return; }
+    // Connexion réussie
+    CU = userData;
+    saveSession(userData);
+    await loadAllData();
+    startRealtime();
+    enterSite();
   } catch(e) {
-    let msg = 'Identifiants incorrects.';
-    if(e.code==='auth/too-many-requests') msg='Trop de tentatives. Réessayez plus tard.';
-    if(e.code==='auth/user-not-found'||e.code==='auth/wrong-password'||e.code==='auth/invalid-credential') msg='Email ou mot de passe incorrect.';
-    showErr(err, msg);
+    showErr(err,'Erreur de connexion. Réessayez.');
     btn.disabled=false; btn.textContent='SE CONNECTER';
   }
 }
@@ -600,15 +605,17 @@ async function doRegister(){
   if(pass.length<6){ showErr(err,'Mot de passe trop court (6 caractères minimum).'); return; }
   btn.disabled=true; btn.textContent='ENVOI...';
   try {
-    const cred = await createUserWithEmailAndPassword(auth, email, pass);
-    await signOut(auth);
+    const key = emailToKey(email);
+    // Vérifie si l'email existe déjà
+    const existing = await get(ref(db, `users/${key}`));
+    if(existing.exists()){ showErr(err,'Cet email est déjà utilisé.'); btn.disabled=false; btn.textContent='ENVOYER LA DEMANDE'; return; }
+    const passwordHash = await sha256(pass);
     const userCount = Object.keys(_DB.users).length + 1;
     const mat = String(userCount).padStart(3,'0');
-    const key = emailToKey(email);
     await set(ref(db, `users/${key}`), {
       email, cid, steam, division: div||'Non assigné',
       role: 'membre', status: 'pending',
-      matricule: mat, joined: new Date().toISOString()
+      passwordHash, matricule: mat, joined: new Date().toISOString()
     });
     err.style.display='none';
     ok.textContent='✓ Demande envoyée. Un responsable examinera votre candidature.';
@@ -616,29 +623,38 @@ async function doRegister(){
     ['reg-cid','reg-steam','reg-div','reg-email','reg-pass'].forEach(i=>document.getElementById(i).value='');
     btn.disabled=false; btn.textContent='ENVOYER LA DEMANDE';
   } catch(e) {
-    let msg = "Erreur lors de l'inscription.";
-    if(e.code==='auth/email-already-in-use') msg='Cet email est déjà utilisé.';
-    if(e.code==='auth/invalid-email') msg='Email invalide.';
-    showErr(err, msg);
+    showErr(err, "Erreur lors de l'inscription. Réessayez.");
     btn.disabled=false; btn.textContent='ENVOYER LA DEMANDE';
   }
 }
 window.doRegister = doRegister;
 
 async function doSupLogin(){
-  const email = document.getElementById('sup-email').value.trim();
+  const email = document.getElementById('sup-email').value.trim().toLowerCase();
   const pass  = document.getElementById('sup-pass').value;
   const err   = document.getElementById('sup-err');
   if(!email||!pass){ showErr(err,'Remplissez tous les champs.'); return; }
   try {
-    await signInWithEmailAndPassword(auth, email, pass);
+    const key = emailToKey(email);
+    const snap = await get(ref(db, `users/${key}`));
+    if(!snap.exists()){ showErr(err,'Identifiants incorrects.'); return; }
+    const userData = snap.val();
+    if(!['superviseur','directeur'].includes(userData.role)){ showErr(err,'Accès refusé — grade insuffisant.'); return; }
+    if(userData.status !== 'approved'){ showErr(err,'Compte non approuvé.'); return; }
+    const hashed = await sha256(pass);
+    if(userData.passwordHash !== hashed){ showErr(err,'Mot de passe incorrect.'); return; }
+    CU = userData;
+    saveSession(userData);
+    await loadAllData();
+    startRealtime();
     closeModal('modal-sup');
-  } catch(e) { showErr(err,'Identifiants incorrects.'); }
+    enterSite();
+  } catch(e) { showErr(err,'Erreur de connexion.'); }
 }
 window.doSupLogin = doSupLogin;
 
-async function doLogout(){
-  await signOut(auth); CU=null; showView('view-login');
+function doLogout(){
+  clearSession(); CU=null; showView('view-login');
 }
 window.doLogout = doLogout;
 
@@ -1231,14 +1247,7 @@ document.addEventListener('keydown',e=>{
   setLoading('Chargement des données...');
   await loadAllData();
   setLoading('Vérification de la session...');
-  // Affiche le bandeau setup si c'est la première fois (pas de config en DB)
-  const cfgSnap = await get(ref(db, 'config/siteName'));
-  if(!cfgSnap.exists()){
-    const notice = document.getElementById('setup-notice');
-    if(notice) notice.style.display = 'block';
-  }
-  // onAuthStateChanged gère la suite. Si pas de session après 2s → login
-  setTimeout(()=>{ if(!auth.currentUser) hideSplash(); }, 2000);
+  await checkSession();
 })();
 </script>
 </body>
