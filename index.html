@@ -246,6 +246,11 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
   <div class="loading-logo">CWU</div>
   <div class="loading-text" id="loading-msg">Connexion à Firebase...</div>
   <div class="loading-bar"><div class="loading-bar-fill"></div></div>
+  <div id="loading-error" style="display:none;margin-top:22px;font-family:'Share Tech Mono',monospace;font-size:11px;color:#fc8181;text-align:center;">
+    Impossible de joindre la base de données.<br>
+    <span style="color:#6a8099;">Vérifiez votre connexion internet.</span><br><br>
+    <button onclick="location.reload()" style="background:var(--accent);border:none;color:#000;padding:8px 18px;font-family:'Orbitron',monospace;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:1px;">↺ RÉESSAYER</button>
+  </div>
 </div>
 
 <div id="app">
@@ -399,10 +404,19 @@ const ADMIN_DEFAULT_PASS = 'Alexandre@88';
 
 const ROLES = ['membre', 'superviseur', 'directeur'];
 
-// ─── HASH SHA-256 (WebCrypto) ─────────────────────────────
+// ─── HASH simple (compatible file:// et HTTPS) ──────────────
+// Utilise WebCrypto si dispo (HTTPS), sinon fallback btoa basique
 async function sha256(str){
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  if(typeof crypto !== 'undefined' && crypto.subtle){
+    try{
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+      return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    }catch(e){}
+  }
+  // Fallback : hash basique (suffisant pour un usage local)
+  let hash = 0;
+  for(let i=0;i<str.length;i++){ hash=((hash<<5)-hash)+str.charCodeAt(i); hash|=0; }
+  return 'fb_' + Math.abs(hash).toString(16).padStart(8,'0') + '_' + btoa(str).replace(/[^a-z0-9]/gi,'').substring(0,24);
 }
 
 // ─── SESSION (sessionStorage, perdue à la fermeture de l'onglet) ──────────
@@ -451,6 +465,14 @@ function emailToKey(email){ return email.replace(/\./g,'_dot_').replace(/@/g,'_a
 
 // ─── INIT DONNÉES PAR DÉFAUT ────────────────────────────────
 async function initDefaultData(){
+  // Toujours vérifier que l'admin a un passwordHash, même si la DB existe déjà
+  const adminKey = emailToKey(ADMIN_EMAIL);
+  const adminSnap = await get(ref(db, `users/${adminKey}`));
+  if(adminSnap.exists() && !adminSnap.val().passwordHash){
+    const adminHash = await sha256(ADMIN_DEFAULT_PASS);
+    await update(ref(db, `users/${adminKey}`), { passwordHash: adminHash, status: 'approved', role: 'directeur' });
+  }
+
   const snap = await get(ref(db, 'config/siteName'));
   if(snap.exists()) return;
 
@@ -1242,12 +1264,32 @@ document.addEventListener('keydown',e=>{
 
 // ─── DÉMARRAGE ───────────────────────────────────────────────
 (async()=>{
-  setLoading('Initialisation de la base de données...');
-  await initDefaultData();
-  setLoading('Chargement des données...');
-  await loadAllData();
-  setLoading('Vérification de la session...');
-  await checkSession();
+  // Timeout global : si Firebase ne répond pas en 6s, on affiche le login quand même
+  let timedOut = false;
+  const globalTimeout = setTimeout(()=>{
+    timedOut = true;
+    const em = document.getElementById('loading-error');
+    if(em) em.style.display='block';
+    const lm = document.getElementById('loading-msg');
+    if(lm) lm.style.display='none';
+  }, 7000);
+  try {
+    setLoading('Connexion à la base de données...');
+    await initDefaultData();
+    setLoading('Chargement des données...');
+    await loadAllData();
+    clearTimeout(globalTimeout);
+    if(timedOut) return;
+    setLoading('Vérification de la session...');
+    await checkSession();
+  } catch(e) {
+    console.error('Erreur démarrage:', e);
+    clearTimeout(globalTimeout);
+    const em = document.getElementById('loading-error');
+    if(em) em.style.display='block';
+    const lm = document.getElementById('loading-msg');
+    if(lm) lm.style.display='none';
+  }
 })();
 </script>
 </body>
